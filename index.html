@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Commander v3.0.0</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header id="game-header" role="banner" hidden>
+        <h1>KEYBOARD COMMANDER</h1>
+        <div id="status-bar">Awaiting Initialization...</div>
+    </header>
+
+    <div id="live-region" class="sr-only" aria-live="polite"></div>
+
+    <div id="boot-screen">
+        <button id="btn-init" type="button" aria-label="Initialize System. Press Enter to begin.">
+            INITIALIZE SYSTEM
+        </button>
+    </div>
+
+    <main id="game-terminal" role="application" hidden>
+        <section id="display-area" aria-hidden="true">
+            <div id="display-text">STANDBY</div>
+        </section>
+        <label for="input-trap" class="sr-only">Command Input. Type the sequence.</label>
+        <input type="text" id="input-trap" autocomplete="off" spellcheck="false">
+    </main>
+
+    <footer id="game-footer" role="contentinfo" hidden>
+        <p>System Online | Security Level: CLEARED</p>
+        <div id="visual-aids" aria-hidden="true">
+            </div>
+    </footer>
+
+    <script src="kc_core.js"></script>
+    <script src="kc_audio.js"></script>
+    <script src="kc_data.js"></script>
+    <script src="kc_hub.js"></script>
+    
+    <script src="kc_mission_core.js"></script>
+    
+    <script src="mission_reflex.js"></script>
+    <script src="mission_succession.js"></script>
+    <script src="mission_race.js"></script> <script src="mission_echoc.js"></script>
+    <script src="mission_stream.js"></script>
+    
+    <script src="kc_tutorial.js"></script>
+    
+    <script src="kc_input.js"></script>
+</body>
+</html>

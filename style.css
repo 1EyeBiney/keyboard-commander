@@ -1,0 +1,103 @@
+/* style.css */
+:root {
+    --bg-color: #050505;
+    --term-green: #00ff41;
+    --term-amber: #ffb000;
+    --term-red: #ff3333;
+    --font-main: 'Courier New', Courier, monospace;
+}
+
+[hidden] { display: none !important; }
+
+body {
+    background-color: var(--bg-color);
+    color: var(--term-green);
+    font-family: var(--font-main);
+    margin: 0;
+    padding: 2rem;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}
+
+header {
+    border-bottom: 2px solid var(--term-green);
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 { font-size: 1.5rem; letter-spacing: 2px; margin: 0; }
+
+#boot-screen {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#btn-init {
+    background: transparent;
+    border: 2px solid var(--term-green);
+    color: var(--term-green);
+    font-family: var(--font-main);
+    font-size: 2rem;
+    padding: 1.5rem 3rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+}
+
+#btn-init:focus, #btn-init:hover {
+    background: var(--term-green);
+    color: var(--bg-color);
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.4);
+    outline: none;
+}
+
+#game-terminal {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+#input-trap {
+    opacity: 0; 
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%; width: 100%;
+    cursor: default;
+}
+
+#display-text {
+    font-size: 4rem; 
+    text-align: center;
+    white-space: pre-wrap; 
+    max-width: 800px;
+    line-height: 1.2;
+}
+
+footer {
+    border-top: 1px solid #333;
+    padding-top: 1rem;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+body:has(#input-trap:focus) {
+    outline: 2px solid var(--term-green);
+    outline-offset: -2px;
+}
