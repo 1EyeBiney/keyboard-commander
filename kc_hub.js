@@ -3,30 +3,66 @@
 KC.hub = {
     
     renderMenu: function() {
-        KC.state.status = "MENU";
+        KC.core.loadRoster();
+        this.renderLogin();
+    },
+
+    renderLogin: function() {
+        KC.state.status = "LOGIN";
+        KC.state.menuSelection = 0;
         if(KC.input && KC.input.flush) KC.input.flush();
         KC.core.updateStatusBar();
 
-        if (KC.state.profile.currentLessonIndex >= 26) { 
-             this.enterHub();
-             return;
-        }
+        let content = "TERMINAL LOGIN\nSelect Profile or Create New:\n\n";
+        const options = ["Create New Cadet", ...KC.state.roster];
 
-        if (KC.state.profile.currentLessonIndex > 0) {
-            const resumeLesson = GAME_DATA.lessons[KC.state.profile.currentLessonIndex];
-            KC.els.displayText.textContent = `WELCOME BACK, ${KC.state.profile.rank.toUpperCase()}\n[Press Enter to Resume: ${resumeLesson.name}]`;
-            
-            setTimeout(() => {
-                KC.core.announce(`Welcome back. Press Enter to resume mission: ${resumeLesson.name}.`);
-            }, 600);
+        options.forEach((opt, index) => {
+            const cursor = (index === KC.state.menuSelection) ? "> " : "  ";
+            content += `${cursor}${opt}\n`;
+        });
+
+        KC.els.displayText.textContent = content + "\n\n[Arrows to Select, Enter to Confirm]";
+        KC.els.statusBar.textContent = "Awaiting Login...";
+
+        setTimeout(() => {
+            const currentOpt = options[KC.state.menuSelection];
+            KC.core.announce(`Terminal Login. ${currentOpt}. Use arrows to navigate, press Enter to select.`);
+        }, 600);
+    },
+
+    navigateLogin: function(dir) {
+        const options = ["Create New Cadet", ...KC.state.roster];
+        KC.state.menuSelection += dir;
+        if (KC.state.menuSelection < 0) KC.state.menuSelection = options.length - 1;
+        if (KC.state.menuSelection >= options.length) KC.state.menuSelection = 0;
+
+        this.renderLogin();
+    },
+
+    selectLogin: function() {
+        const options = ["Create New Cadet", ...KC.state.roster];
+        const selection = options[KC.state.menuSelection];
+
+        if (selection === "Create New Cadet") {
+            KC.state.status = "LOGIN_INPUT";
+            KC.els.displayText.textContent = ">> NEW CADET REGISTRATION <<\n\nEnter your Callsign (Name):\n\n[Type name and press Enter]";
+            KC.core.announce("New Cadet Registration. Type your name and press Enter.");
+            if(KC.els.inputTrap) KC.els.inputTrap.focus();
         } else {
-            KC.els.displayText.textContent = "KEYBOARD COMMANDER\n[Press Enter to Initialize]";
-            
-            setTimeout(() => {
-                KC.core.announce("System Online. Press Enter to connect to Deck 00.");
-            }, 600);
+            KC.core.loadProfile(selection);
+            this.routeProfileBoot();
         }
-        KC.core.startNagTimer("Press Enter to begin."); 
+    },
+
+    routeProfileBoot: function() {
+        if (KC.state.profile.currentLessonIndex >= 26) {
+            this.enterHub();
+        } else {
+            const resumeLesson = GAME_DATA.lessons[KC.state.profile.currentLessonIndex] || GAME_DATA.lessons["D00-01"];
+            KC.els.displayText.textContent = `WELCOME BACK, ${KC.state.profile.name.toUpperCase()}\n[Press Enter to Resume: ${resumeLesson.name}]`;
+            KC.state.status = "MENU";
+            KC.core.announce(`Welcome back ${KC.state.profile.name}. Press Enter to start ${resumeLesson.name}.`);
+        }
     },
 
     enterHub: function() {

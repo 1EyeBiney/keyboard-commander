@@ -39,6 +39,32 @@ KC.input = {
              return;
         }
 
+        // --- LOGIN NAVIGATION ---
+        if (KC.state.status === "LOGIN") {
+            e.preventDefault();
+            if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateLogin(1); }
+            else if (e.key === "ArrowUp") { KC.audio.playSound('click'); KC.hub.navigateLogin(-1); }
+            else if (e.key === "Enter") { KC.audio.playSound('click'); KC.hub.selectLogin(); }
+            return;
+        }
+
+        // --- LOGIN INPUT CAPTURE ---
+        if (KC.state.status === "LOGIN_INPUT") {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const name = KC.els.inputTrap.value.trim();
+                if (name.length > 0) {
+                    KC.audio.playSound('click');
+                    KC.core.createProfile(name);
+                    this.flush();
+                    KC.hub.routeProfileBoot();
+                } else {
+                    KC.core.announce("Error. Callsign cannot be empty.");
+                }
+            }
+            return;
+        }
+
         // --- ECHO CHAMBER: ACTIVE MODE ---
         if (KC.state.status === "ECHOC_ACTIVE") {
             e.preventDefault(); 

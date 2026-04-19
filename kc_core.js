@@ -4,6 +4,7 @@ window.KC = {
     state: {
         status: "BOOT", 
         profile: null,
+        roster: [],
         nagTimer: null,
         menuSelection: 0,
         fabCategoryIndex: 0,
@@ -32,8 +33,8 @@ window.KC = {
 };
 
 KC.core = {
-    // v1.70.0: Incremented storage key for Echo Chamber update
-    STORAGE_KEY: 'kbc_save_v1_70',
+    ROSTER_KEY: 'kbc_roster',
+    SAVE_PREFIX: 'kbc_profile_',
 
     init: function() {
         KC.els.header = document.getElementById('game-header');
@@ -68,33 +69,47 @@ KC.core = {
         KC.els.footer.hidden = false;
         
         KC.els.inputTrap.focus();
-        
-        if (KC.state.profile.currentLessonIndex === 0) {
-            KC.mission.loadLesson(0);
-        } else {
-            KC.hub.renderMenu();
-        }
+        KC.hub.renderMenu();
     },
 
     loadProgress: function() {
-        const saved = localStorage.getItem(this.STORAGE_KEY);
-        if (saved) {
-            try {
-                KC.state.profile = JSON.parse(saved);
-            } catch (e) {
-                console.error("Save Corrupt:", e);
-                this.resetProgress();
-            }
-        } else {
-            this.resetProgress();
-        }
+        this.loadRoster();
         this.updateStatusBar();
     },
 
     saveProgress: function() {
-        if (KC.state.profile) {
-            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(KC.state.profile));
-            this.updateStatusBar();
+        if (!KC.state.profile || !KC.state.profile.name) return;
+        localStorage.setItem(this.SAVE_PREFIX + KC.state.profile.name, JSON.stringify(KC.state.profile));
+    },
+
+    loadRoster: function() {
+        const saved = localStorage.getItem(this.ROSTER_KEY);
+        KC.state.roster = saved ? JSON.parse(saved) : [];
+    },
+
+    createProfile: function(name) {
+        const newProfile = {
+            name: name,
+            rank: "Cadet",
+            currentLessonIndex: 0,
+            currentDeck: 0,
+            wallet: { data_blocks: 0, logic_shards: 0, sync_sparks: 0, consecutive_coins: 0, glitch: 0 },
+            career: { startTime: Date.now(), totalKeys: 0, errors: 0, missions_completed: 0 }
+        };
+        KC.state.profile = newProfile;
+        if (!KC.state.roster.includes(name)) {
+            KC.state.roster.push(name);
+            localStorage.setItem(this.ROSTER_KEY, JSON.stringify(KC.state.roster));
+        }
+        this.saveProgress();
+    },
+
+    loadProfile: function(name) {
+        const saved = localStorage.getItem(this.SAVE_PREFIX + name);
+        if (saved) {
+            KC.state.profile = JSON.parse(saved);
+        } else {
+            this.createProfile(name);
         }
     },
 
