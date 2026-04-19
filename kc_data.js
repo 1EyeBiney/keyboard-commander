@@ -11,16 +11,16 @@ const GAME_DATA = {
       name: "Deck 0 Main Hub (Garbage Deck)",
       has_fabricator: true, 
       menu: [
-        { label: "System Override", type: "mission", target_id: "D00-MISSION-REFLEX" },
-        { label: "Keyboard Commander", type: "mission", target_id: "D00-MISSION-RACE" }, 
-        { label: "Data Dump", type: "mission", target_id: "ARC-STREAM-01" },
-        { label: "Enter Arcade", type: "arcade" },
-        { label: "Access Archive", type: "archive" },
-        { label: "Data Cache", type: "cache" },
-        { label: "Engineering (R&D)", type: "engineering" },
-        { label: "System Fabricator", type: "fabricator" },
-        { label: "Echo Chamber", type: "echoc" }, 
-        { label: "Save and Exit", type: "save_exit" }
+        { label: "System Override", type: "mission", target_id: "D00-MISSION-REFLEX", desc: "Help Snippy repair ship systems by quickly typing single letters as they are called out." },
+        { label: "Keyboard Commander", type: "mission", target_id: "D00-MISSION-RACE", desc: "Race against your rival, Commander Keyboard, by typing words as fast as you can to win." },
+        { label: "Data Dump", type: "mission", target_id: "ARC-STREAM-01", desc: "Survival mode: Type a continuous stream of characters before the system overflows." },
+        { label: "Arcade", type: "arcade", desc: "Access specialized typing drills and alternate missions." },
+        { label: "Archive", type: "archive", desc: "Review your career stats, old story logs, and mission briefings." },
+        { label: "Data Cache", type: "cache", desc: "Check your digital wallet and currency balances." },
+        { label: "Engineering (R&D)", type: "engineering", desc: "Research and unlock permanent system upgrades." },
+        { label: "System Fabricator", type: "fabricator", desc: "Purchase temporary boosts and single-use items." },
+        { label: "Echo Chamber", type: "echoc", desc: "Safe zone: Practice your keyboard layout and explore menus without being scored." },
+        { label: "Save and Exit", type: "save_exit", desc: "Save your current progress and power down the terminal." }
       ]
     }
   },

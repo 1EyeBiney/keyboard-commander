@@ -468,7 +468,7 @@ KC.mission = {
         const wpm = durationMin > 0 ? Math.round((total / 5) / durationMin) : 0;
         const timeStr = `${Math.floor(durationSec/60)}m ${Math.floor(durationSec%60)}s`;
 
-        const titleText = `MISSION COMPLETE: TRS ${transmissionRate}`;
+        const titleText = "MISSION COMPLETE";
         this.showReportCard(accuracyPct, transmissionRate, maxStreak, this.calculateGrade(accuracyPct, wpm), timeStr, titleText, rewardLog);
     },
 
@@ -540,10 +540,10 @@ KC.mission = {
     },
     
     getMissionRewardEstimate: function(missionID) {
-        if (missionID === "D00-MISSION-RACE") return "50 Data Blocks";
-        if (missionID === "D00-MISSION-REFLEX") return "10 Data Blocks";
-        if (missionID === "ARC-STREAM-01") return "10 Data Blocks";
-        return "10 Data Blocks"; 
+        if (missionID === "D00-MISSION-RACE") return "from 50 Data Blocks";
+        if (missionID === "D00-MISSION-REFLEX") return "from 10 Data Blocks";
+        if (missionID === "ARC-STREAM-01") return "from 10 Data Blocks";
+        return "from 10 Data Blocks"; 
     },
     
     runCountdown: function(cb) {

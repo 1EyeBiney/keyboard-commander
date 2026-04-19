@@ -56,6 +56,8 @@
 
 &#x20; - Escape: Abort Mission / Exit Menu / Step Back.
 
+\- \*\*Menu Clarity:\*\* All Hub/Facility menu objects must include a plain-English `desc` property to reduce cognitive load. Keep facility labels strictly as nouns (e.g., "Archive", not "Access Archive").
+
 
 
 \## 5. GEMINI CODE ASSIST (GCA) EXECUTION RULES

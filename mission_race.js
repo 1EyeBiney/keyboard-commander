@@ -324,7 +324,7 @@ KC.handlers.race = {
         KC.core.saveProgress();
 
         KC.audio.playAudio(audioCue, `${result}. Final Score: You ${this.playerScore}, Commander ${this.ckScore}.`, () => {
-             KC.mission.showReportCard(acc, wpm, KC.state.missionMaxStreak, grade, timeStr, `RACE ${result} ${scoreString}`, rewardLog);
+             KC.mission.showReportCard(acc, wpm, KC.state.missionMaxStreak, grade, timeStr, "MISSION COMPLETE", rewardLog);
         });
     },
 

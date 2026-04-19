@@ -63,10 +63,14 @@ KC.hub = {
             
             if (index === KC.state.menuSelection) {
                 announcement += item.label;
-                
+
+                if (item.desc) {
+                    announcement += `. ${item.desc}`;
+                }
+
                 if (item.type === "mission") {
                     const est = KC.mission.getMissionRewardEstimate(item.target_id);
-                    announcement += `. Mission. Reward ${est}.`;
+                    announcement += ` Reward ${est}.`;
                     KC.els.statusBar.textContent = `${item.label} | Est. Reward: ${est}`;
                 } else {
                     KC.els.statusBar.textContent = "Deck Menu | Navigation Active";
