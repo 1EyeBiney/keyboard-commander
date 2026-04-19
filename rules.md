@@ -56,7 +56,7 @@
 
 \- \*\*Typing Mode:\*\* Standard character entry for typing drills.
 
-\- \*\*Menu Navigation (2D System):\*\* Menus utilize directional navigation. Up/Down Arrows select vertical items. Left/Right Arrows switch categories or tabs.
+- **Menu Navigation (2D System):** Menus utilize directional navigation. Up/Down Arrows select vertical items. Left/Right Arrows switch categories or tabs, and adjust values when navigating Mission Setup rows.
 
 \- \*\*Global Commands:\*\* - Enter: Advance / Confirm / Boot System.
 

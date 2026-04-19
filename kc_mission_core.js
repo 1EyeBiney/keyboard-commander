@@ -4,6 +4,7 @@ KC.handlers = KC.handlers || {};
 
 KC.mission = {
     activeHandler: null,
+    setupCursor: 0,
 
     // v2.88: Decoupled Menus - Race (Keyboard Commander) vs Reflex (System Override)
     regionsRace: [
@@ -11,13 +12,16 @@ KC.mission = {
         { name: "Top & Home Row", left: "qwertasdfg", right: "yuiophjkl", both: "qwertyuiopasdfghjkl", isExpert: false },
         { name: "Top & Home Row (Expert)", left: "qwertasdfg", right: "yuiophjkl", both: "qwertyuiopasdfghjkl", isExpert: true },
         { name: "Home & Bottom Row (+ Vowels)", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: false },
-        { name: "Bottom & Home Row with all vowels (Expert)", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: true }
+        { name: "Bottom & Home Row with all vowels (Expert)", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: true },
+        { name: "All Alpha (Top, Home, Bottom)", left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: false },
+        { name: "All Alpha (Expert)", left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: true }
     ],
 
     regionsReflex: [
         { name: "Home Row", left: "asdfg", right: "hjkl", both: "asdfghjkl", isExpert: false },
         { name: "Top & Home Row", left: "qwertasdfg", right: "yuiophjkl", both: "qwertyuiopasdfghjkl", isExpert: false },
-        { name: "Home & Bottom Row", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: false }
+        { name: "Home & Bottom Row", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: false },
+        { name: "All Alpha (Top, Home, Bottom)", left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: false }
     ],
 
     getRegions: function(lesson) {
@@ -87,43 +91,63 @@ KC.mission = {
             lengthMode: 1
         };
 
+        // Reset setup cursor for fresh entry
+        this.setupCursor = 0;
+
         // v2.82.3: Correctly route to the actual Briefing renderer
         this.renderMissionStart(lesson);
     },
 
-    renderMissionStart: function(lesson, silent = false) {
+    renderMissionStart: function(lesson, silent = false, navOnly = false) {
         KC.core.stopNagTimer();
         KC.state.status = "MISSION_START";
         KC.state.activeLesson = lesson;
-        
+
         if (!KC.state.missionParams) {
             KC.state.missionParams = { reflexMode: 0, regionMode: 0, lengthMode: 0, difficulty: 1 };
         }
-        
+
         const params = KC.state.missionParams;
-        const isRace = (lesson.id === "D00-MISSION-RACE");
+        const isRace = (lesson.generator === "race") || (lesson.id === "D00-MISSION-RACE");
+        const isReflex = (lesson.generator === "reflex");
         const isStream = (lesson.generator === "stream");
-        
+        const hasSpecialRow = isRace || isReflex;
+
+        // Apply theme class to body
+        document.body.classList.remove('theme-race', 'theme-reflex', 'theme-stream');
+        if (isRace)        document.body.classList.add('theme-race');
+        else if (isReflex) document.body.classList.add('theme-reflex');
+        else if (isStream) document.body.classList.add('theme-stream');
+
+        // Safety Catch: The "State Carryover" Trap
+        const currentRegions = this.getRegions(lesson);
+        let rMode = params.regionMode || 0;
+        if (rMode >= currentRegions.length) { rMode = 0; params.regionMode = 0; }
+        const region = currentRegions[rMode] || currentRegions[0];
+
+        // Hand Mode label
+        const hands = ["Left Hand", "Right Hand", "Both Hands"];
+        const handLabel = (region && region.forceBoth) ? "Both Hands (Fixed)" : hands[params.reflexMode || 0];
+
         // Length Logic
         let lenLabel = "";
         if (isRace) {
-            if (params.lengthMode === 0) { lesson.drill_length = 8; lenLabel = "SHORT (8)"; }
+            if (params.lengthMode === 0) { lesson.drill_length = 8;  lenLabel = "SHORT (8)"; }
             else if (params.lengthMode === 1) { lesson.drill_length = 14; lenLabel = "MEDIUM (14)"; }
-            else { lesson.drill_length = 20; lenLabel = "LONG (20)"; }
+            else                              { lesson.drill_length = 20; lenLabel = "LONG (20)"; }
         } else if (isStream) {
-            if (params.lengthMode === 0) { lenLabel = "SHORT (3x10s)"; }
-            else if (params.lengthMode === 1) { lenLabel = "MEDIUM (3x20s)"; }
-            else { lenLabel = "LONG (3x30s)"; }
+            if (params.lengthMode === 0) lenLabel = "SHORT (3x10s)";
+            else if (params.lengthMode === 1) lenLabel = "MEDIUM (3x20s)";
+            else                              lenLabel = "LONG (3x30s)";
         } else {
             if (params.lengthMode === 0) { lesson.drill_length = 12; lenLabel = "SHORT (12)"; }
             else if (params.lengthMode === 1) { lesson.drill_length = 24; lenLabel = "MEDIUM (24)"; }
-            else { lesson.drill_length = 36; lenLabel = "LONG (36)"; }
+            else                              { lesson.drill_length = 36; lenLabel = "LONG (36)"; }
         }
 
         // Difficulty Logic
         let diffName = "";
         let diffFloor = 0;
-
         if (isRace) {
             const raceSpeed = 2400 - (params.difficulty * 400);
             const speedSec = (raceSpeed / 1000).toFixed(1);
@@ -132,59 +156,72 @@ KC.mission = {
             diffFloor = raceSpeed;
         } else {
             const diffMap = {
-                1: { name: "NOVICE (1600ms)", floor: 3000 },
-                2: { name: "STANDARD (1400ms)", floor: 2500 },
-                3: { name: "HARD (1200ms)", floor: 2000 },
-                4: { name: "ELITE (1000ms)", floor: 1500 },
-                5: { name: "COMMANDER (800ms)", floor: 1200 }
+                1: { name: "NOVICE (1600ms)",    floor: 3000 },
+                2: { name: "STANDARD (1400ms)",  floor: 2500 },
+                3: { name: "HARD (1200ms)",       floor: 2000 },
+                4: { name: "ELITE (1000ms)",      floor: 1500 },
+                5: { name: "COMMANDER (800ms)",   floor: 1200 }
             };
             const d = diffMap[params.difficulty] || diffMap[1];
             diffName = d.name;
             diffFloor = d.floor;
         }
-        
-        lesson.time_floor = diffFloor; 
+        lesson.time_floor = diffFloor;
 
-        // Target Area Logic
-        let modeName = "Standard Sequence";
-        const currentRegions = this.getRegions(lesson);
-        
-        // Safety Catch: The "State Carryover" Trap
-        let rMode = params.regionMode || 0;
-        if (rMode >= currentRegions.length) {
-            rMode = 0;
-            params.regionMode = 0; // Force reset state
+        // Special row label (Row 5: Speed for Race, Window for Reflex)
+        let specialLabel = "";
+        if (isRace) {
+            const speedSec = ((2400 - params.difficulty * 400) / 1000).toFixed(1);
+            specialLabel = `Speed:       ${speedSec}s per tile`;
+        } else if (isReflex) {
+            const wMap = { 1: "1600ms", 2: "1400ms", 3: "1200ms", 4: "1000ms", 5: "800ms" };
+            specialLabel = `Window:      ${wMap[params.difficulty] || "1200ms"} reaction`;
         }
 
-        if (lesson.generator === "reflex" || lesson.generator === "succession" || lesson.generator === "stream" || isRace) {
-            const region = currentRegions[rMode] || currentRegions[0];
-            
-            if (region.forceBoth) {
-                modeName = region.name;
-            } else {
-                const hands = ["Left Hand", "Right Hand", "Both Hands"];
-                modeName = `${region.name} - ${hands[params.reflexMode]}`;
-            }
-        }
+        // Cursor bounds
+        const settingRowCount = hasSpecialRow ? 5 : 4; // rows 0..3 always, row 4 if special
+        const startRow = settingRowCount;      // START MISSION row index
+        const exitRow  = settingRowCount + 1;  // EXIT TO DECK row index
+        const maxCursor = exitRow;
+
+        if (this.setupCursor > maxCursor) this.setupCursor = 0;
+        if (this.setupCursor < 0)         this.setupCursor = maxCursor;
+        const c = this.setupCursor;
+
+        const R = (rowIdx, label) => `${c === rowIdx ? '>' : ' '} ${label}`;
 
         let content = `MISSION BRIEFING: ${lesson.name.toUpperCase()}\n`;
         content += `${lesson.briefing || "No intel available."}\n\n`;
         content += `[ MISSION CONFIGURATION ]\n`;
-        content += `LENGTH: ${lenLabel}\n`;
-        content += `DIFFICULTY: ${diffName}\n`;
-        
-        if (lesson.generator === "reflex" || lesson.generator === "succession" || lesson.generator === "stream") {
-            content += `TARGET ZONE: ${modeName}\n`;
+        content += R(0, `Quadrant:    ${region ? region.name : "N/A"}`) + '\n';
+        content += R(1, `Hand Mode:   ${handLabel}`)                      + '\n';
+        content += R(2, `Difficulty:  ${diffName}`)                       + '\n';
+        content += R(3, `Length:      ${lenLabel}`)                       + '\n';
+        if (hasSpecialRow) {
+            content += R(4, specialLabel) + '\n';
         }
-        
-        content += `\n[ Press ENTER to Initiate ]\n[ Press ESC to Abort ]`;
-        content += `\n[ Settings: 1-5 Diff, PgUp/Dn Length, L/R Hands, Up/Dn Rows ]`;
+        content += R(startRow, `[ START MISSION ]`) + '\n';
+        content += R(exitRow,  `[ EXIT TO DECK  ]`) + '\n';
+        content += `\n[Up/Down: Select Row | Left/Right: Adjust | Enter: Confirm]`;
 
         KC.els.displayText.textContent = content;
-        
+
         if (!silent) {
-            const intro = `Mission: ${lesson.name}. Length: ${lenLabel}. Difficulty: ${diffName}. Target Zone: ${modeName}. Press Enter to Start.`;
-            KC.core.announce(intro);
+            const rowLabels = [
+                `Quadrant: ${region ? region.name : "N/A"}`,
+                `Hand Mode: ${handLabel}`,
+                `Difficulty: ${diffName}`,
+                `Length: ${lenLabel}`,
+            ];
+            if (hasSpecialRow) rowLabels.push(specialLabel.trim());
+            rowLabels.push("Start Mission");
+            rowLabels.push("Exit to Deck");
+            const currentRowLabel = rowLabels[c] || rowLabels[0];
+            if (navOnly) {
+                KC.core.announce(currentRowLabel);
+            } else {
+                KC.core.announce(`Mission: ${lesson.name}. Setup. ${currentRowLabel}. Use Up and Down to select a row, Left and Right to adjust.`);
+            }
         }
     },
 
@@ -275,24 +312,58 @@ KC.mission = {
         KC.core.announce(`Length set to ${label}`);
     },
 
-    changeDifficulty: function(level) {
-        if (level < 1 || level > 5) return;
-        if (KC.audio.playSynth) KC.audio.playSynth(57); else KC.audio.playSound('click'); // v2.73.1
-        KC.state.missionParams.difficulty = level;
+    changeDifficulty: function(dir) {
+        if (KC.audio.playSynth) KC.audio.playSynth(57); else KC.audio.playSound('click');
+        let current = KC.state.missionParams.difficulty;
+        current += dir;
+        if (current < 1) current = 5;
+        if (current > 5) current = 1;
+        KC.state.missionParams.difficulty = current;
         this.renderMissionStart(KC.state.activeLesson, true);
-        
-        const isRace = (KC.state.activeLesson.id === "D00-MISSION-RACE");
+
+        const isRace = (KC.state.activeLesson.generator === "race") || (KC.state.activeLesson.id === "D00-MISSION-RACE");
         let desc = "";
         if (isRace) {
-            const raceSpeed = 2400 - (level * 400);
+            const raceSpeed = 2400 - (current * 400);
             const speedSec = (raceSpeed / 1000).toFixed(1);
             const raceTitles = { 1: "CADET", 2: "ENSIGN", 3: "VETERAN", 4: "ELITE", 5: "COMMANDER" };
-            desc = `${raceTitles[level]} (${speedSec}s)`;
+            desc = `${raceTitles[current]} (${speedSec}s)`;
         } else {
-             const diffMap = { 1: "NOVICE (1600ms)", 2: "STANDARD (1400ms)", 3: "HARD (1200ms)", 4: "ELITE (1000ms)", 5: "COMMANDER (800ms)" };
-            desc = diffMap[level];
+            const diffMap = { 1: "NOVICE (1600ms)", 2: "STANDARD (1400ms)", 3: "HARD (1200ms)", 4: "ELITE (1000ms)", 5: "COMMANDER (800ms)" };
+            desc = diffMap[current];
         }
-        KC.core.announce(`Difficulty ${level}: ${desc}`);
+        KC.core.announce(`Difficulty: ${desc}`);
+    },
+
+    _getHasSpecialRow: function() {
+        const lesson = KC.state.activeLesson;
+        if (!lesson) return false;
+        return (lesson.generator === "race") || (lesson.id === "D00-MISSION-RACE") || (lesson.generator === "reflex");
+    },
+
+    _getMaxCursor: function() {
+        return this._getHasSpecialRow() ? 6 : 5;
+    },
+
+    _getStartRow: function() {
+        return this._getHasSpecialRow() ? 5 : 4;
+    },
+
+    _getExitRow: function() {
+        return this._getHasSpecialRow() ? 6 : 5;
+    },
+
+    adjustCurrentRow: function(dir) {
+        const c = this.setupCursor;
+        const startRow = this._getStartRow();
+        const exitRow  = this._getExitRow();
+        if (c === startRow || c === exitRow) return; // no adjustment on action rows
+
+        if (c === 0) { this.changeMissionRegion(dir); }
+        else if (c === 1) { this.changeMissionSetting(dir); }
+        else if (c === 2) { this.changeDifficulty(dir); }
+        else if (c === 3) { this.changeMissionLength(dir); }
+        else if (c === 4 && this._getHasSpecialRow()) { this.changeDifficulty(dir); }
     },
 
     executeMission: function() {
@@ -303,10 +374,21 @@ KC.mission = {
             return;
         }
 
+        // Apply mission theme class to body
+        document.body.classList.remove('theme-race', 'theme-reflex', 'theme-stream');
+        if (lesson.generator === "race" || lesson.id === "D00-MISSION-RACE") {
+            document.body.classList.add('theme-race');
+        } else if (lesson.generator === "reflex") {
+            document.body.classList.add('theme-reflex');
+        } else if (lesson.generator === "stream") {
+            document.body.classList.add('theme-stream');
+        }
+
         // v2.87: Safety check for handler existence before starting countdown
-        const handler = (lesson.generator === "reflex") ? KC.handlers.reflex : 
-                        (lesson.generator === "race") ? KC.handlers.race : 
-                        (lesson.generator === "stream") ? KC.handlers.stream : null;
+        const handler = (lesson.generator === "race") ? KC.handlers.race :
+                        (lesson.generator === "stream") ? KC.handlers.stream :
+                        (lesson.generator === "reflex") ? KC.handlers.reflex :
+                        (lesson.generator === "echoc") ? KC.handlers.echoc : null;
 
         if (!handler) {
             KC.core.announce("Critical Error: Mission handler not found.");

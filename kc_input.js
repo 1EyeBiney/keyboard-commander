@@ -208,21 +208,42 @@ KC.input = {
 
         // --- MISSION START / BRIEFING ---
         if (KC.state.status === "MISSION_START" || KC.state.status === "BRIEFING") {
-            e.preventDefault(); 
+            e.preventDefault();
 
-            if (e.key === "Enter") {
-                this.flush();
-                KC.mission.executeMission(); 
-                return;
+            const maxCursor = KC.mission._getMaxCursor();
+            const startRow  = KC.mission._getStartRow();
+            const exitRow   = KC.mission._getExitRow();
+
+            if (e.key === "ArrowUp") {
+                KC.audio.playSound('click');
+                KC.mission.setupCursor--;
+                if (KC.mission.setupCursor < 0) KC.mission.setupCursor = maxCursor;
+                KC.mission.renderMissionStart(KC.state.activeLesson, false, true);
             }
-            if (["1","2","3","4","5"].includes(e.key)) KC.mission.changeDifficulty(parseInt(e.key));
-            if (e.key === "ArrowLeft") KC.mission.changeMissionSetting(-1);
-            if (e.key === "ArrowRight") KC.mission.changeMissionSetting(1);
-            if (e.key === "ArrowUp") KC.mission.changeMissionRegion(-1);
-            if (e.key === "ArrowDown") KC.mission.changeMissionRegion(1);
-            if (e.key === "PageUp") KC.mission.changeMissionLength(1);
-            if (e.key === "PageDown") KC.mission.changeMissionLength(-1);
-            if (e.key === "Escape") {
+            else if (e.key === "ArrowDown") {
+                KC.audio.playSound('click');
+                KC.mission.setupCursor++;
+                if (KC.mission.setupCursor > maxCursor) KC.mission.setupCursor = 0;
+                KC.mission.renderMissionStart(KC.state.activeLesson, false, true);
+            }
+            else if (e.key === "ArrowLeft") {
+                KC.mission.adjustCurrentRow(-1);
+            }
+            else if (e.key === "ArrowRight") {
+                KC.mission.adjustCurrentRow(1);
+            }
+            else if (e.key === "Enter") {
+                this.flush();
+                if (KC.mission.setupCursor === startRow) {
+                    KC.mission.executeMission();
+                } else if (KC.mission.setupCursor === exitRow) {
+                    KC.hub.enterHub();
+                } else {
+                    // Enter on a setting row advances the value by 1
+                    KC.mission.adjustCurrentRow(1);
+                }
+            }
+            else if (e.key === "Escape") {
                 this.flush();
                 KC.hub.enterHub();
             }

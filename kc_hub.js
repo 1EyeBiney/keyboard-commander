@@ -91,7 +91,7 @@ KC.hub = {
     },
 
     enterHub: function() {
-        document.body.classList.remove('theme-login');
+        document.body.classList.remove('theme-login', 'theme-race', 'theme-reflex', 'theme-stream');
         KC.state.status = "HUB";
         if(KC.input && KC.input.flush) KC.input.flush();
         
