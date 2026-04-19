@@ -15,7 +15,7 @@ KC.hub = {
         document.body.classList.add('theme-login');
 
         let content = "TERMINAL LOGIN\nSelect Profile or Create New:\n\n";
-        const options = ["Create New Cadet", ...KC.state.roster];
+        const options = ["Create New Cadet", ...KC.state.roster, "Exit"];
 
         options.forEach((opt, index) => {
             const cursor = (index === KC.state.menuSelection) ? "> " : "  ";
@@ -28,8 +28,12 @@ KC.hub = {
         const currentOpt = options[KC.state.menuSelection];
 
         if (isEntering) {
+            if (KC.bgm && !KC.bgm.isInitialized) {
+                KC.bgm.init();
+                KC.bgm.start("default", 10);
+            }
             setTimeout(() => {
-                KC.core.announce(`Terminal Login. ${currentOpt}. Use arrows or letters to navigate, press Enter to select.`);
+                KC.core.announce(`Welcome to Keyboard Commander. Select your profile. Use up and down arrows to navigate and Enter to select. ${currentOpt}.`);
             }, 600);
         } else {
             KC.core.announce(currentOpt);
@@ -37,7 +41,7 @@ KC.hub = {
     },
 
     navigateLogin: function(dir) {
-        const options = ["Create New Cadet", ...KC.state.roster];
+        const options = ["Create New Cadet", ...KC.state.roster, "Exit"];
         KC.state.menuSelection += dir;
         if (KC.state.menuSelection < 0) KC.state.menuSelection = options.length - 1;
         if (KC.state.menuSelection >= options.length) KC.state.menuSelection = 0;
@@ -45,7 +49,7 @@ KC.hub = {
     },
 
     selectLogin: function() {
-        const options = ["Create New Cadet", ...KC.state.roster];
+        const options = ["Create New Cadet", ...KC.state.roster, "Exit"];
         const selection = options[KC.state.menuSelection];
 
         if (selection === "Create New Cadet") {
@@ -53,8 +57,12 @@ KC.hub = {
             KC.els.displayText.textContent = ">> NEW CADET REGISTRATION <<\n\nEnter your Callsign (Name):\n\n[Type name and press Enter]";
             KC.core.announce("New Cadet Registration. Type your name and press Enter.");
             if(KC.els.inputTrap) KC.els.inputTrap.focus();
+        } else if (selection === "Exit") {
+            KC.audio.playSound('click');
+            location.reload();
         } else {
             KC.core.loadProfile(selection);
+            if (KC.bgm) KC.bgm.applyProfileSettings(KC.state.profile);
             this.routeProfileBoot();
         }
     },
@@ -422,53 +430,62 @@ KC.hub = {
     },
 
     renderArchive: function(isEntering = false) {
-        // Bounds checking to prevent crashes
-        if (KC.state.archive.tab > 1) KC.state.archive.tab = 0;
-        if (KC.state.archive.tab < 0) KC.state.archive.tab = 1;
-
-        let header = "ARCHIVE TERMINAL\n----------------\n";
+        KC.state.status = "ARCHIVE";
+        if (!KC.state.archive) KC.state.archive = { tab: 0, index: 0 };
+        
+        const career = KC.state.profile.career;
+        const history = career.history_buffer || [];
+        const zones = Object.keys(career.zone_stats || {});
+        
+        let header = ">> SYSTEM ARCHIVE <<\n";
         let content = "";
-        let lines = [];
         let audioPrompt = "";
 
-        if (isEntering) {
-            audioPrompt += "Archive accessed. ";
-        }
-
         if (KC.state.archive.tab === 0) {
-            const c = KC.state.profile.career;
-            const acc = c.total_keys > 0 ? Math.round(((c.total_keys - c.total_errors) / c.total_keys) * 100) : 100;
-            lines = [
-                `RANK: ${KC.state.profile.rank.toUpperCase()}`,
-                `ACCURACY: ${acc}%`,
-                `TOTAL KEYSTROKES: ${c.total_keys}`,
-                `MISSIONS COMPLETED: ${c.missions_completed}`
-            ];
-            audioPrompt += `Tab: Career Profile. Rank ${KC.state.profile.rank}.`;
-        }
-        else {
-            lines = ["Archive entry loaded.", "Accessing database...", "No additional logs found in this sector."];
-            audioPrompt += `Tab: Database Logs. Entry accessed.`;
+            header += "CATEGORY: RECENT MISSION HISTORY\n--------------------------------\n";
+            if (history.length === 0) {
+                content = "No mission data recorded in local buffer.";
+                audioPrompt = "Archive: Recent History. No data recorded.";
+            } else {
+                const entry = history[history.length - 1 - KC.state.archive.index];
+                const dateStr = new Date(entry.date).toLocaleDateString();
+                content = `Entry ${KC.state.archive.index + 1} of ${history.length}\n`;
+                content += `DATE: ${dateStr}\nMISSION: ${entry.id}\nREGION: ${entry.region}\nWPM: ${entry.wpm}\nACCURACY: ${entry.acc}%\nGRADE: ${entry.grade}`;
+                audioPrompt = `History Entry ${KC.state.archive.index + 1}. ${entry.id} in ${entry.region}. ${entry.wpm} TRS. Accuracy ${entry.acc} percent.`;
+            }
+        } else {
+            header += "CATEGORY: ZONE MASTERY\n--------------------------------\n";
+            if (zones.length === 0) {
+                content = "No keyboard zones registered.";
+                audioPrompt = "Archive: Zone Mastery. No zones registered.";
+            } else {
+                const zoneName = zones[KC.state.archive.index];
+                const stat = career.zone_stats[zoneName];
+                const avgWPM = Math.round(stat.wpmSum / stat.missions);
+                const avgAcc = Math.round(stat.accSum / stat.missions);
+                content = `Zone ${KC.state.archive.index + 1} of ${zones.length}\n`;
+                content += `REGION: ${zoneName}\nTOTAL MISSIONS: ${stat.missions}\nAVG WPM: ${avgWPM}\nAVG ACCURACY: ${avgAcc}%`;
+                audioPrompt = `Zone ${KC.state.archive.index + 1}. ${zoneName}. ${stat.missions} missions completed. Average Speed ${avgWPM}. Average Accuracy ${avgAcc} percent.`;
+            }
         }
 
-        lines.forEach(l => content += l + "\n");
-        content += `\n\n[Left/Right to Switch Tabs, Up/Down to Read, Esc to Exit]`;
-        
-        KC.els.displayText.textContent = header + content;
-        KC.state.archiveLines = lines;
+        KC.els.displayText.textContent = header + "\n" + content + "\n\n[Left/Right: Switch Category | Up/Down: Scroll Entries | Esc: Exit]";
         KC.core.announce(audioPrompt);
     },
 
     navigateArchiveContent: function(dir) {
-        if (!KC.state.archiveLines) return;
-        if (typeof KC.state.archive.index === 'undefined') KC.state.archive.index = 0;
-        
+        const career = KC.state.profile.career;
+        let max = 0;
+        if (KC.state.archive.tab === 0) {
+            max = (career.history_buffer) ? career.history_buffer.length : 0;
+        } else {
+            max = Object.keys(career.zone_stats || {}).length;
+        }
+
         KC.state.archive.index += dir;
         if (KC.state.archive.index < 0) KC.state.archive.index = 0;
-        if (KC.state.archive.index >= KC.state.archiveLines.length) KC.state.archive.index = KC.state.archiveLines.length - 1;
+        if (KC.state.archive.index >= max) KC.state.archive.index = Math.max(0, max - 1);
         
-        const line = KC.state.archiveLines[KC.state.archive.index];
-        KC.els.displayText.textContent = `> ${line}\n\n[Reading Line ${KC.state.archive.index+1}]`;
-        KC.core.announce(line);
+        this.renderArchive();
     }
 };

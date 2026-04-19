@@ -45,17 +45,29 @@ KC.input = {
              return;
         }
 
+        // --- GLOBAL AUDIO CONTROLS ---
+        if (e.shiftKey && e.key.toLowerCase() === "v") {
+            e.preventDefault();
+            if (KC.bgm) KC.bgm.cycleVolume();
+            return;
+        }
+        if (e.shiftKey && e.key.toLowerCase() === "m") {
+            e.preventDefault();
+            if (KC.bgm) KC.bgm.cycleStyle();
+            return;
+        }
+
         // --- LOGIN NAVIGATION ---
         if (KC.state.status === "LOGIN") {
             e.preventDefault();
-            const options = ["Create New Cadet", ...KC.state.roster];
+            const options = ["Create New Cadet", ...KC.state.roster, "Exit"];
 
             if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateLogin(1); }
             else if (e.key === "ArrowUp") { KC.audio.playSound('click'); KC.hub.navigateLogin(-1); }
             else if (e.key === "Enter") { KC.audio.playSound('click'); KC.hub.selectLogin(); }
             else if (e.key === "Delete") { 
                 const selection = options[KC.state.menuSelection];
-                if (selection !== "Create New Cadet") {
+                if (selection !== "Create New Cadet" && selection !== "Exit") {
                     KC.audio.playSound('click');
                     KC.state.status = "LOGIN_DELETE";
                     KC.els.displayText.textContent = `>> DELETE PROFILE <<\n\nAre you sure you want to permanently delete ${selection}?\n\n[Press Enter to Confirm, Escape to Cancel]`;
@@ -119,7 +131,7 @@ KC.input = {
             e.preventDefault();
             if (e.key === "Enter") {
                 KC.audio.playSound('click');
-                const options = ["Create New Cadet", ...KC.state.roster];
+                const options = ["Create New Cadet", ...KC.state.roster, "Exit"];
                 const selection = options[KC.state.menuSelection];
                 KC.core.deleteProfile(selection);
                 KC.state.menuSelection = 0;
@@ -369,8 +381,12 @@ KC.input = {
         // --- ARCHIVE ---
         if (KC.state.status === "ARCHIVE") {
             e.preventDefault(); 
-            if (e.key === "ArrowRight") { KC.audio.playSound('click'); KC.state.archive.tab++; KC.state.archive.index=0; KC.hub.renderArchive(); }
-            else if (e.key === "ArrowLeft") { KC.audio.playSound('click'); KC.state.archive.tab--; KC.state.archive.index=0; KC.hub.renderArchive(); }
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") { 
+                KC.audio.playSound('click'); 
+                KC.state.archive.tab = (KC.state.archive.tab === 0) ? 1 : 0;
+                KC.state.archive.index = 0; 
+                KC.hub.renderArchive(); 
+            }
             else if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateArchiveContent(1); }
             else if (e.key === "ArrowUp") { KC.audio.playSound('click'); KC.hub.navigateArchiveContent(-1); }
             else if (e.key === "Escape") { this.flush(); KC.hub.enterHub(); }

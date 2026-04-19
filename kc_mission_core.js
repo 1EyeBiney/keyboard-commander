@@ -474,7 +474,38 @@ KC.mission = {
 
     showReportCard: function(acc, transmissionRate, maxStreak, grade, time, note, rewardLog) {
         if (KC.input && KC.input.flush) KC.input.flush();
-        
+
+        // --- DATA ENGINE LOGGING ---
+        if (KC.state.profile && KC.state.profile.career) {
+            const regionName = (KC.state.missionParams && KC.state.missionParams.region) ? KC.state.missionParams.region.name : "General Sector";
+            const missionID = KC.state.activeLesson || "Unknown";
+            
+            // 1. Update 50-Mission Rolling Buffer
+            KC.state.profile.career.history_buffer.push({
+                date: Date.now(),
+                id: missionID,
+                wpm: transmissionRate,
+                acc: acc,
+                grade: grade,
+                region: regionName
+            });
+            if (KC.state.profile.career.history_buffer.length > 50) {
+                KC.state.profile.career.history_buffer.shift();
+            }
+            
+            // 2. Update Zone Specific Stats
+            if (!KC.state.profile.career.zone_stats[regionName]) {
+                KC.state.profile.career.zone_stats[regionName] = { missions: 0, wpmSum: 0, accSum: 0 };
+            }
+            KC.state.profile.career.zone_stats[regionName].missions += 1;
+            KC.state.profile.career.zone_stats[regionName].wpmSum += transmissionRate;
+            KC.state.profile.career.zone_stats[regionName].accSum += acc;
+            
+            // 3. Force save
+            KC.core.saveProgress();
+        }
+        // ------------------------------------
+
         KC.state.status = "REPORT";
         const totalKeys = KC.state.stats.totalKeys || 0;
         

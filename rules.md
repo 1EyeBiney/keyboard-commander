@@ -24,6 +24,8 @@
 
 \- \*\*Context-Aware Verbosity:\*\* Sequential menu navigation must minimize verbosity. Only announce necessary context. Filter and "humanize" internal string names before sending them to the ARIA announcer so they sound natural.
 
+\- \*\*Background Music (BGM) Engine:\*\* Ambient music must use a dual-element HTML5 `<audio>` crossfader to ensure seamless transitions between tracks without interrupting the `AudioContext` synth. User preferences (volume, music style) must be persisted in their profile `settings`. Global audio controls (e.g., Shift+V for volume, Shift+M for style) must remain globally accessible via `handleGlobalKeys`.
+
 
 
 \## 3. GAME ECONOMY \& PERSISTENCE
@@ -44,6 +46,10 @@
 
 \- Every mission summary and transaction receipt MUST display all five categories to maintain a consistent UI state.
 
+\- \*\*Multi-User Architecture:\*\* Data is managed via a Master Roster (`kbc_roster`) which stores an array of user callsigns. Each user's data is saved in an isolated key (`kbc_profile_[Name]`). Never revert to single-key saving.
+
+\- \*\*The Data Engine:\*\* The `career` object must maintain a `history_buffer` (an array capped at the user's last 50 missions) and a `zone_stats` object that tracks lifetime cumulative performance (Missions, WPM, Accuracy) split by specific keyboard quadrants (e.g., "Home Row").
+
 
 
 \## 4. INPUT \& NAVIGATION STANDARDS
@@ -61,6 +67,10 @@
 \- \*\*First-Letter Navigation:\*\* Menus with variable lists (like rosters or inventories) must support pressing letter keys to dynamically jump to the next item starting with that letter.
 
 \- \*\*Visual State Indicators:\*\* Use high-contrast text/border color shifts (e.g., toggling a CSS class like `.theme-login` on the `body`) to indicate major UI state changes without altering the base background color.
+
+\- \*\*System Resets:\*\* When executing a hard reset or returning to the initial boot splash screen (e.g., an "Exit" command), use a native `location.reload()`. This is the required method to safely destroy Web Audio API contexts and prevent memory leaks.
+
+\- \*\*2D Data Tables:\*\* Data-heavy facilities (like the Archive) must use a 2D grid logic. Up/Down traverses entries (Y-axis), while Left/Right traverses categories or metrics (X-axis). Audio announcements must include the index (e.g., "Entry 1 of 12") to maintain user orientation.
 
 
 
