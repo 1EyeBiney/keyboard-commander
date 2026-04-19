@@ -69,14 +69,25 @@ KC.hub = {
 
     routeProfileBoot: function() {
         document.body.classList.remove('theme-login');
-        if (KC.state.profile.currentLessonIndex >= 26) {
+        
+        // If they have cleared the tutorial deck, send them straight to the Hub
+        if (KC.state.profile.currentDeck > 0) {
             this.enterHub();
-        } else {
-            const resumeLesson = GAME_DATA.lessons[KC.state.profile.currentLessonIndex] || GAME_DATA.lessons["D00-01"];
-            KC.els.displayText.textContent = `WELCOME BACK, ${KC.state.profile.name.toUpperCase()}\n[Press Enter to Resume: ${resumeLesson.name}]`;
-            KC.state.status = "MENU";
-            KC.core.announce(`Welcome back ${KC.state.profile.name}. Press Enter to start ${resumeLesson.name}.`);
+            return;
+        } 
+        
+        const targetID = KC.state.profile.currentLessonID || "D00-01";
+        const resumeLesson = GAME_DATA.lessons[targetID];
+        
+        if (!resumeLesson) {
+             // Fallback in case of corruption
+             this.enterHub();
+             return;
         }
+
+        KC.els.displayText.textContent = `WELCOME BACK, ${KC.state.profile.name.toUpperCase()}\n[Press Enter to Resume: ${resumeLesson.name}]`;
+        KC.state.status = "MENU";
+        KC.core.announce(`Welcome back ${KC.state.profile.name}. Press Enter to start ${resumeLesson.name}.`);
     },
 
     enterHub: function() {

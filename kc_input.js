@@ -101,27 +101,25 @@ KC.input = {
                 e.preventDefault();
                 const name = KC.els.inputTrap.value.trim();
                 if (name.length > 0) {
-                    const existingProfile = KC.state.roster.find(r => r.toLowerCase() === name.toLowerCase());
-
-                    if (existingProfile) {
-                        KC.audio.playSound('error');
-                        KC.core.announce(`Error. Callsign ${existingProfile} is already registered. Please select it from the roster.`);
-                        this.flush();
-                        KC.hub.renderLogin(true);
-                    } else {
-                        KC.audio.playSound('click');
-                        KC.core.createProfile(name);
-                        this.flush();
-                        KC.hub.routeProfileBoot();
-                    }
+                    KC.audio.playSound('click');
+                    KC.core.createProfile(name);
+                    if(KC.input && KC.input.flush) KC.input.flush();
+                    KC.hub.routeProfileBoot();
                 } else {
                     KC.core.announce("Error. Callsign cannot be empty.");
                 }
             } else if (e.key === "Escape") {
                 e.preventDefault();
                 KC.audio.playSound('click');
-                this.flush();
-                KC.hub.renderLogin(true);
+                KC.hub.renderLogin(false);
+            } else if (e.key.length === 1 || e.key === "Backspace") {
+                // Visual Echo
+                setTimeout(() => {
+                    if (KC.els.inputTrap && KC.els.displayText) {
+                        const currentName = KC.els.inputTrap.value;
+                        KC.els.displayText.textContent = `>> NEW CADET REGISTRATION <<\n\nEnter your Callsign (Name):\n\n> ${currentName}_\n\n[Type name and press Enter, Escape to Cancel]`;
+                    }
+                }, 10);
             }
             return;
         }
@@ -251,7 +249,7 @@ KC.input = {
             if (["Enter", "g", "G"].includes(e.key)) {
                 this.flush(); 
                 if (KC.state.status === "MENU" && e.key === "Enter") {
-                    KC.mission.loadLesson(KC.state.profile.currentLessonIndex);
+                    KC.mission.loadLesson(KC.state.profile.currentLessonID || "D00-01");
                 } else {
                     KC.hub.openGameMenu();
                 }

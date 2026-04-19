@@ -91,7 +91,7 @@ KC.core = {
         const newProfile = {
             name: name,
             rank: "Cadet",
-            currentLessonIndex: 0,
+            currentLessonID: "D00-01",
             currentDeck: 0,
             settings: { bgm_volume: 10, bgm_style: "default" },
             wallet: { data_blocks: 0, logic_shards: 0, sync_sparks: 0, consecutive_coins: 0, glitch: 0 },
@@ -112,6 +112,12 @@ KC.core = {
             if (!KC.state.profile.career.history_buffer) KC.state.profile.career.history_buffer = [];
             if (!KC.state.profile.career.zone_stats) KC.state.profile.career.zone_stats = {};
             if (!KC.state.profile.settings) KC.state.profile.settings = { bgm_volume: 10, bgm_style: "default" };
+            
+            // --- Migration Patch for v3.9.1 ---
+            if (typeof KC.state.profile.currentLessonIndex !== 'undefined') {
+                KC.state.profile.currentLessonID = "D00-01"; // Reset to start of Deck 0
+                delete KC.state.profile.currentLessonIndex;
+            }
         } else {
             this.createProfile(name);
         }
