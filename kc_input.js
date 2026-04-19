@@ -20,6 +20,12 @@ KC.input = {
             return;
         }
 
+        // --- BROWSER DEFAULTS WHITELIST ---
+        if (["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"].includes(e.key) || 
+            (e.ctrlKey && e.key.toLowerCase() === "r")) {
+            return;
+        }
+
         // --- EMERGENCY OVERRIDES ---
         if (e.ctrlKey && e.shiftKey && (e.key === "Backspace" || e.key === "Delete")) {
             e.preventDefault();
@@ -42,9 +48,38 @@ KC.input = {
         // --- LOGIN NAVIGATION ---
         if (KC.state.status === "LOGIN") {
             e.preventDefault();
+            const options = ["Create New Cadet", ...KC.state.roster];
+
             if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateLogin(1); }
             else if (e.key === "ArrowUp") { KC.audio.playSound('click'); KC.hub.navigateLogin(-1); }
             else if (e.key === "Enter") { KC.audio.playSound('click'); KC.hub.selectLogin(); }
+            else if (e.key === "Delete") { 
+                const selection = options[KC.state.menuSelection];
+                if (selection !== "Create New Cadet") {
+                    KC.audio.playSound('click');
+                    KC.state.status = "LOGIN_DELETE";
+                    KC.els.displayText.textContent = `>> DELETE PROFILE <<\n\nAre you sure you want to permanently delete ${selection}?\n\n[Press Enter to Confirm, Escape to Cancel]`;
+                    KC.core.announce(`Delete profile ${selection}? Press Enter to confirm, Escape to cancel.`);
+                } else {
+                    KC.audio.playSound('error');
+                }
+            }
+            else if (e.key.length === 1 && /[a-zA-Z]/.test(e.key)) {
+                const char = e.key.toLowerCase();
+                let nextIndex = -1;
+                for (let i = 1; i <= options.length; i++) {
+                    let checkIndex = (KC.state.menuSelection + i) % options.length;
+                    if (options[checkIndex].toLowerCase().startsWith(char)) {
+                        nextIndex = checkIndex;
+                        break;
+                    }
+                }
+                if (nextIndex !== -1) {
+                    KC.audio.playSound('click');
+                    KC.state.menuSelection = nextIndex;
+                    KC.hub.renderLogin(false);
+                }
+            }
             return;
         }
 
@@ -54,13 +89,44 @@ KC.input = {
                 e.preventDefault();
                 const name = KC.els.inputTrap.value.trim();
                 if (name.length > 0) {
-                    KC.audio.playSound('click');
-                    KC.core.createProfile(name);
-                    this.flush();
-                    KC.hub.routeProfileBoot();
+                    const existingProfile = KC.state.roster.find(r => r.toLowerCase() === name.toLowerCase());
+
+                    if (existingProfile) {
+                        KC.audio.playSound('error');
+                        KC.core.announce(`Error. Callsign ${existingProfile} is already registered. Please select it from the roster.`);
+                        this.flush();
+                        KC.hub.renderLogin(true);
+                    } else {
+                        KC.audio.playSound('click');
+                        KC.core.createProfile(name);
+                        this.flush();
+                        KC.hub.routeProfileBoot();
+                    }
                 } else {
                     KC.core.announce("Error. Callsign cannot be empty.");
                 }
+            } else if (e.key === "Escape") {
+                e.preventDefault();
+                KC.audio.playSound('click');
+                this.flush();
+                KC.hub.renderLogin(true);
+            }
+            return;
+        }
+
+        // --- LOGIN DELETE CONFIRMATION ---
+        if (KC.state.status === "LOGIN_DELETE") {
+            e.preventDefault();
+            if (e.key === "Enter") {
+                KC.audio.playSound('click');
+                const options = ["Create New Cadet", ...KC.state.roster];
+                const selection = options[KC.state.menuSelection];
+                KC.core.deleteProfile(selection);
+                KC.state.menuSelection = 0;
+                KC.hub.renderLogin(true);
+            } else if (e.key === "Escape") {
+                KC.audio.playSound('click');
+                KC.hub.renderLogin(true);
             }
             return;
         }

@@ -58,6 +58,10 @@
 
 \- \*\*Menu Clarity:\*\* All Hub/Facility menu objects must include a plain-English `desc` property to reduce cognitive load. Keep facility labels strictly as nouns (e.g., "Archive", not "Access Archive").
 
+\- \*\*First-Letter Navigation:\*\* Menus with variable lists (like rosters or inventories) must support pressing letter keys to dynamically jump to the next item starting with that letter.
+
+\- \*\*Visual State Indicators:\*\* Use high-contrast text/border color shifts (e.g., toggling a CSS class like `.theme-login` on the `body`) to indicate major UI state changes without altering the base background color.
+
 
 
 \## 5. GEMINI CODE ASSIST (GCA) EXECUTION RULES

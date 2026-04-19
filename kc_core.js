@@ -113,6 +113,13 @@ KC.core = {
         }
     },
 
+    deleteProfile: function(name) {
+        KC.state.roster = KC.state.roster.filter(p => p !== name);
+        localStorage.setItem(this.ROSTER_KEY, JSON.stringify(KC.state.roster));
+        localStorage.removeItem(this.SAVE_PREFIX + name);
+        this.announce(`Profile ${name} deleted.`);
+    },
+
     resetProgress: function() {
         KC.state.profile = {
             rank: "Cadet",

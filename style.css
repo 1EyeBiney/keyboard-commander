@@ -101,3 +101,15 @@ body:has(#input-trap:focus) {
     outline: 2px solid var(--term-green);
     outline-offset: -2px;
 }
+
+/* --- Login Theme --- */
+.theme-login {
+    color: var(--term-amber);
+}
+.theme-login header {
+    border-bottom-color: var(--term-amber);
+}
+.theme-login .input-text, .theme-login input {
+    color: var(--term-amber);
+    border-color: var(--term-amber);
+}

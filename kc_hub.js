@@ -4,14 +4,15 @@ KC.hub = {
     
     renderMenu: function() {
         KC.core.loadRoster();
-        this.renderLogin();
+        this.renderLogin(true);
     },
 
-    renderLogin: function() {
+    renderLogin: function(isEntering = false) {
         KC.state.status = "LOGIN";
-        KC.state.menuSelection = 0;
+        KC.state.menuSelection = KC.state.menuSelection || 0;
         if(KC.input && KC.input.flush) KC.input.flush();
         KC.core.updateStatusBar();
+        document.body.classList.add('theme-login');
 
         let content = "TERMINAL LOGIN\nSelect Profile or Create New:\n\n";
         const options = ["Create New Cadet", ...KC.state.roster];
@@ -21,13 +22,18 @@ KC.hub = {
             content += `${cursor}${opt}\n`;
         });
 
-        KC.els.displayText.textContent = content + "\n\n[Arrows to Select, Enter to Confirm]";
+        KC.els.displayText.textContent = content + "\n\n[Arrows/Letters to Select, Enter to Confirm]";
         KC.els.statusBar.textContent = "Awaiting Login...";
 
-        setTimeout(() => {
-            const currentOpt = options[KC.state.menuSelection];
-            KC.core.announce(`Terminal Login. ${currentOpt}. Use arrows to navigate, press Enter to select.`);
-        }, 600);
+        const currentOpt = options[KC.state.menuSelection];
+
+        if (isEntering) {
+            setTimeout(() => {
+                KC.core.announce(`Terminal Login. ${currentOpt}. Use arrows or letters to navigate, press Enter to select.`);
+            }, 600);
+        } else {
+            KC.core.announce(currentOpt);
+        }
     },
 
     navigateLogin: function(dir) {
@@ -35,8 +41,7 @@ KC.hub = {
         KC.state.menuSelection += dir;
         if (KC.state.menuSelection < 0) KC.state.menuSelection = options.length - 1;
         if (KC.state.menuSelection >= options.length) KC.state.menuSelection = 0;
-
-        this.renderLogin();
+        this.renderLogin(false);
     },
 
     selectLogin: function() {
@@ -55,6 +60,7 @@ KC.hub = {
     },
 
     routeProfileBoot: function() {
+        document.body.classList.remove('theme-login');
         if (KC.state.profile.currentLessonIndex >= 26) {
             this.enterHub();
         } else {
@@ -66,6 +72,7 @@ KC.hub = {
     },
 
     enterHub: function() {
+        document.body.classList.remove('theme-login');
         KC.state.status = "HUB";
         if(KC.input && KC.input.flush) KC.input.flush();
         
