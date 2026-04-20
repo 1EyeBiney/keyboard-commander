@@ -1,5 +1,90 @@
 /* kc_data.js - v2.94 */
 
+// v3.13: Full Board Expansion — maps event.key values to their _am audio assets.
+const AUDIO_MAP = {
+
+    // --- Numbers ---
+    "0": "audio/numbers/num_0_am",
+    "1": "audio/numbers/num_1_am",
+    "2": "audio/numbers/num_2_am",
+    "3": "audio/numbers/num_3_am",
+    "4": "audio/numbers/num_4_am",
+    "5": "audio/numbers/num_5_am",
+    "6": "audio/numbers/num_6_am",
+    "7": "audio/numbers/num_7_am",
+    "8": "audio/numbers/num_8_am",
+    "9": "audio/numbers/num_9_am",
+
+    // --- Shift Symbols ---
+    "!": "audio/symbols/sym_exclamation_point_am",
+    "@": "audio/symbols/sym_at_symbol_am",
+    "#": "audio/symbols/sym_hash_am",
+    "$": "audio/symbols/sym_dollar_sign_am",
+    "%": "audio/symbols/sym_percent_am",
+    "^": "audio/symbols/sym_carat_am",
+    "&": "audio/symbols/sym_ampersand_am",
+    "*": "audio/symbols/sym_asterisk_am",
+    "(": "audio/symbols/sym_open_parenthesis_am",
+    ")": "audio/symbols/sym_closed_parenthesis_am",
+
+    // --- Punctuation & Brackets ---
+    "~":  "audio/symbols/sym_tilde_am",
+    "`":  "audio/symbols/sym_back_tic_am",
+    "-":  "audio/symbols/sym_dash_am",
+    "_":  "audio/symbols/sym_Underscore_am",
+    "=":  "audio/symbols/sym_equals_am",
+    "+":  "audio/symbols/sym_plus_am",
+    "[":  "audio/symbols/sym_open_bracket_am",
+    "{":  "audio/symbols/sym_open_brace_am",
+    "]":  "audio/symbols/sym_closed_bracket_am",
+    "}":  "audio/symbols/sym_closed_brace_am",
+    "\\": "audio/symbols/sym_backslash_am",
+    "|":  "audio/symbols/sym_pipe_am",
+    ";":  "audio/symbols/sym_semi_colonr_am",
+    ":":  "audio/symbols/sym_colonr_am",
+    "'":  "audio/symbols/sym_single_quote_am",
+    '"':  "audio/symbols/sym_double_quote_am",
+    ",":  "audio/symbols/sym_comma_am",
+    "<":  "audio/symbols/sym_less_than_am",
+    ".":  "audio/symbols/sym_period_am",
+    ">":  "audio/symbols/sym_greater_than_am",
+    "/":  "audio/symbols/sym_forward_slash_am",
+    "?":  "audio/symbols/sym_question_mark_am",
+
+    // --- Function Keys ---
+    "F1":  "audio/modifiers/fun_1_am",
+    "F2":  "audio/modifiers/fun_2_am",
+    "F3":  "audio/modifiers/fun_3_am",
+    "F4":  "audio/modifiers/fun_4_am",
+    "F5":  "audio/modifiers/fun_5_am",
+    "F6":  "audio/modifiers/fun_6_am",
+    "F7":  "audio/modifiers/fun_7_am",
+    "F8":  "audio/modifiers/fun_8_am",
+    "F9":  "audio/modifiers/fun_9_am",
+    "F10": "audio/modifiers/fun_10_am",
+    "F11": "audio/modifiers/fun_11_am",
+    "F12": "audio/modifiers/fun_12_am",
+
+    // --- Modifiers & Navigation ---
+    "Escape":    "audio/modifiers/mod_escape_am",
+    "Tab":       "audio/modifiers/mod_tab_am",
+    "CapsLock":  "audio/modifiers/mod_caps_lock_am",
+    "Shift":     "audio/modifiers/mod_left_shift_am",
+    "Control":   "audio/modifiers/mod_left_control_am",
+    "Alt":       "audio/modifiers/mod_left_alt_am",
+    "Insert":    "audio/modifiers/mod_insert_am",
+    "Delete":    "audio/modifiers/mod_delete_am",
+    "Home":      "audio/modifiers/mod_home_am",
+    "End":       "audio/modifiers/mod_end_am",
+    "PageUp":    "audio/modifiers/mod_page_up_am",
+    "PageDown":  "audio/modifiers/mod_page_down_am",
+    "ArrowUp":   "audio/modifiers/mod_up_arrow_am",
+    "ArrowDown": "audio/modifiers/mod_down_arrow_am",
+    "ArrowLeft": "audio/modifiers/mod_left_arrow_am",
+    "ArrowRight":"audio/modifiers/mod_right_arrow_am"
+
+};
+
 const GAME_DATA = {
   config: {
     version: "2.94",

@@ -6,28 +6,36 @@ KC.mission = {
     activeHandler: null,
     setupCursor: 0,
 
-    // v2.88: Decoupled Menus - Race (Keyboard Commander) vs Reflex (System Override)
+    // v3.13: Full Board Expansion — 4 Alpha Quadrants for Race, 10 Comprehensive Quadrants for Reflex/Stream
     regionsRace: [
-        { name: "Home Row", left: "asdfg", right: "hjkl", both: "asdfghjkl", isExpert: false },
-        { name: "Top & Home Row", left: "qwertasdfg", right: "yuiophjkl", both: "qwertyuiopasdfghjkl", isExpert: false },
-        { name: "Top & Home Row (Expert)", left: "qwertasdfg", right: "yuiophjkl", both: "qwertyuiopasdfghjkl", isExpert: true },
-        { name: "Home & Bottom Row (+ Vowels)", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: false },
-        { name: "Bottom & Home Row with all vowels (Expert)", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: true },
-        { name: "All Alpha (Top, Home, Bottom)", left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: false },
-        { name: "All Alpha (Expert)", left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: true }
+        { name: "Home Row",          left: "asdfg",           right: "hjkl",        both: "asdfghjkl",                 isExpert: false },
+        { name: "Top & Home Row",    left: "qwertasdfg",      right: "yuiophjkl",   both: "qwertyuiopasdfghjkl",       isExpert: false },
+        { name: "Home & Bottom Row", left: "asdfgzxcvb",      right: "hjklnm",      both: "asdfghjklzxcvbnm",          isExpert: false },
+        { name: "All Alpha",         left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: false }
     ],
 
-    regionsReflex: [
-        { name: "Home Row", left: "asdfg", right: "hjkl", both: "asdfghjkl", isExpert: false },
-        { name: "Top & Home Row", left: "qwertasdfg", right: "yuiophjkl", both: "qwertyuiopasdfghjkl", isExpert: false },
-        { name: "Home & Bottom Row", left: "asdfgzxcvb", right: "hjklnm,.", both: "asdfghjklzxcvbnm,.", isExpert: false },
-        { name: "All Alpha (Top, Home, Bottom)", left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: false }
+    regionsComprehensive: [
+        // Alpha Quadrants (1-4)
+        { name: "Home Row",          left: "asdfg",           right: "hjkl",        both: ["a","s","d","f","g","h","j","k","l"],                                                                                                                                    isExpert: false },
+        { name: "Top & Home Row",    left: "qwertasdfg",      right: "yuiophjkl",   both: ["q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l"],                                                                                            isExpert: false },
+        { name: "Home & Bottom Row", left: "asdfgzxcvb",      right: "hjklnm",      both: ["a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m"],                                                                                                        isExpert: false },
+        { name: "All Alpha",         left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: ["q","w","e","r","t","y","u","i","o","p","a","s","d","f","g","h","j","k","l","z","x","c","v","b","n","m"],                                                                isExpert: false },
+        // Data Quadrants (5-8)
+        { name: "Number Row",             left: "12345", right: "67890", both: ["1","2","3","4","5","6","7","8","9","0"],                                                                                                                                            isExpert: false },
+        { name: "Shift Symbols",          left: "!@#$%", right: "^&*()", both: ["!","@","#","$","%","^","&","*","(",")"],                                                                                                                                            isExpert: false },
+        { name: "Punctuation & Brackets", left: "",      right: "",      both: ["~","`","-","_","=","+","[","{","]","}","\\","|",";",":","'","\"",",",".",">","<","/","?"],                                                                                          isExpert: false },
+        { name: "Numpad",                 left: "",      right: "",      both: ["0","1","2","3","4","5","6","7","8","9","/","*","-","+",".","Enter"],                                                                                                                isExpert: false },
+        // Control Quadrants (9-10)
+        { name: "Function Keys",          left: "",      right: "",      both: ["F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"],                                                                                                                     isExpert: false },
+        { name: "Modifiers & Navigation", left: "",      right: "",      both: ["Escape","Tab","CapsLock","Shift","Control","Alt","Insert","Delete","Home","End","PageUp","PageDown","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"],                                 isExpert: false }
     ],
 
     getRegions: function(lesson) {
-        // v2.92: Serve standard regions for Reflex and Stream, full regions for Race
+        if (lesson && lesson.generator === "race") {
+            return this.regionsRace;
+        }
         if (lesson && (lesson.generator === "reflex" || lesson.generator === "stream")) {
-            return this.regionsReflex;
+            return this.regionsComprehensive;
         }
         return this.regionsRace;
     },

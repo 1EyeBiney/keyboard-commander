@@ -14,7 +14,16 @@
 
 
 
-\## 2. SCREEN READER \& ACCESSIBILITY ENGINEERING
+\## 2. CURRICULUM ARCHITECTURE
+
+\### The 10-Quadrant Progression
+\- The 10 standard keyboard quadrants are organized into three groups:
+\- \*\*Alpha Quadrants (1–4):\*\* Home Row, Top \& Home, Bottom \& Home, All Alpha.
+\- \*\*Data Quadrants (5–8):\*\* Number Row, Shift Symbols, Punctuation \& Brackets, Numpad.
+\- \*\*Control Quadrants (9–10):\*\* Function Keys, Modifiers \& Navigation.
+
+
+\## 3. SCREEN READER \& ACCESSIBILITY ENGINEERING
 
 \- \*\*The Input Trap:\*\* Core interaction relies on an always-focused `<input type="text">` element. This element must be aggressively cleared to prevent "ghost buffer" issues during rapid typing.
 
@@ -28,7 +37,7 @@
 
 
 
-\## 3. GAME ECONOMY \& PERSISTENCE
+\## 4. GAME ECONOMY \& PERSISTENCE
 
 \- \*\*Storage:\*\* Data is persisted in localStorage. 
 
@@ -52,7 +61,7 @@
 
 
 
-\## 4. INPUT \& NAVIGATION STANDARDS
+\## 5. INPUT \& NAVIGATION STANDARDS
 
 \- \*\*Typing Mode:\*\* Standard character entry for typing drills.
 
@@ -76,7 +85,7 @@
 
 
 
-\## 5. GEMINI CODE ASSIST (GCA) EXECUTION RULES
+\## 6. GEMINI CODE ASSIST (GCA) EXECUTION RULES
 
 \- \*\*No Truncation:\*\* Never truncate code using `...` or `// remaining code`. Always output the full, modified function or object so it can be safely copy/pasted.
 
