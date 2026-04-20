@@ -83,6 +83,8 @@
 
 \- \*\*Visual Echo:\*\* Whenever the user is prompted to type free-form text (e.g., creating a callsign), the hidden `inputTrap.value` must be actively mirrored to the `displayText` container using a `setTimeout(..., 10)` so sighted users can see what they are typing in real-time.
 
+\- \*\*Developer Console:\*\* All developer and testing operations are strictly accessed by pressing the Tilde (\~) or Backtick (\`) key, which toggles the in-game Dev Console overlay. No Shift-key or Ctrl-key combinations shall be used as dev/testing hotkeys.
+
 
 
 \## 6. GEMINI CODE ASSIST (GCA) EXECUTION RULES

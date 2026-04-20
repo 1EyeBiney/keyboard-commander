@@ -15,6 +15,21 @@ KC.input = {
     },
 
     handleGlobalKeys: function(e) {
+        // --- DEV CONSOLE INTERCEPT ---
+        if (e.key === '`' || e.key === '~') {
+            e.preventDefault();
+            KC.dev.toggleConsole();
+            return;
+        }
+
+        if (KC.state.status === "DEV_CONSOLE") {
+            e.preventDefault();
+            if (["ArrowUp", "Up"].includes(e.key)) KC.dev.moveCursor(-1);
+            if (["ArrowDown", "Down"].includes(e.key)) KC.dev.moveCursor(1);
+            if (["Enter"].includes(e.key)) KC.dev.executeAction();
+            return;
+        }
+
         // --- SILENT MODIFIERS ---
         if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) {
             return;
@@ -32,17 +47,6 @@ KC.input = {
             KC.core.announce("Hard Reset Initiated...");
             setTimeout(() => KC.core.resetProgress(), 500);
             return;
-        }
-
-        if (e.key === "!" || (e.key === "1" && e.ctrlKey && e.shiftKey)) {
-             e.preventDefault();
-             KC.core.announce("Dev Skip: Warping to Hub.");
-             KC.audio.stopActiveAudio();
-             KC.state.profile.currentLessonIndex = 26; 
-             KC.core.saveProgress();
-             this.flush(); 
-             KC.hub.enterHub();
-             return;
         }
 
         // --- GLOBAL AUDIO CONTROLS ---

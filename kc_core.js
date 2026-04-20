@@ -189,6 +189,96 @@ KC.core = {
     }
 };
 
+KC.dev = {
+    active: false,
+    cursor: 0,
+    previousStatus: null,
+    options: [
+        "Close Console",
+        "Warp to Deck 0 (Hub)",
+        "Unlock All Missions",
+        "Add 10,000 Credits (Testing)",
+        "Add 10,000 EXP (Placeholder)",
+        "Clear Save Data"
+    ],
+    toggleConsole: function() {
+        this.active = !this.active;
+        if (this.active) {
+            this.previousStatus = KC.state.status;
+            KC.state.status = "DEV_CONSOLE";
+            this.cursor = 0;
+            this.render();
+            if (KC.audio.playSynth) KC.audio.playSynth(40);
+        } else {
+            KC.state.status = this.previousStatus;
+            const el = document.getElementById('dev-console');
+            if (el) el.style.display = 'none';
+        }
+    },
+    moveCursor: function(dir) {
+        this.cursor += dir;
+        if (this.cursor < 0) this.cursor = this.options.length - 1;
+        if (this.cursor >= this.options.length) this.cursor = 0;
+        this.render();
+    },
+    executeAction: function() {
+        switch(this.cursor) {
+            case 0: // Close
+                this.toggleConsole();
+                break;
+            case 1: // Warp
+                this.toggleConsole();
+                KC.hub.enterHub();
+                break;
+            case 2: // Unlock
+                KC.state.profile.currentDeck = 99; 
+                KC.core.announce("All missions unlocked.");
+                break;
+            case 3: // Credits
+                if (!KC.state.profile.currency) KC.state.profile.currency = 0;
+                KC.state.profile.currency += 10000;
+                KC.core.announce("10,000 Credits added.");
+                break;
+            case 4: // EXP
+                KC.core.announce("EXP Booster applied. Placeholder active.");
+                break;
+            case 5: // Nuke Save
+                localStorage.removeItem('kc_profile');
+                location.reload();
+                break;
+        }
+    },
+    render: function() {
+        let el = document.getElementById('dev-console');
+        if (!el) {
+            el = document.createElement('div');
+            el.id = 'dev-console';
+            el.style.position = 'fixed';
+            el.style.top = '10%';
+            el.style.left = '10%';
+            el.style.width = '80%';
+            el.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            el.style.color = '#00FF00';
+            el.style.fontFamily = 'monospace';
+            el.style.padding = '20px';
+            el.style.border = '2px solid #00FF00';
+            el.style.zIndex = '9999';
+            document.body.appendChild(el);
+        }
+        el.style.display = 'block';
+        
+        let html = '<h2>// SYS.ADMIN: DEV CONSOLE //</h2><ul style="list-style-type:none; padding:0;">';
+        this.options.forEach((opt, idx) => {
+            const marker = (idx === this.cursor) ? '> ' : '&nbsp;&nbsp;';
+            html += `<li style="font-size: 1.2em; margin: 10px 0;">${marker}${opt}</li>`;
+        });
+        html += '</ul>';
+        el.innerHTML = html;
+        
+        KC.els.displayText.textContent = `DEV CONSOLE\nSelected: ${this.options[this.cursor]}`;
+    }
+};
+
 window.onload = function() {
     KC.core.init();
 };

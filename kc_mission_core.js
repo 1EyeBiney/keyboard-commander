@@ -23,7 +23,7 @@ KC.mission = {
         // Data Quadrants (5-8)
         { name: "Number Row",             left: "12345", right: "67890", both: ["1","2","3","4","5","6","7","8","9","0"],                                                                                                                                            isExpert: false },
         { name: "Shift Symbols",          left: "!@#$%", right: "^&*()", both: ["!","@","#","$","%","^","&","*","(",")"],                                                                                                                                            isExpert: false },
-        { name: "Punctuation & Brackets", left: "",      right: "",      both: ["~","`","-","_","=","+","[","{","]","}","\\","|",";",":","'","\"",",",".",">","<","/","?"],                                                                                          isExpert: false },
+        { name: "Punctuation & Brackets", left: "-_=+[{", right: "]}\\|;:'\",.<>/?", both: "-_=+[{]}\\|;:'\",.<>/?" },
         { name: "Numpad",                 left: "",      right: "",      both: ["0","1","2","3","4","5","6","7","8","9","/","*","-","+",".","Enter"],                                                                                                                isExpert: false },
         // Control Quadrants (9-10)
         { name: "Function Keys",          left: "",      right: "",      both: ["F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"],                                                                                                                     isExpert: false },
