@@ -286,7 +286,7 @@ KC.input = {
         if (KC.state.status === "MENU_NAV") {
             e.preventDefault(); 
             const deckID = KC.state.profile.currentDeck || 0;
-            const menuItems = GAME_DATA.hubs[deckID].menu;
+            const menuItems = KC.hub.getHubMenu(deckID);
             const menuMax = menuItems.length;
 
             if (e.key === "ArrowDown") {

@@ -104,9 +104,16 @@ KC.hub = {
         this.renderGameMenu(true);
     },
 
+    getHubMenu: function(deckID) {
+        const baseMenu = GAME_DATA.hubs[deckID].menu;
+        const callsign = KC.state.profile && KC.state.profile.name ? KC.state.profile.name : "";
+        const devUnlocked = callsign === "BRIAN" || callsign.toLowerCase().includes("bot");
+        return baseMenu.filter(item => item.type !== "stay_out" || devUnlocked);
+    },
+
     renderGameMenu: function(isEntering = false) {
         const deckID = KC.state.profile.currentDeck || 0;
-        const menuItems = GAME_DATA.hubs[deckID].menu;
+        const menuItems = this.getHubMenu(deckID);
         const deckName = GAME_DATA.hubs[deckID].name;
         
         let content = `LOCATION: ${deckName.toUpperCase()}\n\n`;

@@ -236,12 +236,16 @@ KC.dev = {
                 if (KC.state.profile) KC.state.profile.currentDeck = 99; 
                 KC.core.announce("All missions unlocked.");
                 break;
-            case 3: // Credits
+            case 3: // Currencies
                 if (KC.state.profile) {
-                    if (!KC.state.profile.currency) KC.state.profile.currency = 0;
-                    KC.state.profile.currency += 10000;
+                    if (!KC.state.profile.wallet) {
+                        KC.state.profile.wallet = { credits: 0, dataBlocks: 0, components: 0 };
+                    }
+                    KC.state.profile.wallet.credits += 10000;
+                    KC.state.profile.wallet.dataBlocks += 10000;
+                    KC.state.profile.wallet.components += 10000;
                 }
-                KC.core.announce("Ten thousand Credits added.");
+                KC.core.announce("Ten thousand units added to all wallet currencies.");
                 break;
             case 4: // EXP
                 KC.core.announce("EXP Booster applied. Placeholder active.");

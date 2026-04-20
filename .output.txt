@@ -1,63 +1,101 @@
-Searched codebase for "Please implement the Version 3.14.3 Dev Console Menu Patch. As per project rules, DO NOT TRUNCATE OR SUMMARIZE CODE. Provide the full, unabbreviated functions/arrays being replaced.
-TASK 1: Update kc_core.js (Hub Menu Options)
-Locate the KC.hub object where the main Hub menu options are defined (the array that contains "Save and Exit").
-Insert the string "Stay Out" into the array directly above "Save and Exit".
-Locate the execution logic (likely a `switch` statement or `if/else` block based on the selected index/name) that handles what happens when a Hub option is chosen.
-Add a new case/condition for "Stay Out". 
-Inside this case, add the following logic:
-KC.core.announce("Abandon all hope, yee who enter.");
-setTimeout(() => {
-    KC.dev.toggleConsole();
-}, 1500); // Give the TTS time to read the warning before popping the console
-TASK 2: Update rules.md
-In Section 4 (INPUT & NAVIGATION STANDARDS), update the Developer Operations bullet point. Remove the references to keyboard chords (Ctrl + Alt + M, etc.). Explicitly state that the Dev Console is now safely accessed via the "Stay Out" option located in the main Hub menu.", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\rules.md
-Thinking: Let me read the relevant files to understand the current state of the code before making changes.
-Let me read the relevant files first.
-Read kc_core.js, lines 1 to 80
-Read rules.md, lines 1 to 80
-Thinking: I need to read more of `kc_core.js` to find the `KC.hub` object with the menu options array and the execution logic. Let me read more of the file.
-Read kc_core.js, lines 80 to 200
-Read rules.md, lines 65 to 98
-Thinking: Now I need to read the `KC.hub` object where the Hub menu options are defined (containing "Save and Exit"). Let me continue reading `kc_core.js` and also check `kc_hub.js`.
-Now let me find the
-KC.hub (c:\nbs\kc\kc_core.js:29)
-menu options and execution logic:
-Searched for text Save and Exit, 2 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js
-Thinking: It's in `kc_data.js`! Let me read the relevant section of `kc_data.js` to find the hub menu options, and then I need to find the execution logic in `kc_hub.js`.
-Searched for text save_exit (**/kc_hub.js), no results
-Read kc_data.js, lines 90 to 130
-Thinking: The menu options are in `kc_data.js`. Now let me find the execution logic that handles what happens when a Hub option is chosen. Let me search for `save_exit` in `kc_hub.js`.
-Now let me find the execution logic in
+Searched codebase for "Please implement the Version 3.14.6 Security & Economy Patch. As per project rules, DO NOT TRUNCATE OR SUMMARIZE CODE. Provide the full, unabbreviated objects/functions being modified.
+TASK 1: Update kc_core.js (Expand Currency Action)
+Locate the executeAction function inside the KC.dev object. Completely replace the executeAction function with this updated version that provisions a multi-currency wallet:
+executeAction: function() {
+    switch(this.cursor) {
+        case 0: // Close
+            this.toggleConsole();
+            break;
+        case 1: // Warp
+            this.toggleConsole();
+            KC.core.announce("Warping to Deck 0.");
+            if (KC.hub) KC.hub.enterHub();
+            break;
+        case 2: // Unlock
+            if (KC.state.profile) KC.state.profile.currentDeck = 99; 
+            KC.core.announce("All missions unlocked.");
+            break;
+        case 3: // Currencies
+            if (KC.state.profile) {
+                if (!KC.state.profile.wallet) {
+                    KC.state.profile.wallet = { credits: 0, dataBlocks: 0, components: 0 };
+                }
+                KC.state.profile.wallet.credits += 10000;
+                KC.state.profile.wallet.dataBlocks += 10000;
+                KC.state.profile.wallet.components += 10000;
+            }
+            KC.core.announce("Ten thousand units added to all wallet currencies.");
+            break;
+        case 4: // EXP
+            KC.core.announce("EXP Booster applied. Placeholder active.");
+            break;
+        case 5: // Nuke Save
+            KC.core.announce("Save data cleared. Refreshing system.");
+            localStorage.removeItem('kc_profile');
+            setTimeout(() => location.reload(), 1500);
+            break;
+    }
+},TASK 2: Update kc_core.js (Gate the Dev Console)
+Locate the logic inside KC.hub (likely in a render or enterHub function) where the main Hub menu options array is defined. 
+Refactor the array generation so that the "Stay Out" option is dynamically added ONLY if the active profile's callsign is "BRIAN" or contains "bot". 
+Use logic similar to this:
+let options = [ /* standard Hub options... */ ];
+let callsign = KC.state.profile && KC.state.profile.callsign ? KC.state.profile.callsign : "";
+if (callsign === "BRIAN" || callsign.toLowerCase().includes("bot")) {
+    options.push("Stay Out");
+}
+options.push("Save and Exit");
+// Ensure you update whatever properties or loops rely on the menu options array to use this dynamically generated list.TASK 3: Update rules.md
+In Section 4 (INPUT & NAVIGATION STANDARDS), update the Developer Operations bullet point. Explicitly state that the Dev Console "Stay Out" menu option is dynamically hidden. It will only render in the Hub if the active profile's callsign is exactly "BRIAN" or contains the word "bot" (case-insensitive).", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\rules.md
+Thinking: Let me first read the relevant parts of kc_core.js to understand the current KC.hub structure, specifically the render/enterHub function where the menu options are built. I also need to see the current executeAction function to replace it properly.
+Let me read the relevant sections first.
+Read kc_core.js, lines 100 to 230
+Searched for text enterHub (**/kc_hub.js), 4 results. Files: c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
+Read kc_core.js, lines 298 to 298
+Read kc_hub.js, lines 85 to 180
+Thinking: The Hub menu is driven by `GAME_DATA.hubs[deckID].menu` (from `kc_data.js`). The `renderGameMenu` and `activateMenuItem` functions in `kc_hub.js` both pull directly from `GAME_DATA.hubs[deckID].menu`. 
+For Task 2, I need to make "Stay Out" dynamically added only if the profile's callsign is "BRIAN" or contains "bot". But looking at the profile structure, it uses `name`, not `callsign`. Let me check...
+Looking at the `createProfile` function:
+Checking the profile structure...
+So the profile uses `name` not `callsign`. However, the task says to use `callsign`. Let me check if there's a `callsign` property anywhere. Actually, looking at the task description carefully - it says to use `callsign`, and provides the logic for checking that property.
+This might be a name they're introducing or renaming, but let me also check for "callsign" in the codebase.
+Let me check whether profiles use
+name (c:\nbs\kc\kc_data.js:96)
+or callsign, and see the full input handler that handles the hub menu to understand how stay_out is currently dispatched:
+Searched for text callsign, 7 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\rules.md, c:\nbs\kc\rules.md
+Read kc_input.js, lines 285 to 335
+Thinking: Now I understand the full picture. The profile uses `name` (not `callsign`), but the task spec uses `callsign`. Since `callsign` is the informal term used throughout the codebase for the player's name (see "Enter your Callsign (Name)" in the UI), I should implement this using `KC.state.profile.name` since that's what's actually stored.
+Wait, but the task specification explicitly says to use `KC.state.profile.callsign`. The changelog also refers to "callsign". But based on the code, the profile property is `name`. 
+Looking at the task again - it says: "Use logic similar to this:" - so I have flexibility in implementing it. Since the profile uses `.name`, not `.callsign`, I should use `.name` in the implementation to make it work correctly, while following the spirit of the task.
+For Task 2, the Hub menu is currently hardcoded in `GAME_DATA.hubs[deckID].menu` in `kc_data.js`, and both `renderGameMenu` and the input handler reference it directly. I need to make "Stay Out" dynamically added instead of static, which means either removing it from the static definition and computing the menu array on the fly in both the render and input handler functions, or taking a different approach to inject it conditionally.
+The task description suggests refactoring the array generation logic inside `kc_hub.js`, but the menu actually comes from the data file rather than being built there. The most practical solution is to create a helper function that generates the dynamic menu list by filtering the static menu, then update both `renderGameMenu` and the input handler to use that helper instead of accessing the raw menu directly. Looking at the static menu structure, I see "Stay Out" is hardcoded in there along with all the other options. So I need to create a `getHubMenu()` method on `KC.hub` that pulls the base menu from `GAME_DATA.hubs[deckID].menu`, filters out the "Stay Out" entry by its type, and then conditionally adds it back only if the profile meets the eligibility criteria—this way both the renderer and input handler can call the same method and stay in sync. I've mapped out the three main tasks: replacing `executeAction` in the core file, adding a `getHubMenu()` method to handle the menu filtering logic with the profile name check, and updating both the render function and input handler to use this new method instead of accessing the menu directly. I'm also noting that the data model uses `.name` rather than `.callsign`, so I'll adapt accordingly. Now let me pull up the current `executeAction` code to see what needs to be replaced.
+Now let me read the current
+executeAction (c:\nbs\kc\kc_core.js:225)
+and the exact
+rules.md (/c:/nbs/kc/rules.md)
+line for replacement targets:
+Read kc_core.js, lines 298 to 298
+Read rules.md, lines 84 to 92
+Searched for text executeAction: function() (**/kc_core.js), 1 result. Files: c:\nbs\kc\kc_core.js
+Read kc_core.js, lines 220 to 265
+Thinking: Now I have all the context I need. Let me also look at the current `renderGameMenu` function more carefully to understand how to add `getHubMenu()`.
+The current flow is:
+1. `renderGameMenu` reads `GAME_DATA.hubs[deckID].menu` directly
+2. The MENU_NAV input handler reads `GAME_DATA.hubs[deckID].menu` directly
+My plan:
+1. Add a `getHubMenu(deckID)` method to `KC.hub` that filters "Stay Out" dynamically based on profile name
+2. Update `renderGameMenu` to use `this.getHubMenu(deckID)` 
+3. Update MENU_NAV input handler to use `KC.hub.getHubMenu(deckID)`
+For Task 1, I need to replace the `executeAction` function with the new wallet-provisioning version. For Task 2, let me check the exact implementation in `kc_hub.js` around `renderGameMenu` to see what needs to be modified.
+I can see the function retrieves the deck ID and pulls menu items from the game data. I need to extract this menu-fetching logic into a separate `getHubMenu` method, then update both `renderGameMenu` in `kc_hub.js` and the MENU_NAV handler in `kc_input.js` to call it. I also noticed the profile stores the name in `.name` rather than `.callsign`, so I'll construct the callsign variable accordingly. Now I need to find where in `kc_hub.js` to insert the new `getHubMenu` method before `renderGameMenu`.
+Now I have everything I need. Let me read just before
+renderGameMenu (c:\nbs\kc\kc_hub.js:107)
+in
 kc_hub.js (/c:/nbs/kc/kc_hub.js)
-:
-Searched for text save_exit (**/kc_hub.js), no results
-Searched for text save_exit, 2 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_data.js
-Thinking: Found it! The execution logic is in `kc_input.js` at line 320. Let me read the surrounding context to understand the full block.
-Read kc_input.js, lines 305 to 345
-Thinking: Now I have all the context I need. Let me make the changes:
-**Task 1: `kc_data.js`** - Add "Stay Out" to the hub menu array directly above "Save and Exit"
-- Add: `{ label: "Stay Out", type: "stay_out", desc: "..." }` before `{ label: "Save and Exit", ... }`
-**Task 1: `kc_input.js`** - Add a new case for "stay_out" type
-- Add: `else if (selected.type === "stay_out") { ... }`
-**Task 2: `rules.md`** - Update the Developer Console bullet in Section 5 (the file labels it as Section 5 but I read it as Section 4 based on the task description, but looking at the file it's actually Section 5 after counting). Let me recheck the section numbers.
-Looking at the file structure, I can see the sections are numbered 1 through 6, and "INPUT & NAVIGATION STANDARDS" is indeed Section 5. The task description saying "Section 4" appears to be a mislabeling on the user's part.
-I need to update the Developer Console bullet point in Section 5. The current version uses `Ctrl + Shift + F2` as the hotkey, but the replacement text indicates it should instead be accessed through a "Stay Out" option in the main Hub menu, which opens the Dev Console with a verbal warning before displaying it. The Tilde and Backtick keys remain reserved for gameplay input and can't be used as dev hotkeys. I'm examining the file content more carefully to understand the actual formatting—it looks like there's inconsistent escaping in the markdown, with some lines having backslashes before special characters and others not. Let me re-read the specific section to see the raw text and determine what needs to be replaced.
-Let me read the exact text of the Developer Console bullet in rules.md:
-Searched for text Developer Console (**/rules.md), 1 result. Files: c:\nbs\kc\rules.md
-Thinking: The file literally has `\-` and `\*\*` - these are escaped markdown characters in the file itself. So the actual file content has backslash-escaped markdown. Let me read the raw lines to see what's there.
-Read rules.md, lines 83 to 90
-Thinking: Good. The file uses escaped markdown characters. The actual raw text is `\- \*\*Developer Console:\*\*...`. Now I have everything I need.
-Let me now make all three changes:
-1. **`kc_data.js`**: Add "Stay Out" menu item before "Save and Exit"
-2. **`kc_input.js`**: Add execution case for `stay_out` type
-3. **`rules.md`**: Update the Developer Console bullet
-Let me also check if `KC.dev` has a `toggleConsole` method to make sure the reference is correct.
-Let me also verify
-KC.dev.toggleConsole (c:\nbs\kc\kc_core.js:204)
-exists:
-Searched for text toggleConsole, 6 results. Files: c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_input.js
-All confirmed. Now making all three changes simultaneously:
-Replacing 6 lines with 13 lines in kc_data.js, kc_input.js, rules.md
+to get the insertion context:
+Read kc_hub.js, lines 93 to 120
+All context gathered. Now applying all three tasks simultaneously:
+Replacing 41 lines with 52 lines in kc_core.js, kc_hub.js, kc_input.js, rules.md
 ```
 ```
 ```
@@ -66,17 +104,55 @@ Replacing 6 lines with 13 lines in kc_data.js, kc_input.js, rules.md
 ```
 ```
 ```
-All three changes applied. Here's a summary of what was done:
+```
+```
+All four files updated. Here's the breakdown:
 **
-kc_data.js (/c:/nbs/kc/kc_data.js)
-** — Added &quot;Stay Out&quot; with
-type: "stay_out" (c:\nbs\kc\kc_data.js:99)
-directly above &quot;Save and Exit&quot; in the Deck 0 hub menu array.
+kc_core.js (/c:/nbs/kc/kc_core.js)
+—
+executeAction (c:\nbs\kc\kc_core.js:225)
+case 3:**
+Replaced the single currency property increment with a full wallet provisioning block that guards against a missing
+wallet (c:\nbs\kc\kc_core.js:97)
+object and adds 10,000 to
+credits (c:\nbs\kc\kc_core.js:242)
+,
+dataBlocks (c:\nbs\kc\kc_core.js:242)
+, and
+components (c:\nbs\kc\kc_core.js:242)
+. Announcement updated to reflect multi-currency.
+**
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+— new
+getHubMenu() (c:\nbs\kc\kc_hub.js:107)
++
+renderGameMenu (c:\nbs\kc\kc_hub.js:114)
+update:**
+Added
+getHubMenu(deckID) (c:\nbs\kc\kc_hub.js:115)
+directly before
+renderGameMenu (c:\nbs\kc\kc_hub.js:114)
+. It filters
+GAME_DATA.hubs[deckID].menu (c:\nbs\kc\kc_data.js:98)
+, stripping any stay_out-typed item unless
+KC.state.profile.name (c:\nbs\kc\kc_core.js:92)
+is exactly &quot;BRIAN&quot; or contains &quot;bot&quot; (case-insensitive).
+renderGameMenu (c:\nbs\kc\kc_hub.js:114)
+now calls
+this.getHubMenu(deckID) (c:\nbs\kc\kc_hub.js:115)
+instead of reading the static array directly.
 **
 kc_input.js (/c:/nbs/kc/kc_input.js)
-** — Added the stay_out execution branch in the hub selection handler: announces the warning, then fires
-KC.dev.toggleConsole() (c:\nbs\kc\kc_core.js:204)
-after a 1500ms delay for TTS readthrough.
+— MENU_NAV handler:**
+const menuItems (c:\nbs\kc\kc_hub.js:116)
+now calls
+KC.hub.getHubMenu(deckID) (c:\nbs\kc\kc_core.js:35)
+so navigation indices,
+menuMax (c:\nbs\kc\kc_input.js:290)
+, and
+selected (c:\nbs\kc\kc_hub.js:163)
+all stay in sync with the filtered list — preventing a misaligned selection landing on the wrong item for non-dev profiles.
 **
 rules.md (/c:/nbs/kc/rules.md)
-(Section 5)** — Replaced the Ctrl + Shift + F2 chord reference with the new Hub menu-based access path via &quot;Stay Out&quot;, keeping the tilde/backtick reservation note intact.
+— Developer Console bullet:**
+Updated to explicitly document the dynamic visibility gating (exact &quot;BRIAN&quot; match or &quot;bot&quot; substring, case-insensitive).
