@@ -83,7 +83,7 @@
 
 \- \*\*Visual Echo:\*\* Whenever the user is prompted to type free-form text (e.g., creating a callsign), the hidden `inputTrap.value` must be actively mirrored to the `displayText` container using a `setTimeout(..., 10)` so sighted users can see what they are typing in real-time.
 
-\- \*\*Developer Console:\*\* All developer and testing operations are strictly accessed by pressing the `Ctrl + Shift + F2` chord, which toggles the in-game Dev Console overlay. The Tilde (\~) and Backtick (\`) keys are reserved for gameplay input in the Punctuation & Brackets quadrant and must NOT be used as dev/testing hotkeys.
+\- \*\*Developer Console:\*\* All developer and testing operations are accessed via the "Stay Out" option in the main Hub menu. Selecting "Stay Out" announces a verbal warning and then opens the Dev Console overlay. The Tilde (\~) and Backtick (\`) keys are reserved for gameplay input in the Punctuation & Brackets quadrant and must NOT be used as dev/testing hotkeys.
 
 
 

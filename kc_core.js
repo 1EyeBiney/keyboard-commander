@@ -195,24 +195,25 @@ KC.dev = {
     previousStatus: null,
     options: [
         "Close Console",
-        "Warp to Deck 0 (Hub)",
+        "Warp to Deck 0",
         "Unlock All Missions",
-        "Add 10,000 Credits (Testing)",
-        "Add 10,000 EXP (Placeholder)",
+        "Add 10000 Credits",
+        "Add 10000 EXP",
         "Clear Save Data"
     ],
     toggleConsole: function() {
         this.active = !this.active;
+        let el = document.getElementById('dev-console');
         if (this.active) {
             this.previousStatus = KC.state.status;
             KC.state.status = "DEV_CONSOLE";
             this.cursor = 0;
             this.render();
-            if (KC.audio.playSynth) KC.audio.playSynth(40);
         } else {
             KC.state.status = this.previousStatus;
-            const el = document.getElementById('dev-console');
+            KC.core.announce("Console closed.");
             if (el) el.style.display = 'none';
+            if (KC.state.status === "HUB" && KC.hub) KC.hub.render();
         }
     },
     moveCursor: function(dir) {
@@ -228,27 +229,32 @@ KC.dev = {
                 break;
             case 1: // Warp
                 this.toggleConsole();
-                KC.hub.enterHub();
+                KC.core.announce("Warping to Deck 0.");
+                if (KC.hub) KC.hub.enterHub();
                 break;
             case 2: // Unlock
-                KC.state.profile.currentDeck = 99; 
+                if (KC.state.profile) KC.state.profile.currentDeck = 99; 
                 KC.core.announce("All missions unlocked.");
                 break;
             case 3: // Credits
-                if (!KC.state.profile.currency) KC.state.profile.currency = 0;
-                KC.state.profile.currency += 10000;
-                KC.core.announce("10,000 Credits added.");
+                if (KC.state.profile) {
+                    if (!KC.state.profile.currency) KC.state.profile.currency = 0;
+                    KC.state.profile.currency += 10000;
+                }
+                KC.core.announce("Ten thousand Credits added.");
                 break;
             case 4: // EXP
                 KC.core.announce("EXP Booster applied. Placeholder active.");
                 break;
             case 5: // Nuke Save
+                KC.core.announce("Save data cleared. Refreshing system.");
                 localStorage.removeItem('kc_profile');
-                location.reload();
+                setTimeout(() => location.reload(), 1500);
                 break;
         }
     },
     render: function() {
+        // 1. VISUAL DOM OVERLAY
         let el = document.getElementById('dev-console');
         if (!el) {
             el = document.createElement('div');
@@ -267,15 +273,23 @@ KC.dev = {
         }
         el.style.display = 'block';
         
-        let html = '<h2>// SYS.ADMIN: DEV CONSOLE //</h2><ul style="list-style-type:none; padding:0;">';
+        let visualHtml = '<h2>// SYS.ADMIN: DEV CONSOLE //</h2><ul style="list-style-type:none; padding:0;">';
         this.options.forEach((opt, idx) => {
             const marker = (idx === this.cursor) ? '> ' : '&nbsp;&nbsp;';
-            html += `<li style="font-size: 1.2em; margin: 10px 0;">${marker}${opt}</li>`;
+            visualHtml += `<li style="font-size: 1.2em; margin: 10px 0;">${marker}${opt}</li>`;
         });
-        html += '</ul>';
-        el.innerHTML = html;
+        visualHtml += '</ul>';
+        el.innerHTML = visualHtml;
+
+        // 2. TEXT FALLBACK FOR HUD
+        let textHtml = "DEV CONSOLE\n\n";
+        this.options.forEach((opt, idx) => {
+            textHtml += (idx === this.cursor ? "> " : "  ") + opt + "\n";
+        });
+        if (KC.els && KC.els.displayText) KC.els.displayText.textContent = textHtml;
         
-        KC.els.displayText.textContent = `DEV CONSOLE\nSelected: ${this.options[this.cursor]}`;
+        // 3. HEADLESS AUDIO ANNOUNCEMENT
+        KC.core.announce("Dev Console Option: " + this.options[this.cursor]);
     }
 };
 

@@ -1,63 +1,82 @@
-Searched codebase for "Please implement the Version 3.14.1 Dev Console Hotfix. As per project rules, DO NOT TRUNCATE OR SUMMARIZE CODE. Provide the full, unabbreviated functions/arrays being replaced.
-TASK 1: Update kc_input.js
-Locate the handleGlobalKeys(e) function. Replace the Dev Console interception block at the very top of the function (which currently checks for '`' or '~') with the following chord logic:
-// --- DEV CONSOLE INTERCEPT ---
-if (e.ctrlKey && e.shiftKey && e.key === 'F2') {
-    e.preventDefault();
+Searched codebase for "Please implement the Version 3.14.3 Dev Console Menu Patch. As per project rules, DO NOT TRUNCATE OR SUMMARIZE CODE. Provide the full, unabbreviated functions/arrays being replaced.
+TASK 1: Update kc_core.js (Hub Menu Options)
+Locate the KC.hub object where the main Hub menu options are defined (the array that contains "Save and Exit").
+Insert the string "Stay Out" into the array directly above "Save and Exit".
+Locate the execution logic (likely a `switch` statement or `if/else` block based on the selected index/name) that handles what happens when a Hub option is chosen.
+Add a new case/condition for "Stay Out". 
+Inside this case, add the following logic:
+KC.core.announce("Abandon all hope, yee who enter.");
+setTimeout(() => {
     KC.dev.toggleConsole();
-    return;
-}TASK 2: Update kc_mission_core.js
-Locate the regionsComprehensive array. We must restore the tilde (~) and backtick (`) characters to the "Punctuation & Brackets" quadrant so the engine properly intercepts them during gameplay.
-Replace the existing "Punctuation & Brackets" line with this exact, unabbreviated line:
-{ name: "Punctuation & Brackets", left: "`-_=+[{", right: "]}\\|;:'\",.<>/?", both: "`-_=+[{]}\|;:'",.<>/?" },
-TASK 3: Update rules.md
-In Section 4 (INPUT & NAVIGATION STANDARDS), update the Developer Operations bullet point. Change the text to explicitly state that the Dev Console is now exclusively bound to Ctrl + Shift + F2.", 18 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\rules.md
-Thinking: Let me read the relevant files first to understand the current state before making changes.
-Let me read all three files in parallel first.
-Searched for text handleGlobalKeys (**/kc_input.js), 3 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
-Searched for text regionsComprehensive (**/kc_mission_core.js), 2 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+}, 1500); // Give the TTS time to read the warning before popping the console
+TASK 2: Update rules.md
+In Section 4 (INPUT & NAVIGATION STANDARDS), update the Developer Operations bullet point. Remove the references to keyboard chords (Ctrl + Alt + M, etc.). Explicitly state that the Dev Console is now safely accessed via the "Stay Out" option located in the main Hub menu.", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\rules.md
+Thinking: Let me read the relevant files to understand the current state of the code before making changes.
+Let me read the relevant files first.
+Read kc_core.js, lines 1 to 80
+Read rules.md, lines 1 to 80
+Thinking: I need to read more of `kc_core.js` to find the `KC.hub` object with the menu options array and the execution logic. Let me read more of the file.
+Read kc_core.js, lines 80 to 200
+Read rules.md, lines 65 to 98
+Thinking: Now I need to read the `KC.hub` object where the Hub menu options are defined (containing "Save and Exit"). Let me continue reading `kc_core.js` and also check `kc_hub.js`.
+Now let me find the
+KC.hub (c:\nbs\kc\kc_core.js:29)
+menu options and execution logic:
+Searched for text Save and Exit, 2 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js
+Thinking: It's in `kc_data.js`! Let me read the relevant section of `kc_data.js` to find the hub menu options, and then I need to find the execution logic in `kc_hub.js`.
+Searched for text save_exit (**/kc_hub.js), no results
+Read kc_data.js, lines 90 to 130
+Thinking: The menu options are in `kc_data.js`. Now let me find the execution logic that handles what happens when a Hub option is chosen. Let me search for `save_exit` in `kc_hub.js`.
+Now let me find the execution logic in
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+:
+Searched for text save_exit (**/kc_hub.js), no results
+Searched for text save_exit, 2 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_data.js
+Thinking: Found it! The execution logic is in `kc_input.js` at line 320. Let me read the surrounding context to understand the full block.
+Read kc_input.js, lines 305 to 345
+Thinking: Now I have all the context I need. Let me make the changes:
+**Task 1: `kc_data.js`** - Add "Stay Out" to the hub menu array directly above "Save and Exit"
+- Add: `{ label: "Stay Out", type: "stay_out", desc: "..." }` before `{ label: "Save and Exit", ... }`
+**Task 1: `kc_input.js`** - Add a new case for "stay_out" type
+- Add: `else if (selected.type === "stay_out") { ... }`
+**Task 2: `rules.md`** - Update the Developer Console bullet in Section 5 (the file labels it as Section 5 but I read it as Section 4 based on the task description, but looking at the file it's actually Section 5 after counting). Let me recheck the section numbers.
+Looking at the file structure, I can see the sections are numbered 1 through 6, and "INPUT & NAVIGATION STANDARDS" is indeed Section 5. The task description saying "Section 4" appears to be a mislabeling on the user's part.
+I need to update the Developer Console bullet point in Section 5. The current version uses `Ctrl + Shift + F2` as the hotkey, but the replacement text indicates it should instead be accessed through a "Stay Out" option in the main Hub menu, which opens the Dev Console with a verbal warning before displaying it. The Tilde and Backtick keys remain reserved for gameplay input and can't be used as dev hotkeys. I'm examining the file content more carefully to understand the actual formatting—it looks like there's inconsistent escaping in the markdown, with some lines having backslashes before special characters and others not. Let me re-read the specific section to see the raw text and determine what needs to be replaced.
+Let me read the exact text of the Developer Console bullet in rules.md:
 Searched for text Developer Console (**/rules.md), 1 result. Files: c:\nbs\kc\rules.md
+Thinking: The file literally has `\-` and `\*\*` - these are escaped markdown characters in the file itself. So the actual file content has backslash-escaped markdown. Let me read the raw lines to see what's there.
 Read rules.md, lines 83 to 90
-Read kc_input.js, lines 17 to 60
-Read kc_mission_core.js, lines 17 to 40
-Thinking: Now I have all the context I need. Let me make all three changes:
-1. **kc_input.js**: Replace the dev console intercept block (lines 18-22 based on the read) from checking `e.key === '`' || e.key === '~'` to checking `e.ctrlKey && e.shiftKey && e.key === 'F2'`
-2. **kc_mission_core.js**: Replace the "Punctuation & Brackets" line to add `~` and `` ` `` characters
-3. **rules.md**: Update the Developer Console bullet to mention `Ctrl + Shift + F2`
-I need to verify the placement of the new Ctrl+Shift+F2 intercept—it should come before the browser defaults whitelist that handles F1-F12 keys, so the preventDefault and early return will block the F2 press before it reaches that check.
-Now I have all the context. Making all three changes simultaneously.
-Replacing 9 lines with 9 lines in kc_input.js, kc_mission_core.js, rules.md
+Thinking: Good. The file uses escaped markdown characters. The actual raw text is `\- \*\*Developer Console:\*\*...`. Now I have everything I need.
+Let me now make all three changes:
+1. **`kc_data.js`**: Add "Stay Out" menu item before "Save and Exit"
+2. **`kc_input.js`**: Add execution case for `stay_out` type
+3. **`rules.md`**: Update the Developer Console bullet
+Let me also check if `KC.dev` has a `toggleConsole` method to make sure the reference is correct.
+Let me also verify
+KC.dev.toggleConsole (c:\nbs\kc\kc_core.js:204)
+exists:
+Searched for text toggleConsole, 6 results. Files: c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_input.js
+All confirmed. Now making all three changes simultaneously:
+Replacing 6 lines with 13 lines in kc_data.js, kc_input.js, rules.md
 ```
 ```
 ```
 ```
 ```
 ```
-Thinking: The kc_mission_core.js replacement failed. Let me look more carefully at the exact content of that line to understand the whitespace and characters used.
-The
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-replacement failed. Let me inspect the exact bytes in that line.
-Read kc_mission_core.js, lines 25 to 29
-Replacing 1 lines with 1 lines in kc_mission_core.js
 ```
 ```
-```
-```
-All three changes are applied. Let me verify the final state of each:
-Read kc_input.js, lines 17 to 25
-Read kc_mission_core.js, lines 25 to 29
-Read rules.md, lines 84 to 88
-All three tasks complete and verified:
+All three changes applied. Here's a summary of what was done:
 **
-kc_input.js#L17-L23 (/c:/nbs/kc/kc_input.js:17)
-** — Dev console intercept now triggers on Ctrl + Shift + F2 instead of ` / ~.
-2. **
-kc_mission_core.js#L26 (/c:/nbs/kc/kc_mission_core.js:26)
-** — "Punctuation & Brackets" quadrant restored with ~ and ` in both
-left (c:\nbs\kc\kc_mission_core.js:11)
-and
-both (c:\nbs\kc\kc_mission_core.js:11)
-fields.
-3. **
-rules.md#L86 (/c:/nbs/kc/rules.md:86)
-** — Section 5 updated to document Ctrl + Shift + F2 as the exclusive dev console binding, and explicitly marks tilde/backtick as reserved for gameplay.
+kc_data.js (/c:/nbs/kc/kc_data.js)
+** — Added &quot;Stay Out&quot; with
+type: "stay_out" (c:\nbs\kc\kc_data.js:99)
+directly above &quot;Save and Exit&quot; in the Deck 0 hub menu array.
+**
+kc_input.js (/c:/nbs/kc/kc_input.js)
+** — Added the stay_out execution branch in the hub selection handler: announces the warning, then fires
+KC.dev.toggleConsole() (c:\nbs\kc\kc_core.js:204)
+after a 1500ms delay for TTS readthrough.
+**
+rules.md (/c:/nbs/kc/rules.md)
+(Section 5)** — Replaced the Ctrl + Shift + F2 chord reference with the new Hub menu-based access path via &quot;Stay Out&quot;, keeping the tilde/backtick reservation note intact.

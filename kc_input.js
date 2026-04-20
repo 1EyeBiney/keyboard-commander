@@ -317,6 +317,12 @@ KC.input = {
                 else if (selected.type === "cache") KC.hub.enterDataCache();
                 else if (selected.type === "archive") KC.hub.enterArchive();
                 else if (selected.type === "echoc") KC.echoc.init(); 
+                else if (selected.type === "stay_out") {
+                    KC.core.announce("Abandon all hope, yee who enter.");
+                    setTimeout(() => {
+                        KC.dev.toggleConsole();
+                    }, 1500); // Give the TTS time to read the warning before popping the console
+                }
                 else if (selected.type === "save_exit") { KC.core.saveProgress(); location.reload(); }
             } else if (e.key === "Escape") {
                 this.flush();
