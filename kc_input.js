@@ -16,7 +16,7 @@ KC.input = {
 
     handleGlobalKeys: function(e) {
         // --- DEV CONSOLE INTERCEPT ---
-        if (e.key === '`' || e.key === '~') {
+        if (e.ctrlKey && e.shiftKey && e.key === 'F2') {
             e.preventDefault();
             KC.dev.toggleConsole();
             return;
