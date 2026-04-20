@@ -27,7 +27,7 @@ KC.mission = {
         { name: "Numpad",                 left: "",      right: "",      both: ["0","1","2","3","4","5","6","7","8","9","/","*","-","+",".","Enter"],                                                                                                                isExpert: false },
         // Control Quadrants (9-10)
         { name: "Function Keys",          left: "",      right: "",      both: ["F1","F2","F3","F4","F5","F6","F7","F8","F9","F10","F11","F12"],                                                                                                                     isExpert: false },
-        { name: "Modifiers & Navigation", left: "",      right: "",      both: ["Escape","Tab","CapsLock","Shift","Control","Alt","Insert","Delete","Home","End","PageUp","PageDown","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"],                                 isExpert: false }
+        { name: "Navigation & Editing",     left: "",      right: "",      both: ["Insert","Delete","Home","End","PageUp","PageDown","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"],                                                                                          isExpert: false }
     ],
 
     getRegions: function(lesson) {
@@ -210,7 +210,7 @@ KC.mission = {
         }
         content += R(startRow, `[ START MISSION ]`) + '\n';
         content += R(exitRow,  `[ EXIT TO DECK  ]`) + '\n';
-        content += `\n[Up/Down: Select Row | Left/Right: Adjust | Enter: Confirm]`;
+        content += `\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission]`;
 
         KC.els.displayText.textContent = content;
 
@@ -228,7 +228,7 @@ KC.mission = {
             if (navOnly) {
                 KC.core.announce(currentRowLabel);
             } else {
-                KC.core.announce(`Mission: ${lesson.name}. Setup. ${currentRowLabel}. Use Up and Down to select a row, Left and Right to adjust.`);
+                KC.core.announce(`Mission: ${lesson.name}. Setup. ${currentRowLabel}. Use Up and Down to select a row, Left and Right to adjust, or press Enter to launch.`);
             }
         }
     },
@@ -399,8 +399,9 @@ KC.mission = {
                         (lesson.generator === "echoc") ? KC.handlers.echoc : null;
 
         if (!handler) {
-            KC.core.announce("Critical Error: Mission handler not found.");
+            KC.core.announce("Error: This mission lacks a valid engine handler. Returning to Deck Menu.");
             console.error("Handler missing for generator:", lesson.generator);
+            setTimeout(() => KC.hub.enterHub(), 1500);
             return;
         }
 

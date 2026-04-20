@@ -238,13 +238,10 @@ KC.input = {
             }
             else if (e.key === "Enter") {
                 this.flush();
-                if (KC.mission.setupCursor === startRow) {
-                    KC.mission.executeMission();
-                } else if (KC.mission.setupCursor === exitRow) {
+                if (KC.mission.setupCursor === exitRow) {
                     KC.hub.enterHub();
                 } else {
-                    // Enter on a setting row advances the value by 1
-                    KC.mission.adjustCurrentRow(1);
+                    KC.mission.executeMission();
                 }
             }
             else if (e.key === "Escape") {
@@ -273,11 +270,7 @@ KC.input = {
             e.preventDefault(); 
             if (["Enter", "g", "G"].includes(e.key)) {
                 this.flush(); 
-                if (KC.state.status === "MENU" && e.key === "Enter") {
-                    KC.mission.loadLesson(KC.state.profile.currentLessonID || "D00-01");
-                } else {
-                    KC.hub.openGameMenu();
-                }
+                KC.hub.openGameMenu();
             }
             return;
         }

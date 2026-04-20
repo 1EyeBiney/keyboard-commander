@@ -16,11 +16,12 @@
 
 \## 2. CURRICULUM ARCHITECTURE
 
-\### The 10-Quadrant Progression
-\- The 10 standard keyboard quadrants are organized into three groups:
+\### The 9-Quadrant Progression
+\- The 9 standard keyboard quadrants are organized into three groups:
 \- \*\*Alpha Quadrants (1–4):\*\* Home Row, Top \& Home, Bottom \& Home, All Alpha.
 \- \*\*Data Quadrants (5–8):\*\* Number Row, Shift Symbols, Punctuation \& Brackets, Numpad.
-\- \*\*Control Quadrants (9–10):\*\* Function Keys, Modifiers \& Navigation.
+\- \*\*Control Quadrants (9):\*\* Navigation \& Editing.
+\- \*\*Banned Keys:\*\* System-level modifiers and state keys (`Escape`, `Tab`, `CapsLock`, `Shift`, `Control`, `Alt`, `Meta`) are permanently banned from being used as active typing targets in any quadrant, as they unavoidably conflict with screen reader controls and browser focus mechanics.
 
 
 \## 3. SCREEN READER \& ACCESSIBILITY ENGINEERING
@@ -84,6 +85,8 @@
 \- \*\*Visual Echo:\*\* Whenever the user is prompted to type free-form text (e.g., creating a callsign), the hidden `inputTrap.value` must be actively mirrored to the `displayText` container using a `setTimeout(..., 10)` so sighted users can see what they are typing in real-time.
 
 \- \*\*Developer Console:\*\* The Dev Console is accessed via the "Stay Out" option in the main Hub menu. This option is dynamically hidden and will only render in the Hub if the active profile's callsign is exactly "BRIAN" or contains the word "bot" (case-insensitive). Selecting it announces a verbal warning before opening the Dev Console overlay. The Tilde (\~) and Backtick (\`) keys are reserved for gameplay input in the Punctuation & Brackets quadrant and must NOT be used as dev/testing hotkeys.
+
+\- \*\*No Hub Quick-Starts:\*\* The `Enter` key at the root Hub level must strictly open the primary Game Menu. Never assign `Enter` to auto-launch missions from the Hub, as this creates a "double-bounce" race condition where users accidentally trigger missions immediately after pressing `Enter` to log in.
 
 
 
