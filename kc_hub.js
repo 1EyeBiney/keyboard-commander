@@ -1,7 +1,19 @@
 /* kc_hub.js - v2.95 */
 
 KC.hub = {
-    
+
+    settingsMenu: {
+        themes: ["matrix", "amber", "solar", "blue", "inverse", "violet", "moon", "blueprint"],
+        fontSizes: ["100", "125", "150", "200"],
+        musicStyles: ["default", "spaghetti", "arcade"],
+        volumeStages: [0, 5, 10, 20, 30, 40],
+        row: 0,
+        themeIndex: 0,
+        fontIndex: 0,
+        styleIndex: 0,
+        volumeIndex: 2
+    },
+
     renderMenu: function() {
         KC.core.loadRoster();
         this.renderLogin(true);
@@ -63,6 +75,10 @@ KC.hub = {
         } else {
             KC.core.loadProfile(selection);
             if (KC.bgm) KC.bgm.applyProfileSettings(KC.state.profile);
+            if (KC.state.profile.settings) {
+                this.applyTheme(KC.state.profile.settings.theme || "matrix");
+                this.applyFontSize(KC.state.profile.settings.font_size || "100");
+            }
             this.routeProfileBoot();
         }
     },
@@ -510,5 +526,65 @@ KC.hub = {
         if (KC.state.archive.index >= max) KC.state.archive.index = Math.max(0, max - 1);
         
         this.renderArchive();
+    },
+
+    // --- SETTINGS ---
+    openSettingsMenu: function() {
+        KC.state.status = "SETTINGS";
+        if (KC.input && KC.input.flush) KC.input.flush();
+
+        const settings = KC.state.profile.settings;
+        const sm = this.settingsMenu;
+        sm.row = 0;
+
+        const themeIdx = sm.themes.indexOf(settings.theme || "matrix");
+        sm.themeIndex = (themeIdx !== -1) ? themeIdx : 0;
+
+        const fontIdx = sm.fontSizes.indexOf(String(settings.font_size || "100"));
+        sm.fontIndex = (fontIdx !== -1) ? fontIdx : 0;
+
+        const styleIdx = sm.musicStyles.indexOf(settings.bgm_style || "default");
+        sm.styleIndex = (styleIdx !== -1) ? styleIdx : 0;
+
+        const volIdx = sm.volumeStages.indexOf(settings.bgm_volume !== undefined ? settings.bgm_volume : 10);
+        sm.volumeIndex = (volIdx !== -1) ? volIdx : 2;
+
+        this.renderSettingsMenu(true);
+    },
+
+    renderSettingsMenu: function(isEntering = false) {
+        const sm = this.settingsMenu;
+        const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade" };
+        const rowLabels = ["Theme", "Font Size", "Music Style", "Volume"];
+        const rowValues = [
+            sm.themes[sm.themeIndex],
+            sm.fontSizes[sm.fontIndex] + "%",
+            styleNames[sm.musicStyles[sm.styleIndex]] || sm.musicStyles[sm.styleIndex],
+            sm.volumeStages[sm.volumeIndex]
+        ];
+
+        let content = ">> SOUND AND SIGHT SETTINGS <<\n------------------------------\n\n";
+        rowLabels.forEach((label, i) => {
+            const cursor = (i === sm.row) ? "> " : "  ";
+            content += `${cursor}${label}: ${rowValues[i]}\n`;
+        });
+        content += "\n[Up/Down: Select Category | Left/Right: Change Value | Esc: Return]";
+        KC.els.displayText.textContent = content;
+
+        if (isEntering) {
+            KC.core.announce("Sound and Sight Settings. Use Up and Down to select a category, Left and Right to change values. Press Escape to return.");
+        } else {
+            KC.core.announce(`${rowLabels[sm.row]}: ${rowValues[sm.row]}`);
+        }
+    },
+
+    applyTheme: function(theme) {
+        this.settingsMenu.themes.forEach(t => document.body.classList.remove('theme-' + t));
+        if (theme) document.body.classList.add('theme-' + theme);
+    },
+
+    applyFontSize: function(size) {
+        this.settingsMenu.fontSizes.forEach(s => document.body.classList.remove('font-' + s));
+        if (size) document.body.classList.add('font-' + size);
     }
 };

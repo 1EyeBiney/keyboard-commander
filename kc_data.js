@@ -105,6 +105,7 @@ const GAME_DATA = {
         { label: "Engineering (R&D)", type: "engineering", desc: "Research and unlock permanent system upgrades." },
         { label: "System Fabricator", type: "fabricator", desc: "Purchase temporary boosts and single-use items." },
         { label: "Echo Chamber", type: "echoc", desc: "Safe zone: Practice your keyboard layout and explore menus without being scored." },
+        { label: "Sound and Sight Settings", type: "settings", desc: "Adjust themes, text size, and ambient music." },
         { label: "Stay Out", type: "stay_out", desc: "For authorized personnel only. Opens the Dev Console with a verbal warning." },
         { label: "Save and Exit", type: "save_exit", desc: "Save your current progress and power down the terminal." }
       ]

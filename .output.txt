@@ -1,22 +1,298 @@
-Searched codebase for "Please implement the Version 3.23.1 Legacy BGM Registry Patch. As per project rules, DO NOT TRUNCATE OR SUMMARIZE CODE. Provide precise insertion/replacement instructions.
-TASK 1: Register Legacy Music in kc_data.js
-Locate the audio_bank object inside kc_data.js. Find the // BGM Expansion (v3.23.0) section we just added at the bottom of the list.
-Insert this exact block of mappings directly ABOVE the // BGM Expansion (v3.23.0) line:
-  // Legacy BGM Registry (v3.23.1)
-  "mu_default1": "audio/music/mu_default1.mp3",
-  "mu_default2": "audio/music/mu_default2.mp3",
-  "mu_default3": "audio/music/mu_default3.mp3",
-  "mu_default4": "audio/music/mu_default4.mp3",
-  "mu_spaghetti1": "audio/music/mu_spaghetti1.mp3",
-  "mu_spaghetti2": "audio/music/mu_spaghetti2.mp3",
-  "mu_spaghetti3": "audio/music/mu_spaghetti3.mp3",
-  "mu_spaghetti4": "audio/music/mu_spaghetti4.mp3",", 21 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_race.js
-Thinking: The user wants to insert legacy BGM registry entries directly above the `// BGM Expansion (v3.23.0)` comment in kc_data.js.
-Replacing 4 lines with 14 lines in kc_data.js
+Searched codebase for "Please implement the Version 3.24.0 UX Overhaul. DO NOT TRUNCATE OR SUMMARIZE CODE.
+TASK 1: Update Profile Defaults in kc_data.js
+Locate the initialization of the profile settings. Ensure the default profile includes these new keys:
+settings: {
+    theme: "matrix",
+    font_size: "100",
+    bgm_style: "default",
+    bgm_volume: 10
+}
+TASK 2: Implement "Deep Ducking" and Previews in kc_bgm.js
+Add a new method `playPreview(style)` that:
+- Identifies track 1 of the requested style.
+- Saves the current volume, then sets activeAudio.volume to 0.05.
+- Plays the preview track on a separate, temporary Audio object.
+- Stops the preview and restores volume after 3.5 seconds.
+Update `setVolume` to handle the new 0-40 scale accurately.
+TASK 3: Create the Settings Menu in kc_hub.js
+Add `this.settingsMenu` object to manage the following arrays:
+- themes: ["matrix", "amber", "solar", "blue", "inverse", "violet", "moon", "blueprint"]
+- fontSizes: ["100", "125", "150", "200"]
+- musicStyles: ["default", "spaghetti", "arcade"]
+- volumeStages: [0, 5, 10, 20, 30, 40]
+Implement `openSettingsMenu()`:
+- State shift: Capture keyboard focus.
+- Announcement: "Sound and Sight Settings. Use Up and Down to select a category, Left and Right to change values. Press Escape to return."
+Implement Menu Navigation Logic:
+- UP/DOWN: Cycle between Theme, Font, Style, and Volume.
+- LEFT/RIGHT: Cycle values. 
+- On Style Change: Trigger KC.bgm.playPreview().
+- On Theme/Font Change: Instantly apply CSS classes to document.body and announce the change.
+TASK 4: Add New UI Menu Item
+In the main Hub menu array, insert a new object:
+{ name: "Sound and Sight Settings", action: "openSettingsMenu", desc: "Adjust themes, text size, and ambient music." }", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\rules.md
+Thinking: Let me start by reading the relevant files to understand the current codebase structure before implementing the changes.
+Created 5 todos. 5 items: Read kc_data.js, kc_bgm.js, kc_hub.js (in-progress); Task 1: Update profile defaults in kc_data.js (not-started); Task 2: Implement deep ducking & previews in kc_bgm.js (not-started); Task 3: Create Settings Menu in kc_hub.js (not-started); Task 4: Add Settings menu item to Hub menu (not-started)
+Read kc_data.js, lines 1 to 100
+Read kc_data.js, lines 100 to 200
+Read kc_data.js, lines 200 to 350
+Thinking: Let me continue reading kc_data.js to find the profile initialization section, and also start reading kc_bgm.js and kc_hub.js in parallel.
+Read kc_data.js, lines 350 to 500
+Thinking: Let me search for the profile initialization/createProfile function in kc_data.js to understand the structure.
+Searched for regex settings|createProfile|default_profile|newProfile (**/kc_data.js), no results
+Searched for regex settings|createProfile|default_profile|newProfile|bgm_style|bgm_volume, 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\mission_race.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js
+Searched for regex createProfile|new_profile|default.*career|career.*default, 3 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_input.js
+Read kc_core.js, lines 85 to 160
+Thinking: Now I have the profile initialization in `kc_core.js`. Now let me read `kc_bgm.js` fully.
+Now let me read the BGM and Hub files:
+Read kc_bgm.js
+Read kc_hub.js, lines 1 to 250
+Read kc_hub.js, lines 250 to 500
+Read kc_hub.js, lines 500 to 514
+Thinking: Now I have a complete picture of all three files. Let me also look at the `activateMenuItem` function in `kc_hub.js` more carefully to understand how to hook in the `openSettingsMenu` action type, and the `kc_input.js` for navigation to understand how routing works.
+Now let me check
+kc_input.js (/c:/nbs/kc/kc_input.js)
+to understand how Hub navigation dispatches to actions:
+Searched for regex MENU_NAV|stay_out|archive|cache|fabricator|engineering|echoc|save_exit|openSettingsMenu (**/kc_input.js), 20 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
+Read kc_input.js, lines 275 to 360
+Read kc_input.js, lines 360 to 426
+Thinking: Now I have a complete picture of all three files and how they work. Let me now implement all four tasks.
+**Task 1: Update Profile Defaults in `kc_core.js`**
+The profile defaults are in `kc_core.js` in the `createProfile` function and `loadProfile` function. I need to add `theme: "matrix"` and `font_size: "100"` to the settings object.
+Current:
+```javascript
+settings: { bgm_volume: 10, bgm_style: "default" },
+```
+New:
+```javascript
+settings: { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10 },
+```
+I also need to update the same defaults in the `loadProfile` function where it initializes settings if they don't exist. Let me check the task description again—it says to update in `kc_data.js`, but the profile initialization is actually in `kc_core.js`, so I'll update both locations there.
+For the second task, I need to add a `playPreview` method that grabs the first track from a style, temporarily ducks the volume down to 0.05, plays it on a separate audio object, and restores the original volume after 3.5 seconds. I also need to update the `setVolume` method to work with the new 0-40 scale instead of the current volume stages. So the old system stored display values directly (0, 5, 10, 20, 30, 40) and divided by 100 to get the float values, which means a default of 10 becomes 0.1 matching the third stage. But I need to reconsider how this mapping actually works with the new scale. looking at the volumeStages values and how they convert: if `bgm_volume` is stored as 10, then `vol/100 = 0.10`, and `volumeStages.indexOf(0.10) = 2` → correct.
+   But the display shown in `cycleVolume` is `Math.round(targetVol * 100)` = `Math.round(0.1 * 100)` = 10. So the "old" scale actually stores values like 0, 5, 10, 20, 30, 40 and the conversion `/ 100` gives the right float. That seems fine.
+   For "new 0-40 scale", the stages ARE already 0, 5, 10, 20, 30, 40 (multiplied by 100). So the stored `bgm_volume` should directly correspond to `volumeStages * 100`. The current system stores the display value (0-40 range) and divides by 100 on load to get back the float values, which matches the volumeStages array perfectly.
+   I need to add a `setVolume` method that takes a value from the 0-40 range directly and applies it without the extra multiplication. , 30, 40]`, meaning a direct integer value on the 0-40 scale.
+   So `setVolume(displayVol)` would:
+   - Find the index in the display stage array [0, 5, 10, 20, 30, 40]
+   - Set `currentVolumeIndex` to that index
+   - Apply the float volume to active audio
+   - Save to profile
+   Currently `applyProfileSettings` does `volFloat = profile.settings.bgm_volume / 100`. With the 0-40 scale meaning values stored as 0, 5, 10, 20, 30, 40... it still divides by 100 to get the float. That should remain correct. The only change is perhaps we need a cleaner `setVolume(displayVol)` method.
+Now for the settings menu, I need to define the volume stages array and wire up the cycling behavior. When the player navigates left or right, it'll pick the next display value from that array and pass it to `setVolume`, which converts it to a float, finds the corresponding index, applies it to the audio, and persists it to the profile.
+Implementing setVolume... Now I'm moving to the settings menu in `kc_hub.js` - since it uses an object literal pattern rather than a constructor, I'll define `settingsMenu` as a property with arrays for themes, font sizes, and other options, then track the current row and index within each array for navigation.
+For the `openSettingsMenu()` method, I need to set the status to "SETTINGS", flush any pending input, sync the indices with the current profile settings, render the menu, and announce the instructions to the user.
+I'll also need to add a handler in `kc_input.js` for the "SETTINGS" status and create a `renderSettingsMenu()` method to display the options - and when the user changes theme or font, those changes should apply instantly through CSS updates.
+Now looking at how to add this to the Hub menu - I see the existing items use `label` and `type` properties, not `name` and `action`, so I need to follow that same pattern when adding the settings menu item. Now I need to add the routing logic in `kc_input.js` to handle the settings menu trigger, then map out all the changes across the codebase—updating core profile initialization and migration, adding preview and volume methods to the audio module, and building out the settings menu interface with theme application and additional configuration options.
+Writing the preview method... I'm implementing the `setVolume` function to convert a display percentage into a float value, find its index in the volume stages array, and update both the active audio element and the user's saved settings. I'm noticing a potential floating point precision issue where `indexOf` might fail to match values like 0.05 due to how decimals are represented in binary, so I need to account for that when mapping the display volume to the correct stage. Now I'm setting up the settings menu structure in `kc_hub.js` with arrays for themes, font sizes, music styles, and volume levels, along with index trackers for each category. I'm starting to define the `openSettingsMenu()` function that will set the game state to "SETTINGS"...
+Flushing any pending input, then syncing the menu indices with the current profile settings by finding where each saved preference appears in its corresponding array, defaulting to the first option if not found, and finally rendering the settings menu.
+Now I'm building the settings display function that constructs the menu UI by mapping through the four configurable options—theme, font size, music style, and volume—and formatting them with a cursor indicator showing which row is currently selected.
+Adding input handling for the settings state... Writing the settings handler... Still writing settings logic... I'm working through how to handle theme application—for the default "matrix" theme, I should probably just remove all theme classes to keep the base styling clean, but for consistency I could add the class for every theme including matrix. Let me refine the approach to only toggle classes from the actual themes list to avoid conflicts with other classes like `theme-login`.
+Still writing theme logic... The task specifies `name` and `action` fields, but the existing codebase uses `label` and `type` for menu items to work properly with the rendering and routing logic. I need to stick with `label` and `type` to maintain consistency and ensure the settings menu item actually displays and functions correctly. I need to figure out where to place this new menu item in the existing list. Since it's a settings/utility feature, inserting it after "System Fabricator" and before "Echo Chamber" makes sense—it keeps the administrative functions grouped together while staying separate from the exit options at the end.
+Now I'm checking how the menu activation works. The `activateMenuItem` function handles different item types with specific logic for missions, arcade, and engineering, but falls back to a generic "Module offline" message for anything else. I need to see how the input routing actually triggers menu actions to understand where I should wire up the settings functionality.
+Looking at the volume scaling, the existing code already handles the conversion correctly—storing values as 0-40 but dividing by 100 to get the float values that match the volume stages, so that part doesn't need changes. it's just a display scale, the stored values haven't changed).
+Wait, but the old `cycleVolume` uses Math.round to convert the target volume to a 0-40 display range, which is still within that same range. So the existing code is already on a 0-40 scale for display, just with confusing naming. The "new 0-40 scale" the task refers to is basically the existing stored values. My `setVolume` implementation should work correctly with these display values directly.
+Now I need to figure out where to position the `settingsMenu` object and methods in `kc_hub.js`. I'll add the object as a property at the top, then place the methods like `openSettingsMenu()`, `renderSettingsMenu()`, `applyTheme()`, and `applyFontSize()` at the bottom before the closing brace.
+I also need to update the migration check in `kc_core.js` to initialize the new settings properties with their default values when loading a profile.
+I also need to handle backwards compatibility for existing profiles that already have a `settings` object but are missing the `theme` and `font_size` properties—I'll add checks to set those defaults if they're not present.
+Then I need to figure out when to call `applyTheme` and `applyFontSize` during the login flow. Looking at how the profile gets applied, I should call these in the appropriate place like `applyProfileSettings` or during the boot sequence so the theme and font size are applied as soon as the user logs in.
+The best spot is right after `applyProfileSettings` is called in `selectLogin`, where I can add calls to apply the theme and font size from the profile settings if they exist. I need to call the theme and font size application functions during login, but there's a structural issue—`applyTheme` depends on `this.settingsMenu.themes`, so it can't work as a standalone function without the proper context.
+Actually, since I'm defining these methods inside the `KC.hub` object literal, `this` will correctly reference `KC.hub`, so calling `KC.hub.applyTheme(...)` will work fine throughout the codebase.
+Now I'm setting up the `openSettingsMenu` function to initialize the settings menu indices based on the loaded profile, including handling edge cases where stored values might be invalid or out of range.
+Writing the initialization logic... I need to place the SETTINGS block right before `handleFocusLoss` in the `handleKeyDown` function, following the same pattern as the other menu states. I'm also deciding to use `label` and `type` instead of `name` and `action` since those are what the routing system actually needs to work properly. Let me trace through the audio synth handling to make sure the settings route is wired up correctly...
+Looking at the audio routing logic, the "settings" type would fall into the default case and play synth 23, which works fine. I could group it with cache and archive to use synth 30 instead, but the default behavior is acceptable.
+Now I'm ready to implement all the changes across the three files: updating the profile creation and migration logic in kc_core.js, adding the preview and volume methods to kc_bgm.js, and building out the settings menu functionality in kc_hub.js with theme application and rendering methods. Now I'm looking at the specific code changes needed across the files. For the profile initialization and migration in kc_core.js, I need to update the default settings object to include theme and font_size properties, then add fallback checks during load to ensure older profiles get these new fields. I'm also adding helper methods to kc_bgm.js for audio preview and volume control, plus setting up the settings menu entry in kc_hub.js.
+For kc_data.js, I'm inserting the new settings menu item between "Echo Chamber" and "Stay Out" with appropriate labels and descriptions. Then in kc_input.js, I need to wire up the menu navigation to open the settings menu when that item is selected, add a new SETTINGS block to handle the settings menu interactions, and make sure the theme and font size get applied when the user logs in.
+Now I'm checking the selectLogin method to see where to apply the saved theme and font size settings. I need to add calls to apply these settings after the profile loads, using `this` since we're already in the KC.hub context.
+I'm verifying that `this.settingsMenu.themes` will be accessible from within the applyTheme method since KC.hub is a plain object and `this` will correctly reference it when methods are called.
+Now I need to carefully map out all the changes across the files and use multi_replace_string_in_file to make the updates efficiently.
+I'm realizing a potential issue: if `applyTheme` tries to iterate over `this.settingsMenu.themes` before the settingsMenu property is initialized, it could fail, so I need to ensure proper initialization order.
+Now I'm thinking through the display format for the settings menu—it should show the current category and value clearly, with instructions for navigation. For the announcements when changing rows, I should keep them concise, just stating the label and current value like "Theme: matrix". I'm also considering whether to humanize the internal style names to make them more readable for users.
+I'll create a mapping for the style names so they display nicely—converting things like "spaghetti" to "Spaghetti Western" and "arcade" to "Arcade". When the user presses Left or Right to change a value, I need to handle different cases: for style changes, trigger the preview sound; for theme and font changes, apply the CSS classes immediately and announce the update; and for volume, announce the new level.
+The settings menu will re-render after any change and announce the current row's label and value, which covers all the announcements I need. For the preview sound, I need to capture the audio reference at the time of the call and handle the volume restoration after 3.5 seconds, in case the audio changes during playback.
+Implementing the preview function... Finishing the cleanup logic...
+After the preview finishes, I need to stop playback, clear the audio source, and restore the background music to its original volume. I'm also noticing that the task mentions updating a `setVolume` function to handle the 0-40 scale, but I don't see one in the existing code, so I'll need to create that function to properly map the display values to the actual volume levels. Finishing the function and verifying the conversion logic is correct—the display values map properly to the volume stages through the division by 100, and the existing `applyProfileSettings` method already handles this correctly without needing updates.
+Now I need to check the MENU_NAV handler to ensure the Settings menu entry is properly handled...
+Updating the input handler... I'm inserting a settings menu option into the navigation flow, then I need to carefully update the profile initialization and make several coordinated changes across multiple files. Let me organize all the old and new string pairs so I can apply them simultaneously with the multi-replace function. I'm adding a method to cycle through the available music styles, updating the saved settings when the style changes, and announcing the new style name to the user. Finishing up the style cycling logic by mapping the style name and announcing it to the user, then clearing the track queue and starting playback with the new style. Now I'm handling volume adjustments by converting from the display scale to the internal float values and finding the corresponding index in the volume stages array.
+Setting the audio element's volume and persisting the user's volume preference to their profile. Then I'm implementing a preview function that pulls the first track from a requested style's playlist, resolving the track source from the game data bank if available.
+Ducking the active background music down to a low level, creating a temporary audio element for the preview at the user's current volume setting, and scheduling cleanup after 3.5 seconds to stop the preview and restore the original BGM volume.
+Now I'm adding a settings menu object to the hub that stores all the configuration options like available themes, font sizes, music styles, and volume levels, along with tracking indices for the user's current selections. I'm finishing the selectLogin update to apply the user's theme and font size settings from their profile when they log in, then I need to add the new settings menu methods and helper functions to apply those preferences before closing out the file. Finishing the bounds checking for the archive index, then moving into the settings menu where I'm initializing the theme and font selections from the current profile settings. Building the settings menu display... Writing component styles...
+Now I need to add the new settings menu item to the data file. I'll insert it between "Echo Chamber" and "Stay Out" in the menu array.
+Then I need to update the input handler to route the settings option to the settings menu initialization function. Adding keyboard navigation for the archive state...
+Now handling the settings menu with arrow key controls to cycle through rows and columns, plus escape to exit back to the hub. Writing settings handlers... I'm organizing these file changes into efficient multi-replace calls—I can batch all five files together since I'm making targeted replacements across kc_core.js, kc_bgm.js, kc_hub.js, kc_data.js, and kc_input.js. Let me verify the structure of kc_input.js to confirm that navigateArchiveContent is positioned correctly before the closing brace. I'm checking whether `activateMenuItem` gets called from the MENU_NAV handler in kc_input.js, since the inline routing there doesn't trigger the "Selected" announcement that happens in `activateMenuItem`. Let me trace through the grep results to see if there's a connection I'm missing.
+Looking at the code, `activateMenuItem` isn't called anywhere in kc_input.js—it only exists in kc_hub.js. So I just need to add the routing logic directly in kc_input.js where the other menu handlers are.
+Now I'm ready to make all the changes. Let me double-check the exact strings and context for the critical sections, especially the profile initialization in kc_core.js.
+Verifying the profile structure...
+Now I need to handle the `KC.hub` object replacement carefully—there's a blank line after the opening brace that I need to preserve. I'm setting up a multi_replace call to inject the new `settingsMenu` configuration with theme options, font sizes, and music style settings into the hub object. Now I'm writing out the replacements for the kc_bgm.js file, starting with the cycleStyle function that rotates through available styles and updates the profile settings accordingly.
+Starting: Task 1: Update profile defaults in kc_core.js (2/5). 5 items: Read kc_data.js, kc_bgm.js, kc_hub.js (completed); Task 1: Update profile defaults in kc_core.js (in-progress); Task 2: Implement deep ducking & previews in kc_bgm.js (not-started); Task 3: Create Settings Menu in kc_hub.js (not-started); Task 4: Add Settings menu item + input routing (not-started)
+Replacing 9 lines with 11 lines in kc_core.js
 ```
 ```
 ```
 ```
-Done. The 8 legacy track keys (mu_default1–4, mu_spaghetti1–4) are now registered in
-audio_bank (c:\nbs\kc\kc_data.js:191)
-directly above the v3.23.0 expansion block, completing the full 16-track registry for both styles.
+Starting: Task 2: Implement deep ducking & previews in kc_bgm.js (3/5). 5 items: Read kc_data.js, kc_bgm.js, kc_hub.js (completed); Task 1: Update profile defaults in kc_core.js (completed); Task 2: Implement deep ducking & previews in kc_bgm.js (in-progress); Task 3: Create Settings Menu in kc_hub.js (not-started); Task 4: Add Settings menu item + input routing (not-started)
+Replacing 20 lines with 60 lines in kc_bgm.js
+```
+```
+```
+```
+Starting: Task 3: Create Settings Menu in kc_hub.js (4/5). 5 items: Read kc_data.js, kc_bgm.js, kc_hub.js (completed); Task 1: Update profile defaults in kc_core.js (completed); Task 2: Implement deep ducking & previews in kc_bgm.js (completed); Task 3: Create Settings Menu in kc_hub.js (in-progress); Task 4: Add Settings menu item + input routing (not-started)
+Now Task 3 — three edits to
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+simultaneously: add settingsMenu property at the top, update
+selectLogin (c:\nbs\kc\kc_hub.js:51)
+to apply saved theme/font on login, and append all new Settings methods at the bottom.
+Replacing 25 lines with 101 lines in kc_hub.js
+```
+```
+```
+```
+Starting: Task 4: Add Settings menu item + input routing (5/5). 5 items: Read kc_data.js, kc_bgm.js, kc_hub.js (completed); Task 1: Update profile defaults in kc_core.js (completed); Task 2: Implement deep ducking & previews in kc_bgm.js (completed); Task 3: Create Settings Menu in kc_hub.js (completed); Task 4: Add Settings menu item + input routing (in-progress)
+Replacing 19 lines with 70 lines in kc_data.js, kc_input.js
+```
+```
+```
+```
+```
+```
+Thinking: Now let me verify all the changes were applied correctly by reading key sections of each file.
+Now let me verify all five files are correct:
+Searched for text theme: &quot;matrix&quot;, font_size: &quot;100&quot;, 2 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
+Searched for text playPreview, 2 results. Files: c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_input.js
+Searched for text setVolume, 2 results. Files: c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_input.js
+Searched for text openSettingsMenu, 2 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_hub.js
+Searched for text Sound and Sight Settings, 4 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
+Searched for text KC.state.status === \&quot;SETTINGS\&quot; (**/kc_input.js), 1 result. Files: c:\nbs\kc\kc_input.js
+All changes verified. Let me do a final read of the new sections in
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+and
+kc_input.js (/c:/nbs/kc/kc_input.js)
+to confirm no syntax issues:
+Read kc_hub.js, lines 530 to 590
+Read kc_input.js, lines 415 to 475
+Thinking: I see a syntax issue! The `SETTINGS` block ends with `return; }` but then directly jumps to `handleFocusLoss: function()` without closing the outer function first. Let me check the original structure.
+The original kc_input.js had:
+```javascript
+        // --- ARCHIVE ---
+        if (KC.state.status === "ARCHIVE") {
+            ...
+            return;
+        }
+    },
+    handleFocusLoss: function() {
+```
+But my replacement replaced the ARCHIVE block AND the `},` closing, but the new SETTINGS block doesn't have `},`. Let me look at what happened. 
+I replaced the old ARCHIVE block that ended with `return;` followed by the closing brace and comma, but my new SETTINGS block is missing that trailing `},` — I need to add it back so the function properly closes before `handleFocusLoss` begins. I'm realizing the issue - my old replacement string was incomplete and got cut off mid-way through the conditional logic. I need to trace back through what the full oldString should have been to properly capture the entire ARCHIVE block including its closing brace and the function terminator. I see the issue—I'm missing the closing brace and comma for the `handleKeyDown` method. I need to add `},` before the `handleFocusLoss` function definition to properly close out the previous method.
+I see the }, closing handleKeyDown is missing after the SETTINGS block. I need to fix that:
+Replacing 4 lines with 5 lines in kc_input.js
+```
+```
+```
+```
+Read kc_input.js, lines 460 to 477
+Clean. Let me do a quick syntax check on the modified files:
+Running node --check &quot;c:\nbs\kc\kc_bgm.js&quot; ; node --check &quot;c:\nbs\kc\kc_hub.js&quot; ; nod.... node --check "c:\nbs\kc\kc_bgm.js" ; node --check "c:\nbs\kc\kc_hub.js" ; node --check "c:\nbs\kc\kc_input.js" ; node --check "c:\nbs\kc\kc_core.js" ; node --check "c:\nbs\kc\kc_data.js"
+Thinking: No output means no syntax errors - Node's `--check` flag only outputs when there's a syntax error. All five files pass.
+No output = no syntax errors in any of the five files.
+Completed: Task 4: Add Settings menu item + input routing (5/5). 5 items: Read kc_data.js, kc_bgm.js, kc_hub.js (completed); Task 1: Update profile defaults in kc_core.js (completed); Task 2: Implement deep ducking & previews in kc_bgm.js (completed); Task 3: Create Settings Menu in kc_hub.js (completed); Task 4: Add Settings menu item + input routing (completed)
+Version 3.24.0 UX Overhaul is fully implemented across 5 files. Here's a summary of every change made:
+kc_core.js (/c:/nbs/kc/kc_core.js)
+— Task 1
+**
+createProfile (c:\nbs\kc\kc_core.js:90)
+**: default
+settings (c:\nbs\kc\kc_core.js:96)
+now includes
+theme: "matrix" (c:\nbs\kc\kc_core.js:96)
+and
+font_size: "100" (c:\nbs\kc\kc_core.js:96)
+alongside existing BGM keys.
+**
+loadProfile (c:\nbs\kc\kc_core.js:108)
+**: migration fallback updated to include the new keys; two additional guards added so existing saved profiles without
+theme (c:\nbs\kc\kc_core.js:96)
+/
+font_size (c:\nbs\kc\kc_core.js:96)
+receive their defaults on load.
+kc_bgm.js (/c:/nbs/kc/kc_bgm.js)
+— Task 2
+**
+setVolume(displayVol) (c:\nbs\kc\kc_bgm.js:150)
+** — new method. Accepts a value from the 0–40 display scale, converts to float via /100, looks up the
+volumeStages (c:\nbs\kc\kc_bgm.js:8)
+index, applies to
+activeAudio (c:\nbs\kc\kc_bgm.js:7)
+, and persists to profile +
+saveProgress() (c:\nbs\kc\kc_core.js:80)
+.
+**
+playPreview(style) (c:\nbs\kc\kc_bgm.js:191)
+** — new method. Grabs track index 0 of the requested style, captures and ducks the active BGM element to 0.05 (deep duck), plays the preview on a disposable
+new Audio() (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:43349)
+at the user's current volume, then restores both after 3.5 s via
+setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)
+.
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+— Task 3
+**
+settingsMenu (c:\nbs\kc\kc_hub.js:5)
+** — new top-level property with the four option arrays (
+themes (c:\nbs\kc\kc_hub.js:6)
+,
+fontSizes (c:\nbs\kc\kc_hub.js:7)
+,
+musicStyles (c:\nbs\kc\kc_hub.js:8)
+,
+volumeStages (c:\nbs\kc\kc_bgm.js:8)
+) and cursor/index state (
+row (c:\nbs\kc\kc_hub.js:10)
+,
+themeIndex (c:\nbs\kc\kc_hub.js:11)
+,
+fontIndex (c:\nbs\kc\kc_hub.js:12)
+,
+styleIndex (c:\nbs\kc\kc_hub.js:13)
+,
+volumeIndex (c:\nbs\kc\kc_hub.js:14)
+).
+**
+openSettingsMenu() (c:\nbs\kc\kc_hub.js:532)
+** — sets
+KC.state.status = "SETTINGS" (c:\nbs\kc\kc_bgm.js:4)
+, seeds all four indices from the current profile, calls
+renderSettingsMenu(true) (c:\nbs\kc\kc_hub.js:555)
+.
+**
+renderSettingsMenu(isEntering) (c:\nbs\kc\kc_hub.js:555)
+** — draws the four-row menu with &gt; cursor, humanizes style names (e.g. "Spaghetti Western"), announces the full intro on entry or just the focused row label + value on navigation.
+**
+applyTheme(theme) (c:\nbs\kc\kc_hub.js:581)
+** / **
+applyFontSize(size) (c:\nbs\kc\kc_hub.js:586)
+** — strip all managed theme-/font- classes from
+document.body (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:1744)
+then add the new one.
+**
+selectLogin (c:\nbs\kc\kc_hub.js:63)
+** — after loading a profile,
+applyTheme (c:\nbs\kc\kc_hub.js:581)
+and
+applyFontSize (c:\nbs\kc\kc_hub.js:586)
+are called so saved appearance settings are restored on every login.
+kc_data.js (/c:/nbs/kc/kc_data.js)
+— Task 4
+New Hub menu entry inserted between "Echo Chamber" and "Stay Out":
+{ label: "Sound and Sight Settings", type: "settings", desc: "Adjust themes, text size, and ambient music." } (c:\nbs\kc\kc_data.js:99)
+kc_input.js (/c:/nbs/kc/kc_input.js)
+— Task 4 (routing)
+**MENU_NAV Enter block**:
+else if (selected.type === "settings") KC.hub.openSettingsMenu(); (c:\nbs\kc\kc_hub.js:532)
+added before the stay_out branch.
+**New `SETTINGS` handler block**: Up/Down cycles the focused row; Left/Right applies the change — Theme and Font instantly call
+applyTheme (c:\nbs\kc\kc_hub.js:581)
+/
+applyFontSize (c:\nbs\kc\kc_hub.js:586)
+and save; Style saves and triggers
+KC.bgm.playPreview() (c:\nbs\kc\kc_bgm.js:191)
+; Volume calls
+KC.bgm.setVolume() (c:\nbs\kc\kc_bgm.js:178)
+. Escape returns to the Hub.

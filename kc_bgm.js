@@ -173,5 +173,45 @@ KC.bgm = {
         
         this.grabBag = []; // Clear bag
         this.playNextTrack(); // Crossfade to new style
+    },
+
+    setVolume: function(displayVol) {
+        // displayVol is on the 0-40 display scale: [0, 5, 10, 20, 30, 40]
+        // Divide by 100 to map to the internal volumeStages float array
+        const volFloat = displayVol / 100;
+        const idx = this.volumeStages.indexOf(volFloat);
+        this.currentVolumeIndex = (idx !== -1) ? idx : 2;
+        if (this.activeAudio) this.activeAudio.volume = this.volumeStages[this.currentVolumeIndex];
+        if (KC.state.profile && KC.state.profile.settings) {
+            KC.state.profile.settings.bgm_volume = displayVol;
+            KC.core.saveProgress();
+        }
+    },
+
+    playPreview: function(style) {
+        if (!this.playlists[style]) return;
+
+        // Identify track 1 (index 0) of the requested style
+        const trackKey = this.playlists[style][0];
+        const trackSrc = (typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[trackKey])
+            ? GAME_DATA.audio_bank[trackKey]
+            : trackKey;
+
+        // Deep duck: capture the active element and lower its volume to 0.05
+        const duckedAudio = this.activeAudio;
+        const savedVolume = duckedAudio ? duckedAudio.volume : 0;
+        if (duckedAudio) duckedAudio.volume = 0.05;
+
+        // Play the preview on a separate, temporary Audio element
+        const previewAudio = new Audio(trackSrc);
+        previewAudio.volume = this.volumeStages[this.currentVolumeIndex];
+        previewAudio.play().catch(err => console.warn('BGM preview blocked:', err));
+
+        // After 3.5 seconds, stop the preview and restore the original BGM volume
+        setTimeout(() => {
+            previewAudio.pause();
+            previewAudio.src = '';
+            if (duckedAudio) duckedAudio.volume = savedVolume;
+        }, 3500);
     }
 };

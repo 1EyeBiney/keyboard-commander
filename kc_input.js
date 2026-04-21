@@ -310,6 +310,7 @@ KC.input = {
                 else if (selected.type === "cache") KC.hub.enterDataCache();
                 else if (selected.type === "archive") KC.hub.enterArchive();
                 else if (selected.type === "echoc") KC.echoc.init(); 
+                else if (selected.type === "settings") KC.hub.openSettingsMenu();
                 else if (selected.type === "stay_out") {
                     KC.core.announce("Abandon all hope, yee who enter.");
                     setTimeout(() => {
@@ -412,6 +413,56 @@ KC.input = {
             else if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateArchiveContent(1); }
             else if (e.key === "ArrowUp") { KC.audio.playSound('click'); KC.hub.navigateArchiveContent(-1); }
             else if (e.key === "Escape") { this.flush(); KC.hub.enterHub(); }
+            return;
+        }
+
+        // --- SETTINGS ---
+        if (KC.state.status === "SETTINGS") {
+            e.preventDefault();
+            const sm = KC.hub.settingsMenu;
+
+            if (e.key === "ArrowUp") {
+                KC.audio.playSound('click');
+                sm.row = (sm.row - 1 + 4) % 4;
+                KC.hub.renderSettingsMenu(false);
+            } else if (e.key === "ArrowDown") {
+                KC.audio.playSound('click');
+                sm.row = (sm.row + 1) % 4;
+                KC.hub.renderSettingsMenu(false);
+            } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+                KC.audio.playSound('click');
+                const dir = (e.key === "ArrowRight") ? 1 : -1;
+                const settings = KC.state.profile.settings;
+
+                if (sm.row === 0) {
+                    // Theme
+                    sm.themeIndex = (sm.themeIndex + dir + sm.themes.length) % sm.themes.length;
+                    settings.theme = sm.themes[sm.themeIndex];
+                    KC.hub.applyTheme(settings.theme);
+                    KC.core.saveProgress();
+                } else if (sm.row === 1) {
+                    // Font Size
+                    sm.fontIndex = (sm.fontIndex + dir + sm.fontSizes.length) % sm.fontSizes.length;
+                    settings.font_size = sm.fontSizes[sm.fontIndex];
+                    KC.hub.applyFontSize(settings.font_size);
+                    KC.core.saveProgress();
+                } else if (sm.row === 2) {
+                    // Music Style
+                    sm.styleIndex = (sm.styleIndex + dir + sm.musicStyles.length) % sm.musicStyles.length;
+                    settings.bgm_style = sm.musicStyles[sm.styleIndex];
+                    KC.core.saveProgress();
+                    KC.bgm.playPreview(settings.bgm_style);
+                } else if (sm.row === 3) {
+                    // Volume
+                    sm.volumeIndex = (sm.volumeIndex + dir + sm.volumeStages.length) % sm.volumeStages.length;
+                    KC.bgm.setVolume(sm.volumeStages[sm.volumeIndex]);
+                }
+
+                KC.hub.renderSettingsMenu(false);
+            } else if (e.key === "Escape") {
+                this.flush();
+                KC.hub.enterHub();
+            }
             return;
         }
     },

@@ -93,7 +93,7 @@ KC.core = {
             rank: "Cadet",
             currentLessonID: "D00-01",
             currentDeck: 0,
-            settings: { bgm_volume: 10, bgm_style: "default" },
+            settings: { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10 },
             wallet: { data_blocks: 0, logic_shards: 0, sync_sparks: 0, consecutive_coins: 0, glitch: 0 },
             career: { startTime: Date.now(), totalKeys: 0, errors: 0, missions_completed: 0, history_buffer: [], zone_stats: {} }
         };
@@ -111,7 +111,9 @@ KC.core = {
             KC.state.profile = JSON.parse(saved);
             if (!KC.state.profile.career.history_buffer) KC.state.profile.career.history_buffer = [];
             if (!KC.state.profile.career.zone_stats) KC.state.profile.career.zone_stats = {};
-            if (!KC.state.profile.settings) KC.state.profile.settings = { bgm_volume: 10, bgm_style: "default" };
+            if (!KC.state.profile.settings) KC.state.profile.settings = { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10 };
+            if (!KC.state.profile.settings.theme) KC.state.profile.settings.theme = "matrix";
+            if (!KC.state.profile.settings.font_size) KC.state.profile.settings.font_size = "100";
             
             // --- Migration Patch for v3.9.1 ---
             if (typeof KC.state.profile.currentLessonIndex !== 'undefined') {
