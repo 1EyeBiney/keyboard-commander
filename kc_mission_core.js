@@ -33,9 +33,21 @@ KC.mission = {
         { name: "Navigation & Editing",     left: "",      right: "",      both: ["Insert","Delete","Home","End","PageUp","PageDown","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"],                                                                                          isExpert: false }
     ],
 
+    regionsLaunch: [
+        { name: "Numbers (Numpad)",                 forceBoth: true },
+        { name: "Numbers (Number Row)",             forceBoth: true },
+        { name: "Numbers and Alpha",                forceBoth: true },
+        { name: "Numbers and Symbols",              forceBoth: true },
+        { name: "Numbers, Letters and Symbols",     forceBoth: true },
+        { name: "Alpha and Symbols",                forceBoth: true }
+    ],
+
     getRegions: function(lesson) {
         if (lesson && lesson.generator === "race") {
             return this.regionsRace;
+        }
+        if (lesson && (lesson.generator === "launch" || lesson.id === "D00-MISSION-LAUNCH")) {
+            return this.regionsLaunch;
         }
         if (lesson && (lesson.generator === "reflex" || lesson.generator === "stream")) {
             return this.regionsComprehensive;
@@ -108,7 +120,8 @@ KC.mission = {
             regionMode: lesson.params?.regionMode || 0,
             reflexMode: lesson.params?.reflexMode || 2,
             difficulty: lesson.params?.difficulty || 3,
-            lengthMode: 1
+            lengthMode: 1,
+            codeLength: lesson.params?.codeLength || 4
         };
 
         this.setupCursor = 0;
@@ -148,7 +161,8 @@ KC.mission = {
         const isRace = (lesson.generator === "race") || (lesson.id === "D00-MISSION-RACE");
         const isReflex = (lesson.generator === "reflex");
         const isStream = (lesson.generator === "stream");
-        const hasSpecialRow = isRace || isReflex;
+        const isLaunch = (lesson.generator === "launch") || (lesson.id === "D00-MISSION-LAUNCH");
+        const hasSpecialRow = isRace || isReflex || isLaunch;
 
         // Apply theme class to body
         document.body.classList.remove('theme-race', 'theme-reflex', 'theme-stream');
@@ -164,7 +178,7 @@ KC.mission = {
 
         // Hand Mode label
         const hands = ["Left Hand", "Right Hand", "Both Hands"];
-        const handLabel = (region && region.forceBoth) ? "Both Hands (Fixed)" : hands[params.reflexMode || 0];
+        const handLabel = (isLaunch || (region && region.forceBoth)) ? "Both Hands (Fixed)" : hands[params.reflexMode || 0];
 
         // Length Logic
         let lenLabel = "";
@@ -205,7 +219,7 @@ KC.mission = {
         }
         lesson.time_floor = diffFloor;
 
-        // Special row label (Row 5: Speed for Race, Window for Reflex)
+        // Special row label (Row 5: Speed for Race, Window for Reflex, Code Length for Launch)
         let specialLabel = "";
         if (isRace) {
             const speedSec = ((2400 - params.difficulty * 400) / 1000).toFixed(1);
@@ -213,6 +227,8 @@ KC.mission = {
         } else if (isReflex) {
             const wMap = { 1: "1600ms", 2: "1400ms", 3: "1200ms", 4: "1000ms", 5: "800ms" };
             specialLabel = `Window:      ${wMap[params.difficulty] || "1200ms"} reaction`;
+        } else if (isLaunch) {
+            specialLabel = `Code Length: ${params.codeLength || 4}`;
         }
 
         // Cursor bounds
@@ -270,6 +286,13 @@ KC.mission = {
         let rMode = KC.state.missionParams.regionMode || 0;
         if (rMode >= currentRegions.length) rMode = 0;
         
+        // Lock out hand selection for Launch Codes mission
+        const currentMission = KC.state.activeLesson && KC.state.activeLesson.id;
+        if (currentMission === "D00-MISSION-LAUNCH") {
+            KC.core.announce("Left Hand and Right Hand not available for this mission. Locked to Both Hands.");
+            return;
+        }
+
         // Lock out hand selection if the region forces both hands
         if (currentRegions[rMode] && currentRegions[rMode].forceBoth) {
             KC.core.announce(`${currentRegions[rMode].name} utilizes all keys.`);
@@ -375,7 +398,7 @@ KC.mission = {
     _getHasSpecialRow: function() {
         const lesson = KC.state.activeLesson;
         if (!lesson) return false;
-        return (lesson.generator === "race") || (lesson.id === "D00-MISSION-RACE") || (lesson.generator === "reflex");
+        return (lesson.generator === "race") || (lesson.id === "D00-MISSION-RACE") || (lesson.generator === "reflex") || (lesson.generator === "launch") || (lesson.id === "D00-MISSION-LAUNCH");
     },
 
     _getMaxCursor: function() {
@@ -400,7 +423,25 @@ KC.mission = {
         else if (c === 1) { this.changeMissionSetting(dir); }
         else if (c === 2) { this.changeDifficulty(dir); }
         else if (c === 3) { this.changeMissionLength(dir); }
-        else if (c === 4 && this._getHasSpecialRow()) { this.changeDifficulty(dir); }
+        else if (c === 4 && this._getHasSpecialRow()) {
+            const lesson = KC.state.activeLesson;
+            if (lesson && (lesson.generator === "launch" || lesson.id === "D00-MISSION-LAUNCH")) {
+                this.changeCodeLength(dir);
+            } else {
+                this.changeDifficulty(dir);
+            }
+        }
+    },
+
+    changeCodeLength: function(dir) {
+        if (KC.audio.playSynth) KC.audio.playSynth(34); else KC.audio.playSound('click');
+        let current = KC.state.missionParams.codeLength || 4;
+        current += dir;
+        if (current < 4) current = 12;
+        if (current > 12) current = 4;
+        KC.state.missionParams.codeLength = current;
+        this.renderMissionStart(KC.state.activeLesson, true);
+        KC.core.announce(`Code Length: ${current}`);
     },
 
     executeMission: function() {
@@ -412,13 +453,31 @@ KC.mission = {
         }
 
         // Apply mission theme class to body
-        document.body.classList.remove('theme-race', 'theme-reflex', 'theme-stream');
+        document.body.classList.remove('theme-race', 'theme-reflex', 'theme-stream', 'theme-launch');
         if (lesson.generator === "race" || lesson.id === "D00-MISSION-RACE") {
             document.body.classList.add('theme-race');
         } else if (lesson.generator === "reflex") {
             document.body.classList.add('theme-reflex');
         } else if (lesson.generator === "stream") {
             document.body.classList.add('theme-stream');
+        } else if (lesson.generator === "launch" || lesson.id === "D00-MISSION-LAUNCH") {
+            document.body.classList.add('theme-launch');
+        }
+
+        // v3.25.0: Launch Codes uses its own init/handleInput pattern — bypass countdown
+        if (lesson.generator === "launch" || lesson.id === "D00-MISSION-LAUNCH") {
+            const launchRegions = this.regionsLaunch;
+            const rMode = KC.state.missionParams.regionMode || 0;
+            const zoneName = (launchRegions[rMode] && launchRegions[rMode].name) ? launchRegions[rMode].name : "Numbers (Numpad)";
+            const config = {
+                time: 120,
+                codeLength: KC.state.missionParams.codeLength || 4,
+                zone: zoneName
+            };
+            KC.state.status = "ACTIVE_TYPING";
+            this.activeHandler = KC.mission_launch;
+            KC.mission_launch.init(config);
+            return;
         }
 
         // v2.87: Safety check for handler existence before starting countdown
