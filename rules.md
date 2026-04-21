@@ -36,6 +36,12 @@
 
 \- \*\*Background Music (BGM) Engine:\*\* Ambient music must use a dual-element HTML5 `<audio>` crossfader to ensure seamless transitions between tracks without interrupting the `AudioContext` synth. User preferences (volume, music style) must be persisted in their profile `settings`. Global audio controls (e.g., Shift+V for volume, Shift+M for style) must remain globally accessible via `handleGlobalKeys`.
 
+\- \*\*Contextual BGM \& Playlists:\*\* Background music (BGM) uses a playlist-based crossfading architecture located in `kc_bgm.js`.
+
+\- \*\*Seamless State Persistence:\*\* When a user transitions between the Hub and a Mission, the engine uses `KC.bgm.switchToStyle('styleName')`. If the requested style is already playing, the command is ignored, allowing the music to persist seamlessly through Setup -> Gameplay -> Summary screens without restarting.
+
+\- \*\*State Restoration:\*\* Exiting a mission back to the main Hub must invoke `KC.bgm.restoreStyle()` to smoothly crossfade back to the user's preferred Hub music setting (e.g., 'default' or 'western').
+
 
 
 \## 4. GAME ECONOMY \& PERSISTENCE
@@ -97,4 +103,15 @@
 \- \*\*Destructive DOM Manipulation:\*\* Avoid deleting/recreating DOM elements where CSS visibility swapping (display: none / display: block) will suffice.
 
 \- \*\*Variable Safety:\*\* Always use safe fallbacks for state variables (e.g., `const totalKeys = KC.state.stats.totalKeys || 0;`).
+
+
+\## 7. AUDIO ENGINE \& BGM PERSISTENCE
+\- \*\*Contextual BGM \& Playlists:\*\* Background music (BGM) uses a playlist-based crossfading architecture located in `kc_bgm.js`. 
+\- \*\*Seamless State Persistence:\*\* When a user transitions between the Hub and a Mission, the engine uses `KC.bgm.switchToStyle('styleName')`. If the requested style is already playing, the command is ignored, allowing the music to persist seamlessly through Setup -> Gameplay -> Summary screens without restarting.
+\- \*\*State Restoration:\*\* Exiting a mission back to the main Hub must invoke `KC.bgm.restoreStyle()` to smoothly crossfade back to the user's preferred Hub music setting (e.g., 'default' or 'western').
+
+## 8. WORD GENERATION & DIFFICULTY ARCHITECTURE
+- **Decoupled Difficulty:** The `difficulty` parameter (1-5) strictly controls the speed of the AI opponent (Commander Keyboard), NOT the length of the words generated.
+- **Expert Quadrants:** Word length and complexity are strictly controlled by the `isExpert` flag on the keyboard quadrant definition. Standard quadrants (`isExpert: false`) generate words <= 5 characters. Expert quadrants (`isExpert: true`) generate words > 5 characters.
+- **Player Agency:** This architecture allows players to race a fast AI on easy words, or a slow AI on complex words. Never bind word length directly to the AI difficulty parameter.
 

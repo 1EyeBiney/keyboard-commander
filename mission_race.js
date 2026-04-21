@@ -38,18 +38,11 @@ KC.handlers.race = {
         const diff = KC.state.missionParams.difficulty || 1;
         this.ckSpeed = 2400 - (diff * 400); 
         
-        // v2.91: Decoupled Menu Propagation Fix
         const modeParams = KC.state.missionParams || {};
         const rMode = modeParams.regionMode || 0;
-        const currentRegions = KC.mission.getRegions(lesson);
-        const region = currentRegions[rMode] || currentRegions[0];
-        const isExpert = region ? region.isExpert : false;
         
         // v2.85: Smart Voice Routing & Strict Universal Junie Enforcement
         const allAudioKeys = Object.keys(GAME_DATA.audio_bank).filter(k => k.startsWith('word_'));
-        
-        // Dynamically set difficulty based on if the zone is an Expert zone
-        const wordDifficulty = isExpert ? 5 : 2; 
         
         let pool = [];
         this.audioMap = {}; 
@@ -62,7 +55,8 @@ KC.handlers.race = {
             // Universal Enforcement: ALL words in this mission MUST be a Junie recording
             if (!isJunie) continue;
             
-            if (KC.mission.isWordInZone(rawWord, rMode, 2, wordDifficulty)) {
+            // --- v3.21.2 FIX: Correctly pass the "race" string to target the proper array ---
+            if (KC.mission.isWordInZone(rawWord, rMode, "race")) {
                 if (!pool.includes(rawWord)) {
                     pool.push(rawWord);
                 }
@@ -96,9 +90,6 @@ KC.handlers.race = {
         this.currentWords = pool; 
 
         this.render();
-        
-        // v2.86.1: Removed redundant internal countdown to prevent audio collision.
-        // kc_mission_core.js already handles the clean 3-2-1 countdown.
         this.startRound();
     },
 

@@ -686,7 +686,54 @@ const GAME_DATA = {
       "word_plasma": "audio/words/plasma_sn.mp3",
       "word_propulsion": "audio/words/propulsion_sn.mp3",
       "word_probes": "audio/words/probes_sn.mp3",
-      "word_payload": "audio/words/payload_sn.mp3"
+      "word_payload": "audio/words/payload_sn.mp3",
+
+      // Commander Keyboard Hesitations (v3.22.0)
+      "ck_mut_ack1": "audio/char/ack1_ck.mp3",
+      "ck_mut_ack2": "audio/char/ack2_ck.mp3",
+      "ck_mut_ah1":  "audio/char/ah1_ck.mp3",
+      "ck_mut_ah2":  "audio/char/ah2_ck.mp3",
+      "ck_mut_foo1": "audio/char/foo1_ck.mp3",
+      "ck_mut_hmm1": "audio/char/hmm1_ck.mp3",
+      "ck_mut_hmm2": "audio/char/hmm2_ck.mp3",
+      "ck_mut_ick1": "audio/char/ick1_ck.mp3",
+      "ck_mut_oh1":  "audio/char/oh1_ck.mp3",
+      "ck_mut_oh2":  "audio/char/oh2_ck.mp3",
+      "ck_mut_oh3":  "audio/char/oh3_ck.mp3",
+      "ck_mut_umm1": "audio/char/umm1_ck.mp3",
+      "ck_mut_umm2": "audio/char/umm2_ck.mp3",
+      "ck_mut_umm3": "audio/char/umm3_ck.mp3",
+      "ck_mut_umm4": "audio/char/umm4_ck.mp3",
+      "ck_mut_woah1": "audio/char/woah1_ck.mp3",
+      "ck_mut_woah2": "audio/char/woah2_ck.mp3",
+
+      // Legacy BGM Registry (v3.23.1)
+      "mu_default1": "audio/music/mu_default1.mp3",
+      "mu_default2": "audio/music/mu_default2.mp3",
+      "mu_default3": "audio/music/mu_default3.mp3",
+      "mu_default4": "audio/music/mu_default4.mp3",
+      "mu_spaghetti1": "audio/music/mu_spaghetti1.mp3",
+      "mu_spaghetti2": "audio/music/mu_spaghetti2.mp3",
+      "mu_spaghetti3": "audio/music/mu_spaghetti3.mp3",
+      "mu_spaghetti4": "audio/music/mu_spaghetti4.mp3",
+
+      // BGM Expansion (v3.23.0)
+      "mu_default5": "audio/music/mu_default5.mp3",
+      "mu_default6": "audio/music/mu_default6.mp3",
+      "mu_default7": "audio/music/mu_default7.mp3",
+      "mu_default8": "audio/music/mu_default8.mp3",
+      "mu_spaghetti5": "audio/music/mu_spaghetti5.mp3",
+      "mu_spaghetti6": "audio/music/mu_spaghetti6.mp3",
+      "mu_spaghetti7": "audio/music/mu_spaghetti7.mp3",
+      "mu_spaghetti8": "audio/music/mu_spaghetti8.mp3",
+      "mu_arcade1": "audio/music/mu_arcade1.mp3",
+      "mu_arcade2": "audio/music/mu_arcade2.mp3",
+      "mu_arcade3": "audio/music/mu_arcade3.mp3",
+      "mu_arcade4": "audio/music/mu_arcade4.mp3",
+      "mu_arcade5": "audio/music/mu_arcade5.mp3",
+      "mu_arcade6": "audio/music/mu_arcade6.mp3",
+      "mu_arcade7": "audio/music/mu_arcade7.mp3",
+      "mu_arcade8": "audio/music/mu_arcade8.mp3"
   },
   
   resources: [

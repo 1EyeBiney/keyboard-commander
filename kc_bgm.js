@@ -13,18 +13,9 @@ KC.bgm = {
     isInitialized: false,
 
     playlists: {
-        "default": [
-            "audio/music/mu_default1.mp3", 
-            "audio/music/mu_default2.mp3", 
-            "audio/music/mu_default3.mp3", 
-            "audio/music/mu_default4.mp3"
-        ],
-        "western": [
-            "audio/music/mu_spaghetti1.mp3", 
-            "audio/music/mu_spaghetti2.mp3", 
-            "audio/music/mu_spaghetti3.mp3", 
-            "audio/music/mu_spaghetti4.mp3"
-        ]
+        default: ["mu_default1", "mu_default2", "mu_default3", "mu_default4", "mu_default5", "mu_default6", "mu_default7", "mu_default8"],
+        spaghetti: ["mu_spaghetti1", "mu_spaghetti2", "mu_spaghetti3", "mu_spaghetti4", "mu_spaghetti5", "mu_spaghetti6", "mu_spaghetti7", "mu_spaghetti8"],
+        arcade: ["mu_arcade1", "mu_arcade2", "mu_arcade3", "mu_arcade4", "mu_arcade5", "mu_arcade6", "mu_arcade7", "mu_arcade8"]
     },
 
     init: function() {
@@ -36,6 +27,26 @@ KC.bgm = {
         this.audioA.addEventListener('ended', this._onTrackEnded);
         this.audioB.addEventListener('ended', this._onTrackEnded);
         this.isInitialized = true;
+    },
+
+    switchToStyle: function(style) {
+        if (!this.playlists[style]) return;
+        
+        // Seamless check: If we are already playing this style, do nothing!
+        if (this.currentStyle === style) return; 
+        
+        console.log("BGM Engine: Crossfading to style ->", style);
+        this.currentStyle = style;
+        this.grabBag = [...this.playlists[style]];
+        this.playNextTrack(); // Triggers the crossfade to the new style
+    },
+
+    restoreStyle: function() {
+        // Look up the user's saved style, fallback to 'default'
+        const savedStyle = (KC.state.profile && KC.state.profile.settings && KC.state.profile.settings.bgm_style) 
+                           ? KC.state.profile.settings.bgm_style 
+                           : "default";
+        this.switchToStyle(savedStyle);
     },
 
     start: function(style = "default", vol = 10) {
@@ -72,7 +83,7 @@ KC.bgm = {
         previousAudio.removeEventListener('ended', this._onTrackEnded);
         standbyAudio.pause();
         standbyAudio.currentTime = 0;
-        standbyAudio.src = nextTrack;
+        standbyAudio.src = (typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[nextTrack]) ? GAME_DATA.audio_bank[nextTrack] : nextTrack;
         standbyAudio.volume = 0;
         
         const playPromise = standbyAudio.play();
@@ -156,7 +167,8 @@ KC.bgm = {
             KC.core.saveProgress();
         }
         
-        let styleName = this.currentStyle === "western" ? "Dusty Western" : "Default";
+        const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade" };
+        let styleName = styleNames[this.currentStyle] || this.currentStyle;
         KC.core.announce(`Music Style: ${styleName}`);
         
         this.grabBag = []; // Clear bag

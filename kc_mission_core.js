@@ -6,12 +6,15 @@ KC.mission = {
     activeHandler: null,
     setupCursor: 0,
 
-    // v3.13: Full Board Expansion — 4 Alpha Quadrants for Race, 10 Comprehensive Quadrants for Reflex/Stream
+    // v3.21.4: Vowel Injection Patch — vowels natively embedded in left/right/both strings
     regionsRace: [
-        { name: "Home Row",          left: "asdfg",           right: "hjkl",        both: "asdfghjkl",                 isExpert: false },
-        { name: "Top & Home Row",    left: "qwertasdfg",      right: "yuiophjkl",   both: "qwertyuiopasdfghjkl",       isExpert: false },
-        { name: "Home & Bottom Row", left: "asdfgzxcvb",      right: "hjklnm",      both: "asdfghjklzxcvbnm",          isExpert: false },
-        { name: "All Alpha",         left: "qwertasdfgzxcvb", right: "yuiophjklnm", both: "qwertyuiopasdfghjklzxcvbnm", isExpert: false }
+        { name: "Home Row (+Vowels)",                 left: "asdfgaeiouy",           right: "hjklaeiouy",        both: "asdfghjklaeiouy",                 isExpert: false },
+        { name: "Top & Home Row (+Vowels)",           left: "qwertasdfgaeiouy",      right: "yuiophjklaeiouy",   both: "qwertyuiopasdfghjklaeiouy",       isExpert: false },
+        { name: "Top & Home (Expert, +Vowels)",       left: "qwertasdfgaeiouy",      right: "yuiophjklaeiouy",   both: "qwertyuiopasdfghjklaeiouy",       isExpert: true },
+        { name: "Home & Bottom Row (+Vowels)",        left: "asdfgzxcvbaeiouy",      right: "hjklnmaeiouy",      both: "asdfghjklzxcvbnmaeiouy",          isExpert: false },
+        { name: "Home & Bottom (Expert, +Vowels)",    left: "asdfgzxcvbaeiouy",      right: "hjklnmaeiouy",      both: "asdfghjklzxcvbnmaeiouy",          isExpert: true },
+        { name: "All Alpha",                          left: "qwertasdfgzxcvb",       right: "yuiophjklnm",       both: "qwertyuiopasdfghjklzxcvbnm",      isExpert: false },
+        { name: "All Alpha (Expert)",                 left: "qwertasdfgzxcvb",       right: "yuiophjklnm",       both: "qwertyuiopasdfghjklzxcvbnm",      isExpert: true }
     ],
 
     regionsComprehensive: [
@@ -55,29 +58,38 @@ KC.mission = {
         return region.both;
     },
 
-    isWordInZone: function(word, regionMode, handMode, difficulty) {
-        const lesson = KC.state.activeLesson;
-        const currentRegions = this.getRegions(lesson);
+    isWordInZone: function(word, regionMode, generatorType) {
+        let regions = generatorType === "race" ? this.regionsRace : this.regionsComprehensive;
+        let targetRegion = regions[regionMode];
+        if (!targetRegion) return false;
+
+        let lowerWord = word.toLowerCase();
+
+        // --- v3.21.0: EXPERT QUADRANT LOGIC ---
+        if (!targetRegion.isExpert && lowerWord.length > 5) return false;
+        if (targetRegion.isExpert && lowerWord.length <= 5) return false;
+
+        // --- v3.21.3: STRICT HAND MODE ENFORCEMENT ---
+        // 0: Left, 1: Right, 2: Both
+        let params = KC.state.missionParams || {};
+        let handMode = params.reflexMode !== undefined ? params.reflexMode : 2;
         
-        let rMode = regionMode || 0;
-        if (rMode >= currentRegions.length) rMode = 0; 
+        let validChars = targetRegion.both;
+        if (handMode === 0) validChars = targetRegion.left;
+        else if (handMode === 1) validChars = targetRegion.right;
 
-        const region = currentRegions[rMode];
-        if (!region) return false;
-
-        // Difficulty / Length check: Standard <= 5, Expert >= 6
-        if (difficulty <= 2 && word.length > 5) return false;
-        if (difficulty >= 3 && word.length <= 5) return false;
-
-        for (let i = 0; i < word.length; i++) {
-            const char = word[i].toLowerCase();
+        // --- CHARACTER CHECK ---
+        for (let i = 0; i < lowerWord.length; i++) {
+            let char = lowerWord[i];
             
-            // v2.81: Always allow vowels to pass the filter
-            const isVowel = "aeiou".includes(char);
-            
-            if (handMode === 0 && !region.left.includes(char) && !isVowel) return false;
-            if (handMode === 1 && !region.right.includes(char) && !isVowel) return false;
-            if (handMode === 2 && !region.both.includes(char) && !isVowel) return false;
+            // Allow hyphens globally for compound words
+            if (char === '-') continue;
+
+            if (Array.isArray(validChars)) {
+                 if (!validChars.includes(char)) return false;
+            } else {
+                 if (validChars.indexOf(char) === -1) return false;
+            }
         }
         return true;
     },
@@ -99,11 +111,28 @@ KC.mission = {
             lengthMode: 1
         };
 
-        // Reset setup cursor for fresh entry
         this.setupCursor = 0;
 
-        // v2.82.3: Correctly route to the actual Briefing renderer
-        this.renderMissionStart(lesson);
+        // --- v3.20.0 Contextual BGM Routing ---
+        if (KC.bgm && typeof KC.bgm.switchToStyle === 'function') {
+            if (lesson.generator === "reflex") {
+                KC.bgm.switchToStyle("systems");
+            } else if (lesson.generator === "stream") {
+                KC.bgm.switchToStyle("data");
+            } else if (lesson.generator === "race" || lesson.id === "D00-MISSION-RACE") {
+                KC.bgm.switchToStyle("keyboard");
+            }
+        }
+
+        if (lesson.type === "tutorial") {
+             KC.state.profile.currentLessonIndex = GAME_DATA.lessonOrder.indexOf(target_id);
+             KC.core.saveProgress();
+             KC.tutorial.startLesson(lesson);
+        } else if (lesson.type === "deck_end") {
+             this.completeDeck(KC.state.profile.currentLessonIndex + 1);
+        } else {
+             this.renderMissionStart(KC.state.activeLesson);
+        }
     },
 
     renderMissionStart: function(lesson, silent = false, navOnly = false) {

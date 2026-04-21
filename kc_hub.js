@@ -91,6 +91,11 @@ KC.hub = {
     },
 
     enterHub: function() {
+        // --- v3.19.0 Contextual BGM Restore ---
+        if (KC.bgm && typeof KC.bgm.restoreStyle === 'function') {
+            KC.bgm.restoreStyle();
+        }
+
         document.body.classList.remove('theme-login', 'theme-race', 'theme-reflex', 'theme-stream');
         KC.state.status = "HUB";
         if(KC.input && KC.input.flush) KC.input.flush();
