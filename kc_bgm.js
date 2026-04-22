@@ -87,7 +87,8 @@ KC.bgm = {
         previousAudio.removeEventListener('ended', this._onTrackEnded);
         standbyAudio.pause();
         standbyAudio.currentTime = 0;
-        standbyAudio.src = (typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[nextTrack]) ? GAME_DATA.audio_bank[nextTrack] : nextTrack;
+        // v3.29.1: Smart path resolver for missing dictionary entries
+        standbyAudio.src = (typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[nextTrack]) ? GAME_DATA.audio_bank[nextTrack] : "audio/music/" + nextTrack + ".mp3";
         standbyAudio.volume = 0;
         
         const playPromise = standbyAudio.play();
@@ -219,7 +220,8 @@ KC.bgm = {
         // Hard cut to new audio
         standbyAudio.pause();
         standbyAudio.currentTime = 0;
-        standbyAudio.src = (typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[nextTrack]) ? GAME_DATA.audio_bank[nextTrack] : nextTrack;
+        // v3.29.1: Smart path resolver for missing dictionary entries
+        standbyAudio.src = (typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[nextTrack]) ? GAME_DATA.audio_bank[nextTrack] : "audio/music/" + nextTrack + ".mp3";
         standbyAudio.volume = targetVolume;
         
         const playPromise = standbyAudio.play();
