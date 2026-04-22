@@ -288,6 +288,20 @@ KC.mission = {
         // cancel any pending intro callbacks if navigating
         if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();
 
+        // v3.29.0: Switch to Ambient Mission BGM on entry
+        if (!silent && !navOnly) {
+            const ambientMap = {
+                "D00-MISSION-REFLEX": "systems",
+                "D00-MISSION-RACE": "keyboard",
+                "ARC-STREAM-01": "data",
+                "D00-MISSION-LAUNCH": "launch"
+            };
+            if (KC.bgm && KC.bgm.switchToStyle) {
+                let targetAmbient = ambientMap[lesson.id] || "default";
+                KC.bgm.switchToStyle(targetAmbient);
+            }
+        }
+
         let announceText = `${rowLabels[this.setupCursor]}: ${rowValues[this.setupCursor]}`;
 
         if (!silent && !navOnly) {

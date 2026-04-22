@@ -281,8 +281,9 @@ KC.input = {
                 }
             }
             else if (e.key === "Escape") {
+                // v3.27.4: True killswitch for Mission Setup
+                if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();
                 this.flush();
-                if(KC.audio.stopIntro) KC.audio.stopIntro();
                 KC.hub.enterHub();
             }
             return;

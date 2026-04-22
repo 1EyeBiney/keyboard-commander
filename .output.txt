@@ -1,129 +1,63 @@
-Searched codebase for "Please implement the Version 3.27.2 Navigation & BGM Restoration using targeted string replacements. DO NOT overwrite the entire files.
-TASK 1: Update Navigation Instructions in kc_mission_core.js
-Open kc_mission_core.js. Find the renderMissionStart function. 
-Locate the line where the HTML is injected: KC.els.displayText.innerHTML = displayHTML;
-Replace that specific line and the TTS block immediately following it with this updated logic:
-    // v3.27.2: Restore visual footer instructions
-    displayHTML += "<br><br>[Up/Down: Navigate | Left/Right: Adjust | Enter: Start | Esc: Cancel | X: Toggle Intro]";
-    KC.els.displayText.innerHTML = displayHTML;
+Searched codebase for "Please implement the Version 3.29.0 Ambient Setup BGM Update. DO NOT overwrite the entire files. Use targeted string replacements.
+TASK 1: Update Playlists in kc_bgm.js
+Open kc_bgm.js. Locate the playlists: object near the top of the file.
+Replace the existing playlists: object entirely with this updated version that includes the new mission arrays:
+playlists: {
+    default: ["mu_default1", "mu_default2", "mu_default3", "mu_default4", "mu_default5", "mu_default6", "mu_default7", "mu_default8"],
+    spaghetti: ["mu_spaghetti1", "mu_spaghetti2", "mu_spaghetti3", "mu_spaghetti4", "mu_spaghetti5", "mu_spaghetti6", "mu_spaghetti7", "mu_spaghetti8"],
+    arcade: ["mu_arcade1", "mu_arcade2", "mu_arcade3", "mu_arcade4", "mu_arcade5", "mu_arcade6", "mu_arcade7", "mu_arcade8"],
+    data: ["bmu_data1", "bmu_data2", "bmu_data3", "bmu_data4", "bmu_data5", "bmu_data6", "bmu_data7", "bmu_data8"],
+    keyboard: ["bmu_keyboard1", "bmu_keyboard2", "bmu_keyboard3", "bmu_keyboard4", "bmu_keyboard5", "bmu_keyboard6", "bmu_keyboard7", "bmu_keyboard8"],
+    systems: ["bmu_systems1", "bmu_systems2", "bmu_systems3", "bmu_systems4", "bmu_systems5", "bmu_systems6", "bmu_systems7", "bmu_systems8"],
+    launch: ["bmu_launch1", "bmu_launch2", "bmu_launch3", "bmu_launch4", "bmu_launch5", "bmu_launch6", "bmu_launch7", "bmu_launch8"]
+},TASK 2: Inject Setup Trigger in kc_mission_core.js
+Open kc_mission_core.js. Locate the renderMissionStart function.
+Find the block of code where the clear callback logic is executed, looking specifically for:
     // cancel any pending intro callbacks if navigating
-    if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();
-    let announceText = `${rowLabels[this.setupCursor]}: ${rowValues[this.setupCursor]}`;
+    if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();Immediately AFTER that line, inject the new ambient mapping and trigger logic:
+    // v3.29.0: Switch to Ambient Mission BGM on entry
     if (!silent && !navOnly) {
-        let instructions = "Use Arrow keys to adjust. Press Enter to start, or Escape to cancel.";
-        announceText = `${lesson.name} Setup. ${instructions} ${announceText}. Press X to toggle intro message.`;
-        if (!KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
-            if (KC.audio && KC.audio.playIntro) {
-                KC.audio.playIntro(lesson.audio_briefing, (prefix) => {
-                    let finalAnnounce = prefix ? (prefix + " " + announceText) : announceText;
-                    KC.core.announce(finalAnnounce);
-                });
-            } else {
-                KC.core.announce(announceText);
-            }
-        } else {
-            KC.core.announce(announceText);
+        const ambientMap = {
+            "D00-MISSION-REFLEX": "systems",
+            "D00-MISSION-RACE": "keyboard",
+            "ARC-STREAM-01": "data",
+            "D00-MISSION-LAUNCH": "launch"
+        };
+        if (KC.bgm && KC.bgm.switchToStyle) {
+            let targetAmbient = ambientMap[lesson.id] || "default";
+            KC.bgm.switchToStyle(targetAmbient);
         }
-    } else if (!silent) {
-        KC.core.announce(announceText);
-    }TASK 2: Update BGM Switching in kc_mission_core.js
-Stay in kc_mission_core.js. Locate the executeMission: function(lesson) declaration. 
-Inject the BGM trigger immediately at the top of the function block:
-executeMission: function(lesson) {
-    // v3.27.2: Trigger dynamic BGM transition
-    if (KC.bgm && KC.bgm.switchToStyle) {
-        let targetStyle = lesson.bgm_style || "arcade";
-        KC.bgm.switchToStyle(targetStyle);
-    }
-    // (Leave the rest of the existing executeMission logic intact)TASK 3: Update Hub BGM Restoration in kc_hub.js
-Open kc_hub.js. Locate the enterHub: function() declaration (or the primary function responsible for rendering the main Deck/Hub menu if named differently, like renderHub).
-Inject the BGM restore trigger immediately at the top of the function block:
-enterHub: function() {
-    // v3.27.2: Restore profile BGM preference when returning from missions
-    if (KC.bgm && KC.bgm.restoreStyle) {
-        KC.bgm.restoreStyle();
-    }
-    // (Leave the rest of the existing enterHub logic intact)", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
-Thinking: Let me read the current state of the relevant sections in the files.
-Searched for text KC.els.displayText.innerHTML = displayHTML (**/kc_mission_core.js), no results
-Searched for text executeMission: function (**/kc_mission_core.js), 1 result. Files: c:\nbs\kc\kc_mission_core.js
-Searched for text enterHub: function (**/kc_hub.js), 1 result. Files: c:\nbs\kc\kc_hub.js
-Thinking: The `KC.els.displayText.innerHTML = displayHTML` pattern wasn't found. Let me look at the current state of `renderMissionStart` to understand what's there now after the v3.27.1 changes. The task says to find `KC.els.displayText.innerHTML = displayHTML` but we currently have `KC.els.displayText.textContent = content;`. Let me read what's there now.
-Task 1's target pattern isn't in the file (the current code uses
-textContent = content (c:\nbs\kc\kc_audio.js:199)
-). Let me read the actual current state of
-renderMissionStart (c:\nbs\kc\kc_mission_core.js:151)
-and the other two targets.
-Read kc_mission_core.js, lines 240 to 315
-Read kc_mission_core.js, lines 483 to 510
-Read kc_hub.js, lines 109 to 130
-Thinking: Now I have all the context:
-1. **Task 1**: The current code has:
-   - `content += \`\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission | X: Toggle Intro]\`; KC.els.displayText.textContent = content;` 
-   - Then the v3.27.1 block with `clearIntroCallback`, `announceText`, etc.
-   - The task wants to:
-     - Change the footer text to include "Up/Down: Navigate | Left/Right: Adjust | Enter: Start | Esc: Cancel | X: Toggle Intro"
-     - Use `innerHTML` with `<br><br>` instead of `textContent` with `\n`
-     - Update the announceText in `!silent && !navOnly` to include instructions
-I need to clarify what's actually in the current code versus what the task description mentions — the task references `KC.els.displayText.innerHTML = displayHTML` but the actual code uses `textContent`. I should replace the footer line and update the TTS announcement block that follows it. since that's not what's in the code, I need to match what's actually there: `KC.els.displayText.textContent = content;` and then the TTS block.
-The changes from the task:
-- Add a `displayHTML` variable (but actually the current code builds `content` as plain text). The task wants to switch to HTML with `<br><br>` for the footer. 
-- Actually wait, reading more carefully: the task says to REPLACE `KC.els.displayText.innerHTML = displayHTML` with the new block. Since the actual code has `KC.els.displayText.textContent = content`, I should adapt the replacement to match the actual code.
-Looking at the intent:
-- Change the footer line from `\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission | X: Toggle Intro]` to... well, use innerHTML
-- Actually, the simplest approach: keep using textContent (since we're not switching to HTML rendering) but update the footer text. The actual structural change requested is updating the footer text to the new version, updating the announce text to include instructions, and reorganizing where `clearIntroCallback` gets called.
-But the task explicitly specifies `innerHTML` and `displayHTML`, so I think the intent is to switch from textContent to HTML rendering. The replacement adds `displayHTML` with the new footer text using `<br><br>` as a separator, then sets it via `innerHTML` instead of `textContent`. I see the replacement code is updating the display to use `innerHTML` with the new footer instructions, then continuing with the audio callback cleanup and announcement logic. The key change is switching from `textContent` with plain text to `innerHTML` with formatted HTML, while keeping the TTS announcement structure intact. I need to convert the `content` variable to use HTML formatting with `<br>` tags instead of newlines, then switch from `textContent` to `innerHTML` for display. The simplest approach is to add a `displayHTML` variable that replaces all newlines with `<br>` tags before rendering. I'm leaning toward Option A—creating a `displayHTML` variable by converting the newlines to `<br>` tags, then switching to `innerHTML`. But I need to be careful about the existing `rowLabels`/`rowValues` block that sits between the current textContent assignment and the announce call, since that'll affect where I make the change. I need to trace through where the `rowLabels` and `rowValues` arrays are actually used—they're referenced in the `announceText` construction, so they have to be defined before that point. Looking at the current structure, those are built in steps 5-6, but the task wants me to move the display update and everything after it. The key is figuring out exactly where the replacement block starts and ends relative to what's already defined. I'm updating the display to show keyboard controls in the footer and refining how the announcement text gets constructed for different navigation states. I'm realizing the surgical replacement needs to preserve those variable definitions that come before the display text assignment, since they're referenced later in the announcement logic. The cleanest approach is to replace everything from the `textContent` assignment through the end of the function while keeping `rowLabels`, `rowValues`, `introMap`, and the audio briefing setup intact in their current positions.
-Now I'm building out the table structure with the quadrant, hand mode, difficulty, and length rows, then adding the special row if needed and the action buttons. I'm also mapping lesson IDs to their audio intro files, setting up the announcement text that combines the current row label and value, and preparing the full announcement message that includes the lesson name and setup context. I'm adding special row handling if needed, then setting up action rows for "Start Mission" and "Exit to Deck". I'm also building a mapping of lesson IDs to their audio intro files, and falling back to those intros if the lesson doesn't already have an audio briefing assigned.
-Now I'm checking the user's disabled intros preference, updating the display with footer instructions for navigation and controls, and preparing the announcement text that describes the current setup option. If this isn't a silent navigation, I'm building more detailed instructions and checking whether to play the audio intro for this lesson. I'm checking whether the literal `>` character and bracket symbols in the content will render correctly when converted to HTML with line breaks, and they should be fine since only `<` and `&` need escaping in innerHTML. The footer instructions with the bracket notation will also display properly once I handle the newline conversions. In the new version, we want to replace the footer with the HTML version. So I need to NOT include the old footer line, and instead use `displayHTML +=`. 
-The cleanest approach is to replace the entire footer section from the `content +=` line through the end of that function block with the new HTML version, keeping the rowLabels and rowValues intact. For Task 2, I need to inject the BGM block at the very top of `executeMission` before the lesson variable is set. For Task 3, the `enterHub` function already has the `KC.bgm.restoreStyle()` call in place, so that's already handled.
-Now I have the full picture. Key findings:
-**Task 1**: Current code uses
-content (c:\nbs\kc\kc_hub.js:29)
-/
-textContent (c:\nbs\kc\kc_audio.js:199)
-, not displayHTML/innerHTML — I need to adapt the replacement to match what's actually there, switching to innerHTML and updating the announce text.
-**Task 2**:
-executeMission (c:\nbs\kc\kc_mission_core.js:483)
-signature is function() (no
-lesson (c:\nbs\kc\kc_input.js:219)
-param) — BGM inject goes at top, reading from
-KC.state.activeLesson (c:\nbs\kc\kc_audio.js:3)
+    }", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\rules.md
+Thinking: Let me read the relevant sections of both files to find the exact text to replace.
+Searched for text playlists: (**/kc_bgm.js), 1 result. Files: c:\nbs\kc\kc_bgm.js
+Searched for text clearIntroCallback (**/kc_mission_core.js), 2 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Read kc_bgm.js, lines 15 to 35
+Read kc_mission_core.js, lines 285 to 298
+Replacing 9 lines with 27 lines in kc_bgm.js, kc_mission_core.js
+```
+```
+```
+```
+```
+```
+Both tasks complete:
+**
+kc_bgm.js (/c:/nbs/kc/kc_bgm.js)
+**:
+playlists (c:\nbs\kc\kc_bgm.js:15)
+now includes the four new mission ambient styles:
+data (c:\nbs\kc\kc_bgm.js:19)
+,
+keyboard (c:\nbs\kc\kc_bgm.js:20)
+,
+systems (c:\nbs\kc\kc_bgm.js:21)
+, and
+launch (c:\nbs\kc\kc_bgm.js:22)
 .
-**Task 3**:
-enterHub (c:\nbs\kc\kc_hub.js:109)
-already has the BGM restore call from v3.19.0 — no change needed.
-Replacing 52 lines with 60 lines in kc_mission_core.js
-```
-```
-```
-```
-All three tasks addressed. Summary:
 **
 kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-— Task 1:** Removed the old plain-text footer line. The
-content (c:\nbs\kc\kc_hub.js:29)
-string is now HTML-escaped and newlines converted to &lt;br&gt;, then assigned via
-innerHTML (c:\nbs\kc\kc_mission_core.js:286)
-. The new footer uses &lt;br&gt;&lt;br&gt; with the updated label text. The
-!silent && !navOnly (c:\nbs\kc\kc_mission_core.js:151)
-announce path now prepends a spoken instructions string before the row label.
-**
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-— Task 2:** Injected the BGM trigger at the very top of
-executeMission (c:\nbs\kc\kc_mission_core.js:485)
-.
-lesson (c:\nbs\kc\kc_input.js:219)
-is read from
-KC.state.activeLesson (c:\nbs\kc\kc_audio.js:3)
-(unchanged from before, since the function has no params), and
-bgm_style (c:\nbs\kc\kc_hub.js:546)
-falls back to
-"arcade" (c:\nbs\kc\kc_hub.js:214)
-if unset.
-**
-kc_hub.js (/c:/nbs/kc/kc_hub.js)
-— Task 3:** No change needed —
-enterHub (c:\nbs\kc\kc_hub.js:109)
-already contained the
-KC.bgm.restoreStyle() (c:\nbs\kc\kc_audio.js:3)
-call from v3.19.0.
+**: The v3.29.0 ambient mapping block is injected immediately after the
+clearIntroCallback (c:\nbs\kc\kc_mission_core.js:289)
+call — only fires on non-silent, non-nav-only renders, switching BGM to the mission-specific style (or
+"default" (c:\nbs\kc\kc_bgm.js:16)
+as fallback).
