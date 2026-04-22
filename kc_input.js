@@ -215,6 +215,7 @@ KC.input = {
             e.preventDefault();
 
             if (e.key.toLowerCase() === 'x') {
+                e.preventDefault();
                 const lesson = KC.state.activeLesson;
                 const mID = lesson.id;
                 KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
@@ -229,12 +230,20 @@ KC.input = {
 
                 if (KC.state.profile.disabled_intros[mID]) {
                     KC.state.profile.disabled_intros[mID] = false;
-                    KC.core.announce("Intro Audio Enabled");
-                    if (lesson.audio_briefing && KC.audio.playIntro) KC.audio.playIntro(lesson.audio_briefing);
+                    if (lesson.audio_briefing && KC.audio.playIntro) {
+                        KC.audio.playIntro(lesson.audio_briefing, () => {
+                            KC.core.announce("Intro Audio Enabled. Press X to toggle intro message.");
+                        });
+                    } else {
+                        KC.core.announce("Intro Audio Enabled.");
+                    }
                 } else {
                     KC.state.profile.disabled_intros[mID] = true;
-                    KC.core.announce("Intro Audio Disabled");
-                    if (KC.audio.stopIntro) KC.audio.stopIntro();
+                    if (KC.audio.stopIntro) {
+                        KC.audio.stopIntro(true, "Intro Audio Disabled.");
+                    } else {
+                        KC.core.announce("Intro Audio Disabled.");
+                    }
                 }
                 KC.core.saveProgress();
                 return;

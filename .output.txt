@@ -1,26 +1,51 @@
-Searched codebase for "Please implement the Version 3.27.0 Intro Audio Restoration using targeted string replacements or surgical insertions. DO NOT overwrite the entire files unless necessary.
+Searched codebase for "Please implement the Version 3.27.1 Intro TTS Synchronization Update using targeted string replacements. DO NOT overwrite the entire files.
 TASK 1: Update kc_audio.js
-Open kc_audio.js and locate the top of the KC.audio object.
-Add introNode: null to the state variables.
-Add the following two functions before init: function() {:
-    playIntro: function(src) {
-        this.stopIntro();
-        if(!src) return;
-        this.introNode = new Audio(src);
-        this.introNode.play().catch(e => console.warn('Intro playback blocked:', e));
-    },
-    stopIntro: function() {
-        if (this.introNode) {
-            this.introNode.pause();
-            this.introNode.currentTime = 0;
-            this.introNode = null;
+Open kc_audio.js. Find the introNode variable and the playIntro / stopIntro functions you added previously. Replace that entire block with the following callback-aware logic:
+// Intro Audio
+introNode: null,
+introCallback: null,
+playIntro: function(src, onComplete) {
+    this.stopIntro(false);
+    if(!src) {
+        if(onComplete) onComplete();
+        return;
+    }
+    this.introNode = new Audio(src);
+    this.introCallback = onComplete;
+    this.introNode.onended = () => {
+        if (this.introCallback) {
+            let cb = this.introCallback;
+            this.introCallback = null;
+            cb();
         }
-    },
-TASK 2: Update kc_mission_core.js
-Open kc_mission_core.js and locate the renderMissionStart function.
-Find the block of code near the end of the function where KC.els.displayText.innerHTML = displayHTML; and KC.core.announce(...) are executed.
-Inject the following logic right after the DOM updates to map and play the audio:
-    // v3.27.0: Dynamic Intro Audio Mapping
+    };
+    this.introNode.play().catch(e => {
+        console.warn('Intro playback blocked:', e);
+        if (this.introCallback) {
+            let cb = this.introCallback;
+            this.introCallback = null;
+            cb();
+        }
+    });
+},
+clearIntroCallback: function() {
+    this.introCallback = null;
+},
+stopIntro: function(executeCallback = false, prefixText = "") {
+    let cb = this.introCallback;
+    if (this.introNode) {
+        this.introNode.pause();
+        this.introNode.currentTime = 0;
+        this.introNode = null;
+    }
+    this.introCallback = null;
+    if (executeCallback && cb) {
+        cb(prefixText);
+    }
+},TASK 2: Update kc_mission_core.js
+Open kc_mission_core.js. Go to the renderMissionStart function. Locate the // v3.27.0: Dynamic Intro Audio Mapping comment. We are replacing everything from that comment to the end of the function. 
+Replace from const introMap = { all the way down to the end of the function (including any KC.core.announce calls) with this:
+    // v3.27.1: Intro Callback & TTS Overhaul
     const introMap = {
         "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
         "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
@@ -29,12 +54,28 @@ Inject the following logic right after the DOM updates to map and play the audio
     };
     if (!lesson.audio_briefing && introMap[lesson.id]) lesson.audio_briefing = introMap[lesson.id];
     KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
-    if (!KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
-        if (KC.audio && KC.audio.playIntro) KC.audio.playIntro(lesson.audio_briefing);
-    }Make sure to append [X: Toggle Intro] to the footer text or display HTML so players know the command exists.
-TASK 3: Update kc_input.js
-Open kc_input.js and locate handleGlobalKeys. Find the if (KC.state.status === &quot;MISSION_START&quot;) block.
-Inject the 'X' key toggle logic at the very top of this block:
+    // Cancel any pending intro callbacks if we are just navigating
+    if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();
+    let announceText = `${rowLabels[this.setupCursor]}: ${rowValues[this.setupCursor]}`;
+    if (!silent && !navOnly) {
+        announceText = `${lesson.name} Setup. ${announceText}. Press X to toggle intro message.`;
+        if (!KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
+            if (KC.audio && KC.audio.playIntro) {
+                KC.audio.playIntro(lesson.audio_briefing, (prefix) => {
+                    let finalAnnounce = prefix ? (prefix + " " + announceText) : announceText;
+                    KC.core.announce(finalAnnounce);
+                });
+            } else {
+                KC.core.announce(announceText);
+            }
+        } else {
+            KC.core.announce(announceText);
+        }
+    } else if (!silent) {
+        KC.core.announce(announceText);
+    }
+},TASK 3: Update kc_input.js
+Open kc_input.js. Locate the if (e.key.toLowerCase() === &#39;x&#39;) block inside handleGlobalKeys. Replace that entire if block with the following updated callback-aware version:
     if (e.key.toLowerCase() === 'x') {
         e.preventDefault();
         const lesson = KC.state.activeLesson;
@@ -49,94 +90,112 @@ Inject the 'X' key toggle logic at the very top of this block:
         if (!lesson.audio_briefing && introMap[mID]) lesson.audio_briefing = introMap[mID];
         if (KC.state.profile.disabled_intros[mID]) {
             KC.state.profile.disabled_intros[mID] = false;
-            KC.core.announce("Intro Audio Enabled");
-            if (lesson.audio_briefing && KC.audio.playIntro) KC.audio.playIntro(lesson.audio_briefing);
+            if (lesson.audio_briefing && KC.audio.playIntro) {
+                KC.audio.playIntro(lesson.audio_briefing, () => {
+                    KC.core.announce("Intro Audio Enabled. Press X to toggle intro message.");
+                });
+            } else {
+                KC.core.announce("Intro Audio Enabled.");
+            }
         } else {
             KC.state.profile.disabled_intros[mID] = true;
-            KC.core.announce("Intro Audio Disabled");
-            if (KC.audio.stopIntro) KC.audio.stopIntro();
+            if (KC.audio.stopIntro) {
+                KC.audio.stopIntro(true, "Intro Audio Disabled.");
+            } else {
+                KC.core.announce("Intro Audio Disabled.");
+            }
         }
         KC.core.saveProgress();
         return;
-    }Finally, find the Enter and Escape key checks inside the MISSION_START block and add if(KC.audio.stopIntro) KC.audio.stopIntro(); inside both of them so the audio terminates immediately upon starting or leaving the mission setup.", 27 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me start by reading the relevant files to understand their current state before making changes.
-Read kc_mission_core.js, lines 1 to 50
-Read kc_audio.js, lines 1 to 60
-Read kc_input.js, lines 1 to 50
-Thinking: Now let me read more of kc_input.js to find the MISSION_START block, and more of kc_mission_core.js to find the renderMissionStart function.
-Searched for text renderMissionStart (**/kc_mission_core.js), 8 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
-Searched for text MISSION_START (**/kc_input.js), 1 result. Files: c:\nbs\kc\kc_input.js
-Read kc_mission_core.js, lines 151 to 320
-Read kc_input.js, lines 200 to 290
-Thinking: Now I have a clear picture of the code. Let me plan all three tasks:
-**TASK 1: Update kc_audio.js**
-- Add `introNode: null` to state variables (after `labTimer: null`)
-- Add `playIntro` and `stopIntro` functions before `init: function()`
-**TASK 2: Update kc_mission_core.js**
-- Find the end of `renderMissionStart` where `KC.els.displayText.textContent = content;` and `KC.core.announce(...)` are called
-- Inject the intro audio mapping logic after DOM updates
-- Append `[X: Toggle Intro]` to the footer text alongside the existing control hints
-I can see where the footer text is built in `renderMissionStart`, so I'll add the intro toggle hint there, then inject the audio logic right after the DOM gets updated with the new content.
-The intro audio should only play on the initial render though, not when `silent` or `navOnly` are true, so I'll guard that playback logic accordingly to avoid repeating the audio on screen refreshes. I need to decide whether to add a guard clause to prevent the audio from restarting on silent re-renders. The task spec doesn't explicitly require it, but adding `if (!silent)` would prevent unnecessary audio replays when navigating, which seems like the right call here. I need to be more careful about the guard conditions here. `navOnly` can be true while `silent` is false, which would cause the audio to replay unnecessarily on navigation-only renders. The right approach is to guard with `if (!silent && !navOnly)` so the intro only plays on the initial full render. For the footer text, I'm appending the keyboard shortcut hint to the existing controls display.
-Now for the input handler updates - I need to find the `MISSION_START` block in kc_input.js and add the X key toggle at the top, then inject `KC.audio.stopIntro()` calls into both the Enter and Escape key handlers. I'm identifying the exact insertion points across the three files. In kc_audio.js, I need to add the introNode property and define the playIntro and stopIntro methods before the init function. For kc_mission_core.js, I'm locating where to update the footer text with the intro toggle instruction and where to inject the audio logic after the display updates. In kc_input.js, I'm pinpointing the MISSION_START block to add the X key handler and the Enter/Escape handlers to stop the intro.
-Now I have all the context I need. Let me implement all three tasks.
-Created 3 todos. 3 items: Update kc_audio.js (introNode + playIntro/stopIntro) (not-started); Update kc_mission_core.js (intro audio injection) (not-started); Update kc_input.js (X toggle + stopIntro on Enter/Escape) (not-started)
-Starting: Update kc_audio.js (introNode + playIntro/stopIntro) (1/3). 3 items: Update kc_audio.js (introNode + playIntro/stopIntro) (in-progress); Update kc_mission_core.js (intro audio injection) (not-started); Update kc_input.js (X toggle + stopIntro on Enter/Escape) (not-started)
-Replacing 7 lines with 24 lines in kc_audio.js
+    }(Note: You do not need to change the Enter/Escape handlers, as stopIntro() defaults to executeCallback=false, which silently kills the audio exactly as intended.)", 19 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js
+Thinking: Let me read the relevant sections of all three files to understand what's currently there before making targeted replacements.
+Let me read the current state of all three files first.
+Searched for text introNode (**/kc_audio.js), 7 results. Files: c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js
+Searched for text v3.27.0 (**/kc_mission_core.js), 1 result. Files: c:\nbs\kc\kc_mission_core.js
+Searched for text e.key.toLowerCase() === &#39;x&#39; (**/kc_input.js), 1 result. Files: c:\nbs\kc\kc_input.js
+Read kc_audio.js, lines 15 to 45
+Read kc_mission_core.js, lines 255 to 310
+Read kc_input.js, lines 215 to 260
+Thinking: Now I have a clear picture of all three files. I need to understand the Task 2 replacement more carefully.
+The task says:
+- Find `// v3.27.0: Dynamic Intro Audio Mapping` comment
+- Replace from `const introMap = {` all the way down to the end of the function (including any `KC.core.announce` calls)
+Looking at the current code in kc_mission_core.js (lines ~266-298):
+```javascript
+        // v3.27.0: Dynamic Intro Audio Mapping
+        const introMap = {
+            "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
+            "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
+            "ARC-STREAM-01": "audio/intros/data.mp3",
+            "D00-MISSION-LAUNCH": "audio/intros/launch.mp3"
+        };
+        if (!lesson.audio_briefing && introMap[lesson.id]) lesson.audio_briefing = introMap[lesson.id];
+        KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
+        if (!silent && !navOnly && !KC.state.profile.disabled_intros[lesson.
+```
+I'm seeing the intro audio mapping object that assigns audio files to specific lesson IDs, then checks if a lesson needs an audio briefing assigned from that map. The code continues with logic to track disabled intros in the user's profile and appears to be checking conditions before announcing something. I need to replace this with the v3.27.1 version, which introduces an intro callback system and overhauls the text-to-speech handling. The new code maps lesson IDs to audio intro files and fills in missing audio briefings from that map before proceeding with the setup announcement logic.
+Setting up the intro playback system... I'm noticing a mismatch—the new code references `rowLabels` and `rowValues` before the `if (!silent)` block, but in the original code these arrays were only defined inside that conditional block. The replacement snippet doesn't include where these variables are actually initialized, so I need to figure out if they should be defined earlier in the function or if the replacement is incomplete. I need to define `rowLabels` and `rowValues` before the replacement block since the new code references them outside of any conditional guard, whereas the old code had `rowLabels` scoped inside an `if (!silent)` check. The replacement should start from `const introMap = {` and extend to the end of the function, with these arrays initialized beforehand to support the new structure. I need to define `rowLabels` and `rowValues` arrays as part of the replacement block since the new code references them but they're not defined elsewhere in the function. The architecture makes sense: `rowLabels` holds the display names like "Quadrant" and "Hand Mode", while `rowValues` holds the corresponding data, and the cursor position indexes into both arrays to determine what's currently selected. I need to define the `rowLabels` and `rowValues` arrays as part of the replacement block itself, since the new snippet references them but they don't exist yet. I'm setting up the labels as separate strings and the values pulling from the existing variables like `region.name` and `handLabel`, then I'll construct the announcement text by combining them with the cursor position.
+Defining the arrays... Setting up the audio briefing by mapping lesson IDs to intro files, then checking if we need to announce the current setup row and potentially play the audio briefing if intros aren't disabled.
+Now I'm realizing the `specialLabel` for the reflex difficulty uses a colon separator, so I need to parse it correctly by splitting on that character to extract the window timing value.
+Now I have all the context. The Task 2 replacement references
+rowLabels (c:\nbs\kc\kc_mission_core.js:281)
+and rowValues which need to be built as part of the block (replacing the old inline
+rowLabels (c:\nbs\kc\kc_mission_core.js:281)
+inside
+if (!silent) (c:\nbs\kc\kc_mission_core.js:151)
+). Let me implement all three tasks at once.
+Replacing 16 lines with 47 lines in kc_audio.js
 ```
 ```
 ```
 ```
-Starting: Update kc_mission_core.js (intro audio injection) (2/3). 3 items: Update kc_audio.js (introNode + playIntro/stopIntro) (completed); Update kc_mission_core.js (intro audio injection) (in-progress); Update kc_input.js (X toggle + stopIntro on Enter/Escape) (not-started)
-Replacing 5 lines with 19 lines in kc_mission_core.js
+Replacing 32 lines with 45 lines in kc_mission_core.js
 ```
 ```
 ```
 ```
-Starting: Update kc_input.js (X toggle + stopIntro on Enter/Escape) (3/3). 3 items: Update kc_audio.js (introNode + playIntro/stopIntro) (completed); Update kc_mission_core.js (intro audio injection) (completed); Update kc_input.js (X toggle + stopIntro on Enter/Escape) (in-progress)
-Now Task 3 — three surgical edits to
-kc_input.js (/c:/nbs/kc/kc_input.js)
-:
-Replacing 16 lines with 44 lines in kc_input.js
+Replacing 25 lines with 34 lines in kc_input.js
 ```
 ```
 ```
 ```
-Completed: Update kc_input.js (X toggle + stopIntro on Enter/Escape) (3/3). 3 items: Update kc_audio.js (introNode + playIntro/stopIntro) (completed); Update kc_mission_core.js (intro audio injection) (completed); Update kc_input.js (X toggle + stopIntro on Enter/Escape) (completed)
-All three tasks done. Here's a summary of what was changed:
+All three tasks done. Summary of changes:
 **
 kc_audio.js (/c:/nbs/kc/kc_audio.js)
-** — Added
-introNode: null (c:\nbs\kc\kc_audio.js:19)
-state variable plus
-playIntro(src) (c:\nbs\kc\kc_audio.js:21)
-and
-stopIntro() (c:\nbs\kc\kc_audio.js:27)
-methods before
-init (c:\nbs\kc\kc_audio.js:35)
-.
+** — Replaced the simple
+playIntro (c:\nbs\kc\kc_audio.js:22)
+/
+stopIntro (c:\nbs\kc\kc_audio.js:53)
+pair with the full callback-aware system:
+introCallback (c:\nbs\kc\kc_audio.js:20)
+state variable,
+onended (c:\nbs\kc\kc_audio.js:31)
++
+.catch() (c:\nbs\kc\kc_audio.js:39)
+both invoke the callback, new
+clearIntroCallback() (c:\nbs\kc\kc_audio.js:49)
+helper, and
+stopIntro(executeCallback, prefixText) (c:\nbs\kc\kc_audio.js:53)
+which optionally fires the callback with a prefix string before discarding it.
 **
 kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-** — In
-renderMissionStart (c:\nbs\kc\kc_mission_core.js:151)
-:
-Footer line now reads `...| X: Toggle Intro]`
-After the
-displayText (c:\nbs\kc\kc_input.js:77)
-update, the
-introMap (c:\nbs\kc\kc_input.js:222)
-is applied to set
-lesson.audio_briefing (c:\nbs\kc\kc_input.js:218)
-if unset, then
-playIntro (c:\nbs\kc\kc_audio.js:21)
-is called — guarded with
+** — Replaced the entire old announce block with the v3.27.1 overhaul.
+rowLabels (c:\nbs\kc\kc_mission_core.js:267)
+/
+rowValues (c:\nbs\kc\kc_mission_core.js:268)
+are now built as parallel arrays (splitting the old combined strings) so the cursor-aware
+announceText (c:\nbs\kc\kc_mission_core.js:290)
+works cleanly. On first full render (
 !silent && !navOnly (c:\nbs\kc\kc_mission_core.js:151)
-so it only fires on the first full render, not on cursor-move re-renders.
+), the intro plays and the TTS fires only from the
+onended (c:\nbs\kc\kc_audio.js:31)
+callback; on nav-only re-renders,
+clearIntroCallback() (c:\nbs\kc\kc_audio.js:49)
+is called to silently discard any pending callback without interrupting the audio.
 **
 kc_input.js (/c:/nbs/kc/kc_input.js)
-** — In the MISSION_START block:
-X key toggle injected at the top: enables/disables intro per-mission ID, saves to
-disabled_intros (c:\nbs\kc\kc_input.js:220)
-, and plays/stops immediately.
-KC.audio.stopIntro() (c:\nbs\kc\kc_audio.js:27)
-added inside both the Enter and Escape handlers so audio cuts on launch or exit.
+** — Added
+e.preventDefault() (c:\nbs\kc\kc_audio.js:39)
+to the X handler and updated both branches: enabling replays the intro with a callback-driven announce, disabling calls
+stopIntro(true, "Intro Audio Disabled.") (c:\nbs\kc\kc_audio.js:53)
+so the TTS fires immediately as the audio cuts.

@@ -263,7 +263,17 @@ KC.mission = {
 
         KC.els.displayText.textContent = content;
 
-        // v3.27.0: Dynamic Intro Audio Mapping
+        // v3.27.1: Intro Callback & TTS Overhaul
+        const rowLabels = ["Quadrant", "Hand Mode", "Difficulty", "Length"];
+        const rowValues = [region ? region.name : "N/A", handLabel, diffName, lenLabel];
+        if (hasSpecialRow) {
+            const parts = specialLabel.split(':');
+            rowLabels.push(parts[0].trim());
+            rowValues.push(parts.slice(1).join(':').trim());
+        }
+        rowLabels.push("Start Mission"); rowValues.push("");
+        rowLabels.push("Exit to Deck");  rowValues.push("");
+
         const introMap = {
             "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
             "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
@@ -273,26 +283,29 @@ KC.mission = {
         if (!lesson.audio_briefing && introMap[lesson.id]) lesson.audio_briefing = introMap[lesson.id];
 
         KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
-        if (!silent && !navOnly && !KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
-            if (KC.audio && KC.audio.playIntro) KC.audio.playIntro(lesson.audio_briefing);
-        }
 
-        if (!silent) {
-            const rowLabels = [
-                `Quadrant: ${region ? region.name : "N/A"}`,
-                `Hand Mode: ${handLabel}`,
-                `Difficulty: ${diffName}`,
-                `Length: ${lenLabel}`,
-            ];
-            if (hasSpecialRow) rowLabels.push(specialLabel.trim());
-            rowLabels.push("Start Mission");
-            rowLabels.push("Exit to Deck");
-            const currentRowLabel = rowLabels[c] || rowLabels[0];
-            if (navOnly) {
-                KC.core.announce(currentRowLabel);
+        // Cancel any pending intro callbacks if we are just navigating
+        if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();
+
+        let announceText = `${rowLabels[this.setupCursor]}: ${rowValues[this.setupCursor]}`;
+
+        if (!silent && !navOnly) {
+            announceText = `${lesson.name} Setup. ${announceText}. Press X to toggle intro message.`;
+
+            if (!KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
+                if (KC.audio && KC.audio.playIntro) {
+                    KC.audio.playIntro(lesson.audio_briefing, (prefix) => {
+                        let finalAnnounce = prefix ? (prefix + " " + announceText) : announceText;
+                        KC.core.announce(finalAnnounce);
+                    });
+                } else {
+                    KC.core.announce(announceText);
+                }
             } else {
-                KC.core.announce(`Mission: ${lesson.name}. Setup. ${currentRowLabel}. Use Up and Down to select a row, Left and Right to adjust, or press Enter to launch.`);
+                KC.core.announce(announceText);
             }
+        } else if (!silent) {
+            KC.core.announce(announceText);
         }
     },
 

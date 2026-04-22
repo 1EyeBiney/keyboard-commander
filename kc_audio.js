@@ -17,18 +17,49 @@ KC.audio = {
 
     // Intro Audio
     introNode: null,
+    introCallback: null,
 
-    playIntro: function(src) {
-        this.stopIntro();
-        if(!src) return;
+    playIntro: function(src, onComplete) {
+        this.stopIntro(false);
+        if(!src) {
+            if(onComplete) onComplete();
+            return;
+        }
         this.introNode = new Audio(src);
-        this.introNode.play().catch(e => console.warn('Intro playback blocked:', e));
+        this.introCallback = onComplete;
+
+        this.introNode.onended = () => {
+            if (this.introCallback) {
+                let cb = this.introCallback;
+                this.introCallback = null;
+                cb();
+            }
+        };
+
+        this.introNode.play().catch(e => {
+            console.warn('Intro playback blocked:', e);
+            if (this.introCallback) {
+                let cb = this.introCallback;
+                this.introCallback = null;
+                cb();
+            }
+        });
     },
-    stopIntro: function() {
+
+    clearIntroCallback: function() {
+        this.introCallback = null;
+    },
+
+    stopIntro: function(executeCallback = false, prefixText = "") {
+        let cb = this.introCallback;
         if (this.introNode) {
             this.introNode.pause();
             this.introNode.currentTime = 0;
             this.introNode = null;
+        }
+        this.introCallback = null;
+        if (executeCallback && cb) {
+            cb(prefixText);
         }
     },
 
