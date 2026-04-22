@@ -214,6 +214,32 @@ KC.input = {
         if (KC.state.status === "MISSION_START" || KC.state.status === "BRIEFING") {
             e.preventDefault();
 
+            if (e.key.toLowerCase() === 'x') {
+                const lesson = KC.state.activeLesson;
+                const mID = lesson.id;
+                KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
+
+                const introMap = {
+                    "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
+                    "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
+                    "ARC-STREAM-01": "audio/intros/data.mp3",
+                    "D00-MISSION-LAUNCH": "audio/intros/launch.mp3"
+                };
+                if (!lesson.audio_briefing && introMap[mID]) lesson.audio_briefing = introMap[mID];
+
+                if (KC.state.profile.disabled_intros[mID]) {
+                    KC.state.profile.disabled_intros[mID] = false;
+                    KC.core.announce("Intro Audio Enabled");
+                    if (lesson.audio_briefing && KC.audio.playIntro) KC.audio.playIntro(lesson.audio_briefing);
+                } else {
+                    KC.state.profile.disabled_intros[mID] = true;
+                    KC.core.announce("Intro Audio Disabled");
+                    if (KC.audio.stopIntro) KC.audio.stopIntro();
+                }
+                KC.core.saveProgress();
+                return;
+            }
+
             const maxCursor = KC.mission._getMaxCursor();
             const startRow  = KC.mission._getStartRow();
             const exitRow   = KC.mission._getExitRow();
@@ -238,6 +264,7 @@ KC.input = {
             }
             else if (e.key === "Enter") {
                 this.flush();
+                if(KC.audio.stopIntro) KC.audio.stopIntro();
                 if (KC.mission.setupCursor === exitRow) {
                     KC.hub.enterHub();
                 } else {
@@ -246,6 +273,7 @@ KC.input = {
             }
             else if (e.key === "Escape") {
                 this.flush();
+                if(KC.audio.stopIntro) KC.audio.stopIntro();
                 KC.hub.enterHub();
             }
             return;

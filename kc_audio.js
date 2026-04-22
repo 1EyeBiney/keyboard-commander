@@ -15,6 +15,23 @@ KC.audio = {
     testPanner: null,
     labTimer: null,
 
+    // Intro Audio
+    introNode: null,
+
+    playIntro: function(src) {
+        this.stopIntro();
+        if(!src) return;
+        this.introNode = new Audio(src);
+        this.introNode.play().catch(e => console.warn('Intro playback blocked:', e));
+    },
+    stopIntro: function() {
+        if (this.introNode) {
+            this.introNode.pause();
+            this.introNode.currentTime = 0;
+            this.introNode = null;
+        }
+    },
+
     init: function() {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         this.ctx = new AudioContext();

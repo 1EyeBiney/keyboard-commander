@@ -190,6 +190,10 @@ KC.mission = {
             if (params.lengthMode === 0) lenLabel = "SHORT (3x10s)";
             else if (params.lengthMode === 1) lenLabel = "MEDIUM (3x20s)";
             else                              lenLabel = "LONG (3x30s)";
+        } else if (isLaunch) {
+            if (params.lengthMode === 0) { lesson.drill_length = 30;  lenLabel = "SHORT (30s)"; }
+            else if (params.lengthMode === 1) { lesson.drill_length = 60; lenLabel = "MEDIUM (60s)"; }
+            else                              { lesson.drill_length = 120; lenLabel = "LONG (120s)"; }
         } else {
             if (params.lengthMode === 0) { lesson.drill_length = 12; lenLabel = "SHORT (12)"; }
             else if (params.lengthMode === 1) { lesson.drill_length = 24; lenLabel = "MEDIUM (24)"; }
@@ -255,9 +259,23 @@ KC.mission = {
         }
         content += R(startRow, `[ START MISSION ]`) + '\n';
         content += R(exitRow,  `[ EXIT TO DECK  ]`) + '\n';
-        content += `\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission]`;
+        content += `\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission | X: Toggle Intro]`;
 
         KC.els.displayText.textContent = content;
+
+        // v3.27.0: Dynamic Intro Audio Mapping
+        const introMap = {
+            "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
+            "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
+            "ARC-STREAM-01": "audio/intros/data.mp3",
+            "D00-MISSION-LAUNCH": "audio/intros/launch.mp3"
+        };
+        if (!lesson.audio_briefing && introMap[lesson.id]) lesson.audio_briefing = introMap[lesson.id];
+
+        KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
+        if (!silent && !navOnly && !KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
+            if (KC.audio && KC.audio.playIntro) KC.audio.playIntro(lesson.audio_briefing);
+        }
 
         if (!silent) {
             const rowLabels = [
@@ -352,14 +370,19 @@ KC.mission = {
         KC.state.missionParams.lengthMode = current;
         this.renderMissionStart(KC.state.activeLesson, true);
         
-        const isRace = (KC.state.activeLesson.id === "D00-MISSION-RACE");
+        const isRace = (KC.state.activeLesson.id === "D00-MISSION-RACE") || (KC.state.activeLesson.generator === "race");
         const isStream = (KC.state.activeLesson.generator === "stream");
-        
+        const isLaunch = (KC.state.activeLesson.generator === "launch") || (KC.state.activeLesson.id === "D00-MISSION-LAUNCH");
+
         let label = "";
         if (isStream) {
             if (current === 0) label = "SHORT (3x10s)";
             else if (current === 1) label = "MEDIUM (3x20s)";
             else label = "LONG (3x30s)";
+        } else if (isLaunch) {
+            if (current === 0) label = "SHORT (30 Seconds)";
+            else if (current === 1) label = "MEDIUM (60 Seconds)";
+            else label = "LONG (120 Seconds)";
         } else if (isRace) {
             if (current === 0) label = "SHORT (8 Words)";
             else if (current === 1) label = "MEDIUM (14 Words)";
@@ -469,8 +492,13 @@ KC.mission = {
             const launchRegions = this.regionsLaunch;
             const rMode = KC.state.missionParams.regionMode || 0;
             const zoneName = (launchRegions[rMode] && launchRegions[rMode].name) ? launchRegions[rMode].name : "Numbers (Numpad)";
+
+            let timeLimit = 30;
+            if (KC.state.missionParams.lengthMode === 1) timeLimit = 60;
+            if (KC.state.missionParams.lengthMode === 2) timeLimit = 120;
+
             const config = {
-                time: 120,
+                time: timeLimit,
                 codeLength: KC.state.missionParams.codeLength || 4,
                 zone: zoneName
             };
