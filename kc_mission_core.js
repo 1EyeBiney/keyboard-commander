@@ -259,11 +259,7 @@ KC.mission = {
         }
         content += R(startRow, `[ START MISSION ]`) + '\n';
         content += R(exitRow,  `[ EXIT TO DECK  ]`) + '\n';
-        content += `\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission | X: Toggle Intro]`;
-
-        KC.els.displayText.textContent = content;
-
-        // v3.27.1: Intro Callback & TTS Overhaul
+        // v3.27.1: Build row labels/values
         const rowLabels = ["Quadrant", "Hand Mode", "Difficulty", "Length"];
         const rowValues = [region ? region.name : "N/A", handLabel, diffName, lenLabel];
         if (hasSpecialRow) {
@@ -284,13 +280,19 @@ KC.mission = {
 
         KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
 
-        // Cancel any pending intro callbacks if we are just navigating
+        // v3.27.2: Restore visual footer instructions
+        let displayHTML = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>');
+        displayHTML += "<br><br>[Up/Down: Navigate | Left/Right: Adjust | Enter: Start | Esc: Cancel | X: Toggle Intro]";
+        KC.els.displayText.innerHTML = displayHTML;
+
+        // cancel any pending intro callbacks if navigating
         if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();
 
         let announceText = `${rowLabels[this.setupCursor]}: ${rowValues[this.setupCursor]}`;
 
         if (!silent && !navOnly) {
-            announceText = `${lesson.name} Setup. ${announceText}. Press X to toggle intro message.`;
+            let instructions = "Use Arrow keys to adjust. Press Enter to start, or Escape to cancel.";
+            announceText = `${lesson.name} Setup. ${instructions} ${announceText}. Press X to toggle intro message.`;
 
             if (!KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
                 if (KC.audio && KC.audio.playIntro) {
@@ -481,7 +483,13 @@ KC.mission = {
     },
 
     executeMission: function() {
+        // v3.27.2: Trigger dynamic BGM transition
         const lesson = KC.state.activeLesson;
+        if (KC.bgm && KC.bgm.switchToStyle) {
+            let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : "arcade";
+            KC.bgm.switchToStyle(targetStyle);
+        }
+
         if (!lesson) {
             console.error("Launch Failed: No activeLesson in state.");
             KC.hub.enterHub();

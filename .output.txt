@@ -1,64 +1,17 @@
-Searched codebase for "Please implement the Version 3.27.1 Intro TTS Synchronization Update using targeted string replacements. DO NOT overwrite the entire files.
-TASK 1: Update kc_audio.js
-Open kc_audio.js. Find the introNode variable and the playIntro / stopIntro functions you added previously. Replace that entire block with the following callback-aware logic:
-// Intro Audio
-introNode: null,
-introCallback: null,
-playIntro: function(src, onComplete) {
-    this.stopIntro(false);
-    if(!src) {
-        if(onComplete) onComplete();
-        return;
-    }
-    this.introNode = new Audio(src);
-    this.introCallback = onComplete;
-    this.introNode.onended = () => {
-        if (this.introCallback) {
-            let cb = this.introCallback;
-            this.introCallback = null;
-            cb();
-        }
-    };
-    this.introNode.play().catch(e => {
-        console.warn('Intro playback blocked:', e);
-        if (this.introCallback) {
-            let cb = this.introCallback;
-            this.introCallback = null;
-            cb();
-        }
-    });
-},
-clearIntroCallback: function() {
-    this.introCallback = null;
-},
-stopIntro: function(executeCallback = false, prefixText = "") {
-    let cb = this.introCallback;
-    if (this.introNode) {
-        this.introNode.pause();
-        this.introNode.currentTime = 0;
-        this.introNode = null;
-    }
-    this.introCallback = null;
-    if (executeCallback && cb) {
-        cb(prefixText);
-    }
-},TASK 2: Update kc_mission_core.js
-Open kc_mission_core.js. Go to the renderMissionStart function. Locate the // v3.27.0: Dynamic Intro Audio Mapping comment. We are replacing everything from that comment to the end of the function. 
-Replace from const introMap = { all the way down to the end of the function (including any KC.core.announce calls) with this:
-    // v3.27.1: Intro Callback & TTS Overhaul
-    const introMap = {
-        "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
-        "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
-        "ARC-STREAM-01": "audio/intros/data.mp3",
-        "D00-MISSION-LAUNCH": "audio/intros/launch.mp3"
-    };
-    if (!lesson.audio_briefing && introMap[lesson.id]) lesson.audio_briefing = introMap[lesson.id];
-    KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
-    // Cancel any pending intro callbacks if we are just navigating
+Searched codebase for "Please implement the Version 3.27.2 Navigation & BGM Restoration using targeted string replacements. DO NOT overwrite the entire files.
+TASK 1: Update Navigation Instructions in kc_mission_core.js
+Open kc_mission_core.js. Find the renderMissionStart function. 
+Locate the line where the HTML is injected: KC.els.displayText.innerHTML = displayHTML;
+Replace that specific line and the TTS block immediately following it with this updated logic:
+    // v3.27.2: Restore visual footer instructions
+    displayHTML += "<br><br>[Up/Down: Navigate | Left/Right: Adjust | Enter: Start | Esc: Cancel | X: Toggle Intro]";
+    KC.els.displayText.innerHTML = displayHTML;
+    // cancel any pending intro callbacks if navigating
     if (KC.audio && KC.audio.clearIntroCallback) KC.audio.clearIntroCallback();
     let announceText = `${rowLabels[this.setupCursor]}: ${rowValues[this.setupCursor]}`;
     if (!silent && !navOnly) {
-        announceText = `${lesson.name} Setup. ${announceText}. Press X to toggle intro message.`;
+        let instructions = "Use Arrow keys to adjust. Press Enter to start, or Escape to cancel.";
+        announceText = `${lesson.name} Setup. ${instructions} ${announceText}. Press X to toggle intro message.`;
         if (!KC.state.profile.disabled_intros[lesson.id] && lesson.audio_briefing) {
             if (KC.audio && KC.audio.playIntro) {
                 KC.audio.playIntro(lesson.audio_briefing, (prefix) => {
@@ -73,129 +26,104 @@ Replace from const introMap = { all the way down to the end of the function (inc
         }
     } else if (!silent) {
         KC.core.announce(announceText);
+    }TASK 2: Update BGM Switching in kc_mission_core.js
+Stay in kc_mission_core.js. Locate the executeMission: function(lesson) declaration. 
+Inject the BGM trigger immediately at the top of the function block:
+executeMission: function(lesson) {
+    // v3.27.2: Trigger dynamic BGM transition
+    if (KC.bgm && KC.bgm.switchToStyle) {
+        let targetStyle = lesson.bgm_style || "arcade";
+        KC.bgm.switchToStyle(targetStyle);
     }
-},TASK 3: Update kc_input.js
-Open kc_input.js. Locate the if (e.key.toLowerCase() === &#39;x&#39;) block inside handleGlobalKeys. Replace that entire if block with the following updated callback-aware version:
-    if (e.key.toLowerCase() === 'x') {
-        e.preventDefault();
-        const lesson = KC.state.activeLesson;
-        const mID = lesson.id;
-        KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
-        const introMap = {
-            "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
-            "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
-            "ARC-STREAM-01": "audio/intros/data.mp3",
-            "D00-MISSION-LAUNCH": "audio/intros/launch.mp3"
-        };
-        if (!lesson.audio_briefing && introMap[mID]) lesson.audio_briefing = introMap[mID];
-        if (KC.state.profile.disabled_intros[mID]) {
-            KC.state.profile.disabled_intros[mID] = false;
-            if (lesson.audio_briefing && KC.audio.playIntro) {
-                KC.audio.playIntro(lesson.audio_briefing, () => {
-                    KC.core.announce("Intro Audio Enabled. Press X to toggle intro message.");
-                });
-            } else {
-                KC.core.announce("Intro Audio Enabled.");
-            }
-        } else {
-            KC.state.profile.disabled_intros[mID] = true;
-            if (KC.audio.stopIntro) {
-                KC.audio.stopIntro(true, "Intro Audio Disabled.");
-            } else {
-                KC.core.announce("Intro Audio Disabled.");
-            }
-        }
-        KC.core.saveProgress();
-        return;
-    }(Note: You do not need to change the Enter/Escape handlers, as stopIntro() defaults to executeCallback=false, which silently kills the audio exactly as intended.)", 19 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js
-Thinking: Let me read the relevant sections of all three files to understand what's currently there before making targeted replacements.
-Let me read the current state of all three files first.
-Searched for text introNode (**/kc_audio.js), 7 results. Files: c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js
-Searched for text v3.27.0 (**/kc_mission_core.js), 1 result. Files: c:\nbs\kc\kc_mission_core.js
-Searched for text e.key.toLowerCase() === &#39;x&#39; (**/kc_input.js), 1 result. Files: c:\nbs\kc\kc_input.js
-Read kc_audio.js, lines 15 to 45
-Read kc_mission_core.js, lines 255 to 310
-Read kc_input.js, lines 215 to 260
-Thinking: Now I have a clear picture of all three files. I need to understand the Task 2 replacement more carefully.
-The task says:
-- Find `// v3.27.0: Dynamic Intro Audio Mapping` comment
-- Replace from `const introMap = {` all the way down to the end of the function (including any `KC.core.announce` calls)
-Looking at the current code in kc_mission_core.js (lines ~266-298):
-```javascript
-        // v3.27.0: Dynamic Intro Audio Mapping
-        const introMap = {
-            "D00-MISSION-REFLEX": "audio/intros/systems.mp3",
-            "D00-MISSION-RACE": "audio/intros/keyboard.mp3",
-            "ARC-STREAM-01": "audio/intros/data.mp3",
-            "D00-MISSION-LAUNCH": "audio/intros/launch.mp3"
-        };
-        if (!lesson.audio_briefing && introMap[lesson.id]) lesson.audio_briefing = introMap[lesson.id];
-        KC.state.profile.disabled_intros = KC.state.profile.disabled_intros || {};
-        if (!silent && !navOnly && !KC.state.profile.disabled_intros[lesson.
-```
-I'm seeing the intro audio mapping object that assigns audio files to specific lesson IDs, then checks if a lesson needs an audio briefing assigned from that map. The code continues with logic to track disabled intros in the user's profile and appears to be checking conditions before announcing something. I need to replace this with the v3.27.1 version, which introduces an intro callback system and overhauls the text-to-speech handling. The new code maps lesson IDs to audio intro files and fills in missing audio briefings from that map before proceeding with the setup announcement logic.
-Setting up the intro playback system... I'm noticing a mismatch—the new code references `rowLabels` and `rowValues` before the `if (!silent)` block, but in the original code these arrays were only defined inside that conditional block. The replacement snippet doesn't include where these variables are actually initialized, so I need to figure out if they should be defined earlier in the function or if the replacement is incomplete. I need to define `rowLabels` and `rowValues` before the replacement block since the new code references them outside of any conditional guard, whereas the old code had `rowLabels` scoped inside an `if (!silent)` check. The replacement should start from `const introMap = {` and extend to the end of the function, with these arrays initialized beforehand to support the new structure. I need to define `rowLabels` and `rowValues` arrays as part of the replacement block since the new code references them but they're not defined elsewhere in the function. The architecture makes sense: `rowLabels` holds the display names like "Quadrant" and "Hand Mode", while `rowValues` holds the corresponding data, and the cursor position indexes into both arrays to determine what's currently selected. I need to define the `rowLabels` and `rowValues` arrays as part of the replacement block itself, since the new snippet references them but they don't exist yet. I'm setting up the labels as separate strings and the values pulling from the existing variables like `region.name` and `handLabel`, then I'll construct the announcement text by combining them with the cursor position.
-Defining the arrays... Setting up the audio briefing by mapping lesson IDs to intro files, then checking if we need to announce the current setup row and potentially play the audio briefing if intros aren't disabled.
-Now I'm realizing the `specialLabel` for the reflex difficulty uses a colon separator, so I need to parse it correctly by splitting on that character to extract the window timing value.
-Now I have all the context. The Task 2 replacement references
-rowLabels (c:\nbs\kc\kc_mission_core.js:281)
-and rowValues which need to be built as part of the block (replacing the old inline
-rowLabels (c:\nbs\kc\kc_mission_core.js:281)
-inside
-if (!silent) (c:\nbs\kc\kc_mission_core.js:151)
-). Let me implement all three tasks at once.
-Replacing 16 lines with 47 lines in kc_audio.js
-```
-```
-```
-```
-Replacing 32 lines with 45 lines in kc_mission_core.js
-```
-```
-```
-```
-Replacing 25 lines with 34 lines in kc_input.js
-```
-```
-```
-```
-All three tasks done. Summary of changes:
-**
-kc_audio.js (/c:/nbs/kc/kc_audio.js)
-** — Replaced the simple
-playIntro (c:\nbs\kc\kc_audio.js:22)
+    // (Leave the rest of the existing executeMission logic intact)TASK 3: Update Hub BGM Restoration in kc_hub.js
+Open kc_hub.js. Locate the enterHub: function() declaration (or the primary function responsible for rendering the main Deck/Hub menu if named differently, like renderHub).
+Inject the BGM restore trigger immediately at the top of the function block:
+enterHub: function() {
+    // v3.27.2: Restore profile BGM preference when returning from missions
+    if (KC.bgm && KC.bgm.restoreStyle) {
+        KC.bgm.restoreStyle();
+    }
+    // (Leave the rest of the existing enterHub logic intact)", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Thinking: Let me read the current state of the relevant sections in the files.
+Searched for text KC.els.displayText.innerHTML = displayHTML (**/kc_mission_core.js), no results
+Searched for text executeMission: function (**/kc_mission_core.js), 1 result. Files: c:\nbs\kc\kc_mission_core.js
+Searched for text enterHub: function (**/kc_hub.js), 1 result. Files: c:\nbs\kc\kc_hub.js
+Thinking: The `KC.els.displayText.innerHTML = displayHTML` pattern wasn't found. Let me look at the current state of `renderMissionStart` to understand what's there now after the v3.27.1 changes. The task says to find `KC.els.displayText.innerHTML = displayHTML` but we currently have `KC.els.displayText.textContent = content;`. Let me read what's there now.
+Task 1's target pattern isn't in the file (the current code uses
+textContent = content (c:\nbs\kc\kc_audio.js:199)
+). Let me read the actual current state of
+renderMissionStart (c:\nbs\kc\kc_mission_core.js:151)
+and the other two targets.
+Read kc_mission_core.js, lines 240 to 315
+Read kc_mission_core.js, lines 483 to 510
+Read kc_hub.js, lines 109 to 130
+Thinking: Now I have all the context:
+1. **Task 1**: The current code has:
+   - `content += \`\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission | X: Toggle Intro]\`; KC.els.displayText.textContent = content;` 
+   - Then the v3.27.1 block with `clearIntroCallback`, `announceText`, etc.
+   - The task wants to:
+     - Change the footer text to include "Up/Down: Navigate | Left/Right: Adjust | Enter: Start | Esc: Cancel | X: Toggle Intro"
+     - Use `innerHTML` with `<br><br>` instead of `textContent` with `\n`
+     - Update the announceText in `!silent && !navOnly` to include instructions
+I need to clarify what's actually in the current code versus what the task description mentions — the task references `KC.els.displayText.innerHTML = displayHTML` but the actual code uses `textContent`. I should replace the footer line and update the TTS announcement block that follows it. since that's not what's in the code, I need to match what's actually there: `KC.els.displayText.textContent = content;` and then the TTS block.
+The changes from the task:
+- Add a `displayHTML` variable (but actually the current code builds `content` as plain text). The task wants to switch to HTML with `<br><br>` for the footer. 
+- Actually wait, reading more carefully: the task says to REPLACE `KC.els.displayText.innerHTML = displayHTML` with the new block. Since the actual code has `KC.els.displayText.textContent = content`, I should adapt the replacement to match the actual code.
+Looking at the intent:
+- Change the footer line from `\n[Up/Down: Select | Left/Right: Adjust | Enter: Launch Mission | X: Toggle Intro]` to... well, use innerHTML
+- Actually, the simplest approach: keep using textContent (since we're not switching to HTML rendering) but update the footer text. The actual structural change requested is updating the footer text to the new version, updating the announce text to include instructions, and reorganizing where `clearIntroCallback` gets called.
+But the task explicitly specifies `innerHTML` and `displayHTML`, so I think the intent is to switch from textContent to HTML rendering. The replacement adds `displayHTML` with the new footer text using `<br><br>` as a separator, then sets it via `innerHTML` instead of `textContent`. I see the replacement code is updating the display to use `innerHTML` with the new footer instructions, then continuing with the audio callback cleanup and announcement logic. The key change is switching from `textContent` with plain text to `innerHTML` with formatted HTML, while keeping the TTS announcement structure intact. I need to convert the `content` variable to use HTML formatting with `<br>` tags instead of newlines, then switch from `textContent` to `innerHTML` for display. The simplest approach is to add a `displayHTML` variable that replaces all newlines with `<br>` tags before rendering. I'm leaning toward Option A—creating a `displayHTML` variable by converting the newlines to `<br>` tags, then switching to `innerHTML`. But I need to be careful about the existing `rowLabels`/`rowValues` block that sits between the current textContent assignment and the announce call, since that'll affect where I make the change. I need to trace through where the `rowLabels` and `rowValues` arrays are actually used—they're referenced in the `announceText` construction, so they have to be defined before that point. Looking at the current structure, those are built in steps 5-6, but the task wants me to move the display update and everything after it. The key is figuring out exactly where the replacement block starts and ends relative to what's already defined. I'm updating the display to show keyboard controls in the footer and refining how the announcement text gets constructed for different navigation states. I'm realizing the surgical replacement needs to preserve those variable definitions that come before the display text assignment, since they're referenced later in the announcement logic. The cleanest approach is to replace everything from the `textContent` assignment through the end of the function while keeping `rowLabels`, `rowValues`, `introMap`, and the audio briefing setup intact in their current positions.
+Now I'm building out the table structure with the quadrant, hand mode, difficulty, and length rows, then adding the special row if needed and the action buttons. I'm also mapping lesson IDs to their audio intro files, setting up the announcement text that combines the current row label and value, and preparing the full announcement message that includes the lesson name and setup context. I'm adding special row handling if needed, then setting up action rows for "Start Mission" and "Exit to Deck". I'm also building a mapping of lesson IDs to their audio intro files, and falling back to those intros if the lesson doesn't already have an audio briefing assigned.
+Now I'm checking the user's disabled intros preference, updating the display with footer instructions for navigation and controls, and preparing the announcement text that describes the current setup option. If this isn't a silent navigation, I'm building more detailed instructions and checking whether to play the audio intro for this lesson. I'm checking whether the literal `>` character and bracket symbols in the content will render correctly when converted to HTML with line breaks, and they should be fine since only `<` and `&` need escaping in innerHTML. The footer instructions with the bracket notation will also display properly once I handle the newline conversions. In the new version, we want to replace the footer with the HTML version. So I need to NOT include the old footer line, and instead use `displayHTML +=`. 
+The cleanest approach is to replace the entire footer section from the `content +=` line through the end of that function block with the new HTML version, keeping the rowLabels and rowValues intact. For Task 2, I need to inject the BGM block at the very top of `executeMission` before the lesson variable is set. For Task 3, the `enterHub` function already has the `KC.bgm.restoreStyle()` call in place, so that's already handled.
+Now I have the full picture. Key findings:
+**Task 1**: Current code uses
+content (c:\nbs\kc\kc_hub.js:29)
 /
-stopIntro (c:\nbs\kc\kc_audio.js:53)
-pair with the full callback-aware system:
-introCallback (c:\nbs\kc\kc_audio.js:20)
-state variable,
-onended (c:\nbs\kc\kc_audio.js:31)
-+
-.catch() (c:\nbs\kc\kc_audio.js:39)
-both invoke the callback, new
-clearIntroCallback() (c:\nbs\kc\kc_audio.js:49)
-helper, and
-stopIntro(executeCallback, prefixText) (c:\nbs\kc\kc_audio.js:53)
-which optionally fires the callback with a prefix string before discarding it.
+textContent (c:\nbs\kc\kc_audio.js:199)
+, not displayHTML/innerHTML — I need to adapt the replacement to match what's actually there, switching to innerHTML and updating the announce text.
+**Task 2**:
+executeMission (c:\nbs\kc\kc_mission_core.js:483)
+signature is function() (no
+lesson (c:\nbs\kc\kc_input.js:219)
+param) — BGM inject goes at top, reading from
+KC.state.activeLesson (c:\nbs\kc\kc_audio.js:3)
+.
+**Task 3**:
+enterHub (c:\nbs\kc\kc_hub.js:109)
+already has the BGM restore call from v3.19.0 — no change needed.
+Replacing 52 lines with 60 lines in kc_mission_core.js
+```
+```
+```
+```
+All three tasks addressed. Summary:
 **
 kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-** — Replaced the entire old announce block with the v3.27.1 overhaul.
-rowLabels (c:\nbs\kc\kc_mission_core.js:267)
-/
-rowValues (c:\nbs\kc\kc_mission_core.js:268)
-are now built as parallel arrays (splitting the old combined strings) so the cursor-aware
-announceText (c:\nbs\kc\kc_mission_core.js:290)
-works cleanly. On first full render (
+— Task 1:** Removed the old plain-text footer line. The
+content (c:\nbs\kc\kc_hub.js:29)
+string is now HTML-escaped and newlines converted to &lt;br&gt;, then assigned via
+innerHTML (c:\nbs\kc\kc_mission_core.js:286)
+. The new footer uses &lt;br&gt;&lt;br&gt; with the updated label text. The
 !silent && !navOnly (c:\nbs\kc\kc_mission_core.js:151)
-), the intro plays and the TTS fires only from the
-onended (c:\nbs\kc\kc_audio.js:31)
-callback; on nav-only re-renders,
-clearIntroCallback() (c:\nbs\kc\kc_audio.js:49)
-is called to silently discard any pending callback without interrupting the audio.
+announce path now prepends a spoken instructions string before the row label.
 **
-kc_input.js (/c:/nbs/kc/kc_input.js)
-** — Added
-e.preventDefault() (c:\nbs\kc\kc_audio.js:39)
-to the X handler and updated both branches: enabling replays the intro with a callback-driven announce, disabling calls
-stopIntro(true, "Intro Audio Disabled.") (c:\nbs\kc\kc_audio.js:53)
-so the TTS fires immediately as the audio cuts.
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+— Task 2:** Injected the BGM trigger at the very top of
+executeMission (c:\nbs\kc\kc_mission_core.js:485)
+.
+lesson (c:\nbs\kc\kc_input.js:219)
+is read from
+KC.state.activeLesson (c:\nbs\kc\kc_audio.js:3)
+(unchanged from before, since the function has no params), and
+bgm_style (c:\nbs\kc\kc_hub.js:546)
+falls back to
+"arcade" (c:\nbs\kc\kc_hub.js:214)
+if unset.
+**
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+— Task 3:** No change needed —
+enterHub (c:\nbs\kc\kc_hub.js:109)
+already contained the
+KC.bgm.restoreStyle() (c:\nbs\kc\kc_audio.js:3)
+call from v3.19.0.
