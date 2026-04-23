@@ -1,49 +1,26 @@
-Searched codebase for "Target Version: v3.31.0
-Open mission_launch.js.
-Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.31.0 */`.
-Locate the `setTimeout` block responsible for delaying the initial audio sequence broadcast. Increase its numerical timeout value by an additional 200 (e.g., if it is currently `800`, change it to `1000`).
-Open kc_mission_core.js.
-Locate the version comment at the top of the file. Update it to `/* kc_mission_core.js - v3.31.0 */`.
-Locate the `executeMission: function()` block. Find this exact line:
-`let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : "arcade";`
-Replace ONLY that line with the following block:
-        const ambientMap = {
-            "D00-MISSION-REFLEX": "systems",
-            "D00-MISSION-RACE": "keyboard",
-            "ARC-STREAM-01": "data",
-            "D00-MISSION-LAUNCH": "launch"
-        };
-        let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : (ambientMap[lesson.id] || "arcade");", 15 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\index.html, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me read both files to understand their current state before making changes.
-Read mission_launch.js, lines 1 to 5
-Searched for text executeMission|bgm_style|targetStyle (**/kc_mission_core.js), 5 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
-Searched for text val: 800|pause.*800 (**/mission_launch.js), 1 result. Files: c:\nbs\kc\mission_launch.js
-Read kc_mission_core.js, lines 1 to 510
-Thinking: Now I have all the context I need. Let me make all four changes simultaneously:
-1. `mission_launch.js` line 1: `v3.30.0` → `v3.31.0`
-2. `mission_launch.js` line 126: `val: 800` → `val: 1000`
-3. `kc_mission_core.js` line 1: `v2.96.4` → `v3.31.0`
-4. `kc_mission_core.js` line 503: Replace the single `let targetStyle` line with the ambientMap block
-For the fourth change, I need to be careful with the replacement around the executeMission function - I'm swapping out the simple targetStyle assignment for a more complex ambientMap configuration that handles the BGM style logic...
-I have everything I need. Applying all four changes simultaneously:
-Replacing 10 lines with 16 lines in mission_launch.js, kc_mission_core.js
+Searched codebase for "sorry, the last prompt I think got cut off when I brought it over from Gemini, I think this is the rest of it: arcade: [
+    {
+        name: "Combat Training",
+        items: [
+            { name: "Launch Codes", target_id: "D00-MISSION-LAUNCH", reward_est: 30, desc: "Decrypt and type audio-dictated launch codes to defend against the Glitch Swarm.", obj: "Type each intercepted launch code before time expires." }
+        ]
+    }
+  ],", 13 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js
+Thinking: The user is clarifying that the previous prompt was cut off. It seems like the instruction was to replace the `arcade:` block. Looking at both the original block and the new block, it seems like the replacement removes "Combat Training" entries "Reflex Calibration" and "Password Decryption", leaving only "Launch Codes". Let me verify by looking at the current state of `kc_data.js` to confirm the exact text before making changes.
+Let me read the file to find the current arcade block.
+No worries! So the full intent is: version bump to v3.32.0, and replace the arcade: block to remove "Reflex Calibration" and "Password Decryption", leaving only "Launch Codes". Let me confirm the exact current text first.
+Searched for text arcade:|Combat Training|Reflex Calibration|Password Decryption|Launch Codes (**/kc_data.js), 9 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 1 to 3
+Read kc_data.js, lines 780 to 793
+Replacing 11 lines with 9 lines in kc_data.js
 ```
 ```
 ```
 ```
-```
-```
-All four changes applied:
-**
-**
-: Version bumped to v3.31.0
-: Initial pause
-→
-(+200ms)
-**
-**
-: Version bumped to v3.31.0
-: Single
-line replaced with the
-block —
-is still checked first, then falls back through the map, then defaults to &quot;arcade&quot;
+Done. Both changes applied to
+:
+-
+: Version bumped to v3.32.0
+: "Reflex Calibration" and "Password Decryption" removed from the
+→ "Combat Training"
+array — only "Launch Codes" remains.

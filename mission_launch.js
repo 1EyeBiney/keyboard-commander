@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.31.0 */
+/* mission_launch.js - v3.33.0 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -122,8 +122,8 @@ KC.mission_launch = {
 
         let sequence = [];
         
-        // v3.31.0: Initial 1000ms delay before dictation begins (+200ms additional SR buffer)
-        sequence.push({ type: 'pause', val: 1000 });
+        // v3.33.0: Initial 1200ms delay before dictation begins (+200ms additional SR buffer)
+        sequence.push({ type: 'pause', val: 1200 });
         
         chunks.forEach((chunk, cIndex) => {
             for(let char of chunk) {
@@ -161,7 +161,7 @@ KC.mission_launch = {
             } else {
                 KC.core.announce(item.val); 
             }
-            setTimeout(() => this.playAudioSequence(seq, index + 1), 500);
+            setTimeout(() => this.playAudioSequence(seq, index + 1), 550);
         }
     },
 
