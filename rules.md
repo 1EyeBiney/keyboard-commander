@@ -1,117 +1,99 @@
-\# KEYBOARD COMMANDER: MASTER WATCHDOG DIRECTIVE
+# KEYBOARD COMMANDER: MASTER WATCHDOG DIRECTIVE
 
+## 1. THE PRIME DIRECTIVE & ARCHITECTURE
 
+- **Core Concept:** An audio-first Typing RPG / Rhythm Game. The system prioritizes instant audio feedback (latency < 20ms) and creates muscle memory for real-world screen reader navigation.
 
-\## 1. THE PRIME DIRECTIVE \& ARCHITECTURE
+- **Architecture:** Headless HTML5, CSS3, Vanilla JavaScript. NO frameworks. Strict adherence to a clean, modular file structure (/js, /assets, /css).
 
-\- \*\*Core Concept:\*\* An audio-first Typing RPG / Rhythm Game. The system prioritizes instant audio feedback (latency < 20ms) and creates muscle memory for real-world screen reader navigation.
+- **No Browser Modals:** NEVER use alert(), prompt(), or native confirm(). All UI interaction must be handled via DOM manipulation, state-based listeners, and custom menus.
 
-\- \*\*Architecture:\*\* Headless HTML5, CSS3, Vanilla JavaScript. NO frameworks. Strict adherence to a clean, modular file structure (/js, /assets, /css).
+- **The Initialization Protocol:** The application must boot with a splash screen containing a focusable button. This container MUST carry role="application" so that screen readers (NVDA, JAWS) automatically latch into Focus/Forms mode on page load. Clicking this button captures the first user interaction (satisfying browser autoplay policies) and transfers focus to the primary input trap.
 
-\- \*\*No Browser Modals:\*\* NEVER use alert(), prompt(), or native confirm(). All UI interaction must be handled via DOM manipulation, state-based listeners, and custom menus.
+## 2. CURRICULUM ARCHITECTURE
 
-\- \*\*The Initialization Protocol:\*\* The application must boot with a splash screen containing a focusable button. This container MUST carry role="application" so that screen readers (NVDA, JAWS) automatically latch into Focus/Forms mode on page load. Clicking this button captures the first user interaction (satisfying browser autoplay policies) and transfers focus to the primary input trap.
+### The 9-Quadrant Progression
+- The 9 standard keyboard quadrants are organized into three groups:
+- **Alpha Quadrants (1–4):** Home Row, Top & Home, Bottom & Home, All Alpha.
+- **Data Quadrants (5–8):** Number Row, Shift Symbols, Punctuation & Brackets, Numpad.
+- **Control Quadrants (9):** Navigation & Editing.
+- **Banned Keys:** System-level modifiers and state keys (`Escape`, `Tab`, `CapsLock`, `Shift`, `Control`, `Alt`, `Meta`) are permanently banned from being used as active typing targets in any quadrant, as they unavoidably conflict with screen reader controls and browser focus mechanics.
 
+## 3. SCREEN READER & ACCESSIBILITY ENGINEERING
 
+- **The Input Trap:** Core interaction relies on an always-focused `<input type="text">` element. This element must be aggressively cleared to prevent "ghost buffer" issues during rapid typing.
 
-\## 2. CURRICULUM ARCHITECTURE
+- **ARIA Output:** Use dedicated ARIA live regions (aria-live="polite" for standard feedback, assertive for critical errors). **Crucial:** Always clear textContent (e.g., element.textContent = '') before assigning new text to force the screen reader to re-announce consecutive identical strings.
 
-\### The 9-Quadrant Progression
-\- The 9 standard keyboard quadrants are organized into three groups:
-\- \*\*Alpha Quadrants (1–4):\*\* Home Row, Top \& Home, Bottom \& Home, All Alpha.
-\- \*\*Data Quadrants (5–8):\*\* Number Row, Shift Symbols, Punctuation \& Brackets, Numpad.
-\- \*\*Control Quadrants (9):\*\* Navigation \& Editing.
-\- \*\*Banned Keys:\*\* System-level modifiers and state keys (`Escape`, `Tab`, `CapsLock`, `Shift`, `Control`, `Alt`, `Meta`) are permanently banned from being used as active typing targets in any quadrant, as they unavoidably conflict with screen reader controls and browser focus mechanics.
+- **Audio Engine Hybridization:** Use the native AudioContext synthesizer (playTone, playSequence) for instantaneous system feedback (menu clicks, hit markers). Use HTML5 Audio objects for ambient tracks and voiceovers to prevent screen reader TTS ducking/clipping issues.
 
+- **Context-Aware Verbosity:** Sequential menu navigation must minimize verbosity. Only announce necessary context. Filter and "humanize" internal string names before sending them to the ARIA announcer so they sound natural.
 
-\## 3. SCREEN READER \& ACCESSIBILITY ENGINEERING
+- **Background Music (BGM) Engine:** Ambient music must use a dual-element HTML5 `<audio>` crossfader to ensure seamless transitions between tracks without interrupting the `AudioContext` synth. User preferences (volume, music style) must be persisted in their profile `settings`. Global audio controls (e.g., Shift+V for volume, Shift+M for style) must remain globally accessible via `handleGlobalKeys`.
 
-\- \*\*The Input Trap:\*\* Core interaction relies on an always-focused `<input type="text">` element. This element must be aggressively cleared to prevent "ghost buffer" issues during rapid typing.
+## 4. GAME ECONOMY & PERSISTENCE
 
-\- \*\*ARIA Output:\*\* Use dedicated ARIA live regions (aria-live="polite" for standard feedback, assertive for critical errors). \*\*Crucial:\*\* Always clear textContent (e.g., element.textContent = '') before assigning new text to force the screen reader to re-announce consecutive identical strings.
+- **Storage:** Data is persisted in localStorage. 
 
-\- \*\*Audio Engine Hybridization:\*\* Use the native AudioContext synthesizer (playTone, playSequence) for instantaneous system feedback (menu clicks, hit markers). Use HTML5 Audio objects for ambient tracks and voiceovers to prevent screen reader TTS ducking/clipping issues.
+- **The 5-Tier Unified Wallet:** All mission rewards and expenditures must interact with these exact five currencies:
 
-\- \*\*Context-Aware Verbosity:\*\* Sequential menu navigation must minimize verbosity. Only announce necessary context. Filter and "humanize" internal string names before sending them to the ARIA announcer so they sound natural.
+  1. `data_blocks`: Standard currency, earned by keystroke volume.
+  2. `logic_shards`: Premium currency, earned via high accuracy (>90%).
+  3. `sync_sparks`: Velocity currency, earned by maintaining high Transmission Rates (TRS).
+  4. `consecutive_coins`: Focus currency, earned by maintaining perfect typing streaks.
+  5. `glitch`: Negative liability, accumulated by errors. Must be purged.
 
-\- \*\*Background Music (BGM) Engine:\*\* Ambient music must use a dual-element HTML5 `<audio>` crossfader to ensure seamless transitions between tracks without interrupting the `AudioContext` synth. User preferences (volume, music style) must be persisted in their profile `settings`. Global audio controls (e.g., Shift+V for volume, Shift+M for style) must remain globally accessible via `handleGlobalKeys`.
+- Every mission summary and transaction receipt MUST display all five categories to maintain a consistent UI state.
 
-\- \*\*Contextual BGM \& Playlists:\*\* Background music (BGM) uses a playlist-based crossfading architecture located in `kc_bgm.js`.
+- **Multi-User Architecture:** Data is managed via a Master Roster (`kbc_roster`) which stores an array of user callsigns. Each user's data is saved in an isolated key (`kbc_profile_[Name]`). Never revert to single-key saving.
 
-\- \*\*Seamless State Persistence:\*\* When a user transitions between the Hub and a Mission, the engine uses `KC.bgm.switchToStyle('styleName')`. If the requested style is already playing, the command is ignored, allowing the music to persist seamlessly through Setup -> Gameplay -> Summary screens without restarting.
+- **The Data Engine:** The `career` object must maintain a `history_buffer` (an array capped at the user's last 50 missions) and a `zone_stats` object that tracks lifetime cumulative performance (Missions, WPM, Accuracy) split by specific keyboard quadrants (e.g., "Home Row").
 
-\- \*\*State Restoration:\*\* Exiting a mission back to the main Hub must invoke `KC.bgm.restoreStyle()` to smoothly crossfade back to the user's preferred Hub music setting (e.g., 'default' or 'western').
+## 5. INPUT & NAVIGATION STANDARDS
 
-
-
-\## 4. GAME ECONOMY \& PERSISTENCE
-
-\- \*\*Storage:\*\* Data is persisted in localStorage. 
-
-\- \*\*The 5-Tier Unified Wallet:\*\* All mission rewards and expenditures must interact with these exact five currencies:
-
-&#x20; 1. `data\_blocks`: Standard currency, earned by keystroke volume.
-
-&#x20; 2. `logic\_shards`: Premium currency, earned via high accuracy (>90%).
-
-&#x20; 3. `sync\_sparks`: Velocity currency, earned by maintaining high Transmission Rates (TRS).
-
-&#x20; 4. `consecutive\_coins`: Focus currency, earned by maintaining perfect typing streaks.
-
-&#x20; 5. `glitch`: Negative liability, accumulated by errors. Must be purged.
-
-\- Every mission summary and transaction receipt MUST display all five categories to maintain a consistent UI state.
-
-\- \*\*Multi-User Architecture:\*\* Data is managed via a Master Roster (`kbc_roster`) which stores an array of user callsigns. Each user's data is saved in an isolated key (`kbc_profile_[Name]`). Never revert to single-key saving.
-
-\- \*\*The Data Engine:\*\* The `career` object must maintain a `history_buffer` (an array capped at the user's last 50 missions) and a `zone_stats` object that tracks lifetime cumulative performance (Missions, WPM, Accuracy) split by specific keyboard quadrants (e.g., "Home Row").
-
-
-
-\## 5. INPUT \& NAVIGATION STANDARDS
-
-\- \*\*Typing Mode:\*\* Standard character entry for typing drills.
+- **Typing Mode:** Standard character entry for typing drills.
 
 - **Menu Navigation (2D System):** Menus utilize directional navigation. Up/Down Arrows select vertical items. Left/Right Arrows switch categories or tabs, and adjust values when navigating Mission Setup rows.
 
-\- \*\*Global Commands:\*\* - Enter: Advance / Confirm / Boot System.
+- **Global Commands:** - Enter: Advance / Confirm / Boot System.
+  - Escape: Abort Mission / Exit Menu / Step Back.
 
-&#x20; - Escape: Abort Mission / Exit Menu / Step Back.
+- **Menu Clarity:** All Hub/Facility menu objects must include a plain-English `desc` property to reduce cognitive load. Keep facility labels strictly as nouns (e.g., "Archive", not "Access Archive").
 
-\- \*\*Menu Clarity:\*\* All Hub/Facility menu objects must include a plain-English `desc` property to reduce cognitive load. Keep facility labels strictly as nouns (e.g., "Archive", not "Access Archive").
+- **First-Letter Navigation:** Menus with variable lists (like rosters or inventories) must support pressing letter keys to dynamically jump to the next item starting with that letter.
 
-\- \*\*First-Letter Navigation:\*\* Menus with variable lists (like rosters or inventories) must support pressing letter keys to dynamically jump to the next item starting with that letter.
+- **Visual State Indicators:** Use high-contrast text/border color shifts (e.g., toggling a CSS class like `.theme-login` on the `body`) to indicate major UI state changes without altering the base background color.
 
-\- \*\*Visual State Indicators:\*\* Use high-contrast text/border color shifts (e.g., toggling a CSS class like `.theme-login` on the `body`) to indicate major UI state changes without altering the base background color.
+- **System Resets:** When executing a hard reset or returning to the initial boot splash screen (e.g., an "Exit" command), use a native `location.reload()`. This is the required method to safely destroy Web Audio API contexts and prevent memory leaks.
 
-\- \*\*System Resets:\*\* When executing a hard reset or returning to the initial boot splash screen (e.g., an "Exit" command), use a native `location.reload()`. This is the required method to safely destroy Web Audio API contexts and prevent memory leaks.
+- **2D Data Tables:** Data-heavy facilities (like the Archive) must use a 2D grid logic. Up/Down traverses entries (Y-axis), while Left/Right traverses categories or metrics (X-axis). Audio announcements must include the index (e.g., "Entry 1 of 12") to maintain user orientation.
 
-\- \*\*2D Data Tables:\*\* Data-heavy facilities (like the Archive) must use a 2D grid logic. Up/Down traverses entries (Y-axis), while Left/Right traverses categories or metrics (X-axis). Audio announcements must include the index (e.g., "Entry 1 of 12") to maintain user orientation.
+- **Visual Echo:** Whenever the user is prompted to type free-form text (e.g., creating a callsign), the hidden `inputTrap.value` must be actively mirrored to the `displayText` container using a `setTimeout(..., 10)` so sighted users can see what they are typing in real-time.
 
-\- \*\*Visual Echo:\*\* Whenever the user is prompted to type free-form text (e.g., creating a callsign), the hidden `inputTrap.value` must be actively mirrored to the `displayText` container using a `setTimeout(..., 10)` so sighted users can see what they are typing in real-time.
+- **Developer Console:** The Dev Console is accessed via the "Stay Out" option in the main Hub menu. This option is dynamically hidden and will only render in the Hub if the active profile's callsign is exactly "BRIAN" or contains the word "bot" (case-insensitive). Selecting it announces a verbal warning before opening the Dev Console overlay. The Tilde (~) and Backtick (`) keys are reserved for gameplay input in the Punctuation & Brackets quadrant and must NOT be used as dev/testing hotkeys.
 
-\- \*\*Developer Console:\*\* The Dev Console is accessed via the "Stay Out" option in the main Hub menu. This option is dynamically hidden and will only render in the Hub if the active profile's callsign is exactly "BRIAN" or contains the word "bot" (case-insensitive). Selecting it announces a verbal warning before opening the Dev Console overlay. The Tilde (\~) and Backtick (\`) keys are reserved for gameplay input in the Punctuation & Brackets quadrant and must NOT be used as dev/testing hotkeys.
+- **No Hub Quick-Starts:** The `Enter` key at the root Hub level must strictly open the primary Game Menu. Never assign `Enter` to auto-launch missions from the Hub, as this creates a "double-bounce" race condition where users accidentally trigger missions immediately after pressing `Enter` to log in.
 
-\- \*\*No Hub Quick-Starts:\*\* The `Enter` key at the root Hub level must strictly open the primary Game Menu. Never assign `Enter` to auto-launch missions from the Hub, as this creates a "double-bounce" race condition where users accidentally trigger missions immediately after pressing `Enter` to log in.
+## 6. GEMINI CODE ASSIST (GCA) EXECUTION RULES
 
+- **No Truncation:** Never truncate code using `...` or `// remaining code`. Always output the full, modified function or object so it can be safely copy/pasted.
 
+- **Destructive DOM Manipulation:** Avoid deleting/recreating DOM elements where CSS visibility swapping (display: none / display: block) will suffice.
 
-\## 6. GEMINI CODE ASSIST (GCA) EXECUTION RULES
+- **Variable Safety:** Always use safe fallbacks for state variables (e.g., `const totalKeys = KC.state.stats.totalKeys || 0;`).
 
-\- \*\*No Truncation:\*\* Never truncate code using `...` or `// remaining code`. Always output the full, modified function or object so it can be safely copy/pasted.
+## 7. AUDIO ARCHITECTURE & BGM LIFECYCLE
 
-\- \*\*Destructive DOM Manipulation:\*\* Avoid deleting/recreating DOM elements where CSS visibility swapping (display: none / display: block) will suffice.
-
-\- \*\*Variable Safety:\*\* Always use safe fallbacks for state variables (e.g., `const totalKeys = KC.state.stats.totalKeys || 0;`).
-
-
-\## 7. AUDIO ENGINE \& BGM PERSISTENCE
-\- \*\*Contextual BGM \& Playlists:\*\* Background music (BGM) uses a playlist-based crossfading architecture located in `kc_bgm.js`. 
-\- \*\*Seamless State Persistence:\*\* When a user transitions between the Hub and a Mission, the engine uses `KC.bgm.switchToStyle('styleName')`. If the requested style is already playing, the command is ignored, allowing the music to persist seamlessly through Setup -> Gameplay -> Summary screens without restarting.
-\- \*\*State Restoration:\*\* Exiting a mission back to the main Hub must invoke `KC.bgm.restoreStyle()` to smoothly crossfade back to the user's preferred Hub music setting (e.g., 'default' or 'western').
+- **Contextual BGM & Playlists:** Background music uses a playlist-based crossfading architecture located in `kc_bgm.js`. Mission Setup screens must dynamically trigger mission-specific ambient grab bags (e.g., `data`, `keyboard`, `systems`, `launch`) via `KC.bgm.switchToStyle('styleName')`.
+- **Smart Audio Pathing:** The BGM engine MUST use a dynamic path resolver (`"audio/music/" + track_id + ".mp3"`) as a fallback if a track isn't explicitly defined in the `GAME_DATA.audio_bank` dictionary. This prevents silent crashes when dropping new assets into the directory.
+- **Seamless State Persistence:** If a requested BGM style is already playing, the engine must ignore the command to prevent track restarting.
+- **Menu Previews & Hard Cuts:** When previewing music styles in menus (e.g., Sound & Sight settings), the engine must execute an immediate *hard cut* to a freshly shuffled track from the selected style's grab bag, rather than using volume-ducking or overlapping crossfades.
+- **State Restoration:** Exiting a mission back to the main Hub must invoke `KC.bgm.restoreStyle()` to smoothly crossfade back to the user's preferred Hub music setting.
+- **Audio Lifecycle Killswitches:** When aborting a mission setup or exiting via the `Escape` key, the engine MUST explicitly kill any playing intro audio (`if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();`) *before* flushing input and executing the Hub transition.
+- **Launch Mission Audio Timing:** To prevent encroaching on native screen reader TTS announcements, always maintain a minimum +300ms buffer before the initial code broadcast. Additionally, maintain an increased intra-character delay (+100ms above baseline) to prevent phonetic bleed on 6+ digit sequences.
 
 ## 8. WORD GENERATION & DIFFICULTY ARCHITECTURE
+
 - **Decoupled Difficulty:** The `difficulty` parameter (1-5) strictly controls the speed of the AI opponent (Commander Keyboard), NOT the length of the words generated.
 - **Expert Quadrants:** Word length and complexity are strictly controlled by the `isExpert` flag on the keyboard quadrant definition. Standard quadrants (`isExpert: false`) generate words <= 5 characters. Expert quadrants (`isExpert: true`) generate words > 5 characters.
 - **Player Agency:** This architecture allows players to race a fast AI on easy words, or a slow AI on complex words. Never bind word length directly to the AI difficulty parameter.
-

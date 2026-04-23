@@ -1,4 +1,4 @@
-/* kc_mission_core.js - v2.96.4 */
+/* kc_mission_core.js - v3.31.0 */
 
 KC.handlers = KC.handlers || {}; 
 
@@ -497,10 +497,16 @@ KC.mission = {
     },
 
     executeMission: function() {
-        // v3.27.2: Trigger dynamic BGM transition
+        // v3.31.0: Trigger dynamic BGM transition with ambient map fallback
         const lesson = KC.state.activeLesson;
         if (KC.bgm && KC.bgm.switchToStyle) {
-            let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : "arcade";
+            const ambientMap = {
+                "D00-MISSION-REFLEX": "systems",
+                "D00-MISSION-RACE": "keyboard",
+                "ARC-STREAM-01": "data",
+                "D00-MISSION-LAUNCH": "launch"
+            };
+            let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : (ambientMap[lesson.id] || "arcade");
             KC.bgm.switchToStyle(targetStyle);
         }
 
