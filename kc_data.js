@@ -1,4 +1,4 @@
-/* kc_data.js - v2.94 */
+/* kc_data.js - v3.32.0 */
 
 // v3.13: Full Board Expansion — maps event.key values to their _am audio assets.
 const AUDIO_MAP = {
@@ -783,8 +783,6 @@ const GAME_DATA = {
     {
         name: "Combat Training",
         items: [
-            { name: "Reflex Calibration", target_id: "D00-MISSION-REFLEX", reward_est: 20, desc: "A standard reflex simulation for new cadets.", obj: "React to the system cues." },
-            { name: "Password Decryption", target_id: "D00-MISSION-PASS", reward_est: 35, desc: "Simulated brute-force attack on a basic firewall.", obj: "Type the key sequences correctly." },
             { name: "Launch Codes", target_id: "D00-MISSION-LAUNCH", reward_est: 30, desc: "Decrypt and type audio-dictated launch codes to defend against the Glitch Swarm.", obj: "Type each intercepted launch code before time expires." }
         ]
     }

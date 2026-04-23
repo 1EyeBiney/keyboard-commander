@@ -1,38 +1,32 @@
-Searched codebase for "Target Version: v3.30.0
+Searched codebase for "Target Version: v3.31.0
 Open mission_launch.js.
-Locate the comment at the very top of the file (e.g., `/* mission_launch.js - vX.XX.X */`). Update the version number to `v3.30.0`.
-Locate the function responsible for initiating the audio playback of the launch codes (likely named `playCodeAudio`, `announceCode`, or `startSequence`).
-Find the `setTimeout` block that delays the start of the audio sequence. Increase its numerical timeout value by 300 (e.g., if it is currently `setTimeout(..., 500)`, change it to `setTimeout(..., 800)`).
-Within that same function, locate the call to the sequence player (likely `KC.audio.playSequence(audioList, delay)`). Increase the numerical delay argument by 100 (e.g., if it is currently `150`, change it to `250`).
-Open rules.md.
-Locate the section regarding the Audio Lifecycle or Screen Reader Compliance.
-Add a new structural rule explicitly stating: "Launch Mission Audio Timing: To prevent encroaching on native screen reader TTS announcements, always maintain a minimum +300ms buffer before the initial code broadcast. Additionally, maintain an increased intra-character delay (+100ms above baseline) to prevent phonetic bleed on 6+ digit sequences."", 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me start by reading both files to understand their current state before making any changes.
-Read mission_launch.js, lines 1 to 80
-Read rules.md
-Thinking: Now I need to read more of `mission_launch.js` to find the `playCodeAudio` or similar function with the `setTimeout` and `KC.audio.playSequence` calls.
-Read mission_launch.js, lines 80 to 200
-Read rules.md, lines 98 to 98
-Thinking: Now I have a clear picture of the code. Let me analyze what needs to be changed:
-1. In `mission_launch.js`:
-   - Line 1: `/* mission_launch.js - v3.26.2 */` → `/* mission_launch.js - v3.30.0 */`
-   - The `dictateCode` function has: `sequence.push({ type: 'pause', val: 500 });` — this is the initial delay. I need to increase it by 300 → `800`
-   - The audio playback uses `setTimeout(() => this.playAudioSequence(seq, index + 1), 400)` — this is the per-character delay in `playAudioSequence`. 
-I need to increase it by 100 → `500`. Let me re-read the task to make sure I'm targeting the right values. The task asks me to find the `setTimeout` block that delays the start of the audio sequence and increase its timeout by 300, then locate the sequence player call and increase its delay argument by 100. Looking at `dictateCode`, the initial pause value in the sequence is what needs the 300ms bump, not a separate `setTimeout` — that's the delay before audio playback begins. I see the issue now - the initial 500ms pause in the sequence gets converted to a `setTimeout` when `playAudioSequence` processes it, so that's what task 3 is referring to. I need to change that 500 value to 800. For task 4, the sequence player call is `this.playAudioSequence(sequence, 0)`, and I need to figure out where the delay argument fits into this function signature. I'm realizing the ambiguity here—task 3 likely refers to the initial delay in `dictateCode` (the `val: 500` that starts the sequence), while task 4 is the per-character delay in `playAudioSequence` (the `setTimeout(..., 400)`). The phrase "within that same function" in task 4 is confusing since both delays exist in different functions, but the most logical reading is that task 3 changes the startup delay to 800ms and task 4 changes the character spacing to 500ms. the delay between characters. So I should change that `400` to `500`.
-Now I'm settling on the three changes: bump the version to `v3.30.0`, update the initial pause value from `500` to `800` in `dictateCode`, and increase the character-by-character delay from `400` to `500` in `playAudioSequence`. For the documentation, I need to add a new rule about the Launch Mission Audio Timing to section 7 of `rules.md`, which covers the audio architecture and lifecycle.
-Now I have the full picture. Let me identify all four changes and apply them simultaneously:
-**Version** in
-line 1: v3.26.2 → v3.30.0
-2. Initial pause in
-:
-→
-(+300)
-3. Character delay in
-:
-→
-(+100)
-4. New rule appended to Section 7 of
-Replacing 12 lines with 13 lines in mission_launch.js, rules.md
+Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.31.0 */`.
+Locate the `setTimeout` block responsible for delaying the initial audio sequence broadcast. Increase its numerical timeout value by an additional 200 (e.g., if it is currently `800`, change it to `1000`).
+Open kc_mission_core.js.
+Locate the version comment at the top of the file. Update it to `/* kc_mission_core.js - v3.31.0 */`.
+Locate the `executeMission: function()` block. Find this exact line:
+`let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : "arcade";`
+Replace ONLY that line with the following block:
+        const ambientMap = {
+            "D00-MISSION-REFLEX": "systems",
+            "D00-MISSION-RACE": "keyboard",
+            "ARC-STREAM-01": "data",
+            "D00-MISSION-LAUNCH": "launch"
+        };
+        let targetStyle = lesson && lesson.bgm_style ? lesson.bgm_style : (ambientMap[lesson.id] || "arcade");", 15 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\index.html, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me read both files to understand their current state before making changes.
+Read mission_launch.js, lines 1 to 5
+Searched for text executeMission|bgm_style|targetStyle (**/kc_mission_core.js), 5 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Searched for text val: 800|pause.*800 (**/mission_launch.js), 1 result. Files: c:\nbs\kc\mission_launch.js
+Read kc_mission_core.js, lines 1 to 510
+Thinking: Now I have all the context I need. Let me make all four changes simultaneously:
+1. `mission_launch.js` line 1: `v3.30.0` → `v3.31.0`
+2. `mission_launch.js` line 126: `val: 800` → `val: 1000`
+3. `kc_mission_core.js` line 1: `v2.96.4` → `v3.31.0`
+4. `kc_mission_core.js` line 503: Replace the single `let targetStyle` line with the ambientMap block
+For the fourth change, I need to be careful with the replacement around the executeMission function - I'm swapping out the simple targetStyle assignment for a more complex ambientMap configuration that handles the BGM style logic...
+I have everything I need. Applying all four changes simultaneously:
+Replacing 10 lines with 16 lines in mission_launch.js, kc_mission_core.js
 ```
 ```
 ```
@@ -42,12 +36,14 @@ Replacing 12 lines with 13 lines in mission_launch.js, rules.md
 All four changes applied:
 **
 **
-: Version bumped v3.26.2 → v3.30.0
-: Initial sequence pause
+: Version bumped to v3.31.0
+: Initial pause
 →
-(+300ms SR buffer)
-: Per-character
-delay 400 → 500 (+100ms intra-character delay)
+(+200ms)
 **
 **
-Section 7 (AUDIO ARCHITECTURE & BGM LIFECYCLE): New bullet added — **Launch Mission Audio Timing** — documenting the +300ms pre-broadcast buffer and +100ms intra-character delay rationale for screen reader TTS coexistence.
+: Version bumped to v3.31.0
+: Single
+line replaced with the
+block —
+is still checked first, then falls back through the map, then defaults to &quot;arcade&quot;
