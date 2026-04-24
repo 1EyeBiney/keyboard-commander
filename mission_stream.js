@@ -1,4 +1,4 @@
-/* mission_stream.js - v2.91 */
+/* mission_stream.js - v3.36.0 */
 
 KC.handlers.stream = {
     // State
@@ -263,8 +263,31 @@ KC.handlers.stream = {
     },
 
     speakTarget: function(char) {
-        const audioKey = "char_" + char;
-        if (GAME_DATA.audio_bank && GAME_DATA.audio_bank[audioKey]) {
+        const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
+        let audioKey = "";
+
+        if (isBelle) {
+            if (/[0-9]/.test(char)) {
+                audioKey = `num_${char}_snu`;
+            } else if (/[a-zA-Z]/.test(char)) {
+                audioKey = `char_${char.toLowerCase()}_snu`;
+            } else {
+                const symMapSnu = {
+                    "!": "sym_exclamation_point", "@": "sym_at_symbol", "#": "sym_hash",
+                    "$": "sym_dollar_sign", "%": "sym_percent", "^": "sym_carat",
+                    "&": "sym_ampersand", "*": "sym_asterisk", "(": "sym_open_parenthesis",
+                    ")": "sym_closed_parenthesis", "-": "sym_dash", "=": "sym_equals",
+                    "/": "sym_forward_slash", "?": "sym_question_mark", "+": "sym_plus"
+                };
+                if (symMapSnu[char]) {
+                    audioKey = `${symMapSnu[char]}_snu`;
+                }
+            }
+        } else {
+            audioKey = "char_" + char.toLowerCase();
+        }
+
+        if (audioKey && GAME_DATA.audio_bank && GAME_DATA.audio_bank[audioKey]) {
             KC.audio.playSFX(audioKey);
         } else {
             KC.core.announce(char.toUpperCase());

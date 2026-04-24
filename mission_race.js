@@ -1,4 +1,4 @@
-/* mission_race.js - v2.91 */
+/* mission_race.js - v3.35.0 */
 
 KC.handlers.race = {
     // State
@@ -137,10 +137,16 @@ KC.handlers.race = {
     spellWord: function(word, roundIndex) {
         let delay = 0;
         this.spellTimers = this.spellTimers || [];
+        const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
+        
         for (let i = 0; i < word.length; i++) {
             const timer = setTimeout(() => {
                 if (this.isActive && this.currentIndex === roundIndex && KC.state.status === "ACTIVE_TYPING") {
-                    KC.audio.playSFX("char_" + word[i]);
+                    let audioKey = "char_" + word[i].toLowerCase();
+                    if (isBelle) {
+                        audioKey += "_snu";
+                    }
+                    KC.audio.playSFX(audioKey);
                 }
             }, delay);
             this.spellTimers.push(timer);

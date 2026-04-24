@@ -1,23 +1,49 @@
-Searched codebase for "Target Version: v3.34.5
-Open kc_data.js.
-Locate the version comment at the top of the file. Update it to `/* kc_data.js - v3.34.5 */`.
-Locate the `audio_bank` object inside `GAME_DATA`.
-Find the line containing `"sym_ampersandt_snu":` and replace that entire line with:
- "sym_ampersand_snu": "audio/symbols/sym_ampersand_snu.mp3",
-Find the line containing `"sym_caratt_snu":` and replace that entire line with:
- "sym_carat_snu": "audio/symbols/sym_carat_snu.mp3",
-Find the line containing `"sym_decimel_snu":` and replace that entire line with:
- "sym_decimal_snu": "audio/symbols/sym_decimal_snu.mp3",", 15 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Thinking: Let me make all these changes at once.
-Replacing 4 lines with 4 lines in kc_data.js
+Searched codebase for "Target Version: v3.35.0
+Open mission_race.js.
+Locate the version comment at the top of the file. Update it to `/* mission_race.js - v3.35.0 */`.
+Locate the `spellWord: function(word, roundIndex) {` block.
+Replace ONLY that function block with the following:
+ spellWord: function(word, roundIndex) {
+     let delay = 0;
+     this.spellTimers = this.spellTimers || [];
+     const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
+     for (let i = 0; i < word.length; i++) {
+         const timer = setTimeout(() => {
+             if (this.isActive && this.currentIndex === roundIndex && KC.state.status === "ACTIVE_TYPING") {
+                 let audioKey = "char_" + word[i].toLowerCase();
+                 if (isBelle) {
+                     audioKey += "_snu";
+                 }
+                 KC.audio.playSFX(audioKey);
+             }
+         }, delay);
+         this.spellTimers.push(timer);
+         delay += 400; // 400ms delay between letters
+     }
+ },", 16 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me find the current `spellWord` function in mission_race.js to get the exact text to replace.
+Searched for text spellWord: function(word, roundIndex) (**/mission_race.js), 1 result. Files: c:\nbs\kc\mission_race.js
+Read mission_race.js, lines 134 to 165
+Read mission_race.js, lines 1 to 3
+Replacing 14 lines with 20 lines in mission_race.js
 ```
 ```
 ```
 ```
-Done. Four changes to
-kc_data.js (/c:/nbs/kc/kc_data.js)
+Done. Two changes to
+mission_race.js (/c:/nbs/kc/mission_race.js)
 :
-**Version** → `v3.34.5`
-`"sym_ampersandt_snu"` → `"sym_ampersand_snu"`
-`"sym_caratt_snu"` → `"sym_carat_snu"`
-`"sym_decimel_snu"` → `"sym_decimal_snu"`
+**Version** → `v3.35.0`
+**
+spellWord() (c:\nbs\kc\mission_race.js:137)
+** — Added Belle detection via
+KC.state.missionParams.voice (c:\nbs\kc\kc_mission_core.js:125)
+. The
+audioKey (c:\nbs\kc\mission_race.js:125)
+is now built as char_[letter] for Amelia or char_[letter]_snu for Belle before passing to
+KC.audio.playSFX() (c:\nbs\kc\kc_mission_core.js:3)
+. Also fixes the original bug where
+word[i] (c:\nbs\kc\kc_mission_core.js:94)
+was passed without
+.toLowerCase() (c:\nbs\kc\kc_mission_core.js:78)
+.
