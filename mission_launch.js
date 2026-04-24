@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.34.2 */
+/* mission_launch.js - v3.34.4 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -39,7 +39,7 @@ KC.mission_launch = {
                     "!": "sym_exclamation_point", "@": "sym_at_symbol", "#": "sym_hash",
                     "$": "sym_dollar_sign", "%": "sym_percent", "^": "sym_carat",
                     "&": "sym_ampersand", "*": "sym_asterisk", "(": "sym_open_parenthesis",
-                    ")": "sym_close_parenthesis", "-": "sym_dash", "=": "sym_equals",
+                    ")": "sym_closed_parenthesis", "-": "sym_dash", "=": "sym_equals",
                     "/": "sym_forward_slash", "?": "sym_question_mark", "+": "sym_plus"
                 };
                 if(symMapSnu[char]) snuKey = `${symMapSnu[char]}_snu`;

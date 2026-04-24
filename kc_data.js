@@ -1,4 +1,4 @@
-/* kc_data.js - v3.34.0 */
+/* kc_data.js - v3.34.5 */
 
 // v3.13: Full Board Expansion — maps event.key values to their _am audio assets.
 const AUDIO_MAP = {
@@ -797,17 +797,17 @@ const GAME_DATA = {
       "num_8_snu": "audio/numbers/num_8_snu.mp3",
       "num_9_snu": "audio/numbers/num_9_snu.mp3",
       "sym_add_snu": "audio/symbols/sym_add_snu.mp3",
-      "sym_ampersandt_snu": "audio/symbols/sym_ampersandt_snu.mp3",
+      "sym_ampersand_snu": "audio/symbols/sym_ampersand_snu.mp3",
       "sym_asterisk_snu": "audio/symbols/sym_asterisk_snu.mp3",
       "sym_at_symbol_snu": "audio/symbols/sym_at_symbol_snu.mp3",
-      "sym_caratt_snu": "audio/symbols/sym_caratt_snu.mp3",
+      "sym_carat_snu": "audio/symbols/sym_carat_snu.mp3",
       "sym_closed_brace_snu": "audio/symbols/sym_closed_brace_snu.mp3",
       "sym_closed_bracket_snu": "audio/symbols/sym_closed_bracket_snu.mp3",
       "sym_closed_parenthesis_snu": "audio/symbols/sym_closed_parenthesis_snu.mp3",
       "sym_colon_snu": "audio/symbols/sym_colon_snu.mp3",
       "sym_comma_snu": "audio/symbols/sym_comma_snu.mp3",
       "sym_dash_snu": "audio/symbols/sym_dash_snu.mp3",
-      "sym_decimel_snu": "audio/symbols/sym_decimel_snu.mp3",
+      "sym_decimal_snu": "audio/symbols/sym_decimal_snu.mp3",
       "sym_divide_snu": "audio/symbols/sym_divide_snu.mp3",
       "sym_dollar_sign_snu": "audio/symbols/sym_dollar_sign_snu.mp3",
       "sym_double_quote_snu": "audio/symbols/sym_double_quote_snu.mp3",

@@ -1,57 +1,23 @@
-Searched codebase for "if(!this.timerInterval && this.state === "WAITING") {
-                this.start();
-                return;
-            }
-            if(this.state === "DONE" || this.state === "FAILED") {
-                this.generateCode();
-            }", 19 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Thinking: The user is providing the replacement for the spacebar block in step 3. Let me piece together the full request:
-1. Version bump to `v3.34.1`
-2. Add `this.state = "STARTING";` before `KC.core.announce("Intercepting launch codes. Stand by.");` in `start: function()`
-3. Replace the spacebar block:
-FROM:
-```javascript
-            if(!this.timerInterval) {
-                this.start();
-                return;
-            }
-            if(this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") {
-                this.generateCode();
-            }
-```
-TO:
-```javascript
-            if(!this.timerInterval && this.state === "WAITING") {
-                this.start();
-                return;
-            }
-            if(this.state === "DONE" || this.state === "FAILED") {
-                this.generateCode();
-            }
-```
-So the key changes are: adding a state check to the first condition so `start()` only runs when waiting, and removing "WAITING" from the second condition so code generation only happens when done or failed. Now I need to find the exact location in mission_launch.js to make these edits.
-Got it — the full picture is clear now. Let me read the exact context around those two spots:
-Searched for text Intercepting launch codes (**/mission_launch.js), 1 result. Files: c:\nbs\kc\mission_launch.js
-Searched for text if(!this.timerInterval) (**/mission_launch.js), 1 result. Files: c:\nbs\kc\mission_launch.js
-Read mission_launch.js, lines 93 to 102
-Read mission_launch.js, lines 188 to 207
-All context confirmed. Applying all three changes at once:
-Replacing 10 lines with 11 lines in mission_launch.js
+Searched codebase for "Target Version: v3.34.5
+Open kc_data.js.
+Locate the version comment at the top of the file. Update it to `/* kc_data.js - v3.34.5 */`.
+Locate the `audio_bank` object inside `GAME_DATA`.
+Find the line containing `"sym_ampersandt_snu":` and replace that entire line with:
+ "sym_ampersand_snu": "audio/symbols/sym_ampersand_snu.mp3",
+Find the line containing `"sym_caratt_snu":` and replace that entire line with:
+ "sym_carat_snu": "audio/symbols/sym_carat_snu.mp3",
+Find the line containing `"sym_decimel_snu":` and replace that entire line with:
+ "sym_decimal_snu": "audio/symbols/sym_decimal_snu.mp3",", 15 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Thinking: Let me make all these changes at once.
+Replacing 4 lines with 4 lines in kc_data.js
 ```
 ```
 ```
 ```
-Done. Three changes to
-mission_launch.js (/c:/nbs/kc/mission_launch.js)
+Done. Four changes to
+kc_data.js (/c:/nbs/kc/kc_data.js)
 :
-**Version** → `v3.34.1`
-**
-start() (c:\nbs\kc\mission_launch.js:96)
-** — this.state = &quot;STARTING&quot; is now set as the very first line, before the announce call. This prevents a second Spacebar press mid-startup from re-triggering
-start() (c:\nbs\kc\mission_launch.js:96)
-.
-3. **
-handleInput() (c:\nbs\kc\kc_mission_core.js:593)
-spacebar guard** — The timer check now also requires this.state === &quot;WAITING&quot; (!this.timerInterval &amp;&amp; this.state === &quot;WAITING&quot;), and the follow-up
-generateCode() (c:\nbs\kc\mission_launch.js:120)
-branch no longer fires on &quot;WAITING&quot; — only on &quot;DONE&quot; or &quot;FAILED&quot;.
+**Version** → `v3.34.5`
+`"sym_ampersandt_snu"` → `"sym_ampersand_snu"`
+`"sym_caratt_snu"` → `"sym_carat_snu"`
+`"sym_decimel_snu"` → `"sym_decimal_snu"`
