@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.33.0 */
+/* mission_launch.js - v3.34.0 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -28,12 +28,33 @@ KC.mission_launch = {
     getCharAudio: function(char) {
         let path = "";
         char = char.toUpperCase();
-        
+        const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
+
+        if (isBelle) {
+            let snuKey = "";
+            if (/[0-9]/.test(char)) snuKey = `num_${char}_snu`;
+            else if (/[A-Z]/.test(char)) snuKey = `char_${char.toLowerCase()}_snu`;
+            else {
+                const symMapSnu = {
+                    "!": "sym_exclamation_point", "@": "sym_at_symbol", "#": "sym_hash",
+                    "$": "sym_dollar_sign", "%": "sym_percent", "^": "sym_carat",
+                    "&": "sym_ampersand", "*": "sym_asterisk", "(": "sym_open_parenthesis",
+                    ")": "sym_close_parenthesis", "-": "sym_dash", "=": "sym_equals",
+                    "/": "sym_forward_slash", "?": "sym_question_mark", "+": "sym_plus"
+                };
+                if(symMapSnu[char]) snuKey = `${symMapSnu[char]}_snu`;
+            }
+
+            if (snuKey && typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[snuKey]) {
+                return GAME_DATA.audio_bank[snuKey];
+            }
+        }
+
         if (typeof AUDIO_MAP !== 'undefined') {
             if (AUDIO_MAP[char]) path = AUDIO_MAP[char];
             else if (AUDIO_MAP[char.toLowerCase()]) path = AUDIO_MAP[char.toLowerCase()];
         }
-        
+
         if (!path) {
             if (/[0-9]/.test(char)) path = `audio/numbers/num_${char}_am`;
             else if (/[A-Z]/.test(char)) path = `audio/alpha/char_${char.toLowerCase()}_ame`;

@@ -1,26 +1,241 @@
-Searched codebase for "sorry, the last prompt I think got cut off when I brought it over from Gemini, I think this is the rest of it: arcade: [
-    {
-        name: "Combat Training",
-        items: [
-            { name: "Launch Codes", target_id: "D00-MISSION-LAUNCH", reward_est: 30, desc: "Decrypt and type audio-dictated launch codes to defend against the Glitch Swarm.", obj: "Type each intercepted launch code before time expires." }
-        ]
-    }
-  ],", 13 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js
-Thinking: The user is clarifying that the previous prompt was cut off. It seems like the instruction was to replace the `arcade:` block. Looking at both the original block and the new block, it seems like the replacement removes "Combat Training" entries "Reflex Calibration" and "Password Decryption", leaving only "Launch Codes". Let me verify by looking at the current state of `kc_data.js` to confirm the exact text before making changes.
-Let me read the file to find the current arcade block.
-No worries! So the full intent is: version bump to v3.32.0, and replace the arcade: block to remove "Reflex Calibration" and "Password Decryption", leaving only "Launch Codes". Let me confirm the exact current text first.
-Searched for text arcade:|Combat Training|Reflex Calibration|Password Decryption|Launch Codes (**/kc_data.js), 9 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Read kc_data.js, lines 1 to 3
-Read kc_data.js, lines 780 to 793
-Replacing 11 lines with 9 lines in kc_data.js
-```
-```
-```
-```
-Done. Both changes applied to
+Searched codebase for "Target Version: v3.34.0
+Open kc_data.js.
+Locate the version comment at the top of the file. Update it to `/* kc_data.js - v3.34.0 */`.
+Locate the `audio_bank: {` object inside `GAME_DATA`.
+Open the `audio_bank_update.txt` file from the workspace. Copy all the generated key-value pairs.
+Paste these pairs directly into the `audio_bank` object. Ensure the JSON formatting and trailing commas remain valid.
+Open kc_mission_core.js.
+Locate the version comment at the top of the file. Update it to `/* kc_mission_core.js - v3.34.0 */`.
+Locate the `renderMissionStart` function and the arrays that define the setup menu options (e.g., `difficultyLevels`, `lengthModes`).
+Inject a new array for the voices: `const tacticalVoices = ["Amelia", "Belle"];`
+Integrate "Tactical Voice" as a new selectable row in the mission setup menu logic. 
+Ensure that when the user starts the mission, the selected voice string ("Amelia" or "Belle") is saved to `KC.state.missionParams.voice`.
+Open mission_launch.js.
+Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.34.0 */`.
+Locate the entire `getCharAudio: function(char) { ... }` block.
+Replace ONLY that block with the following:
+    getCharAudio: function(char) {
+        let path = "";
+        char = char.toUpperCase();
+        const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
+        if (isBelle) {
+            let snuKey = "";
+            if (/[0-9]/.test(char)) snuKey = `num_${char}_snu`;
+            else if (/[A-Z]/.test(char)) snuKey = `char_${char.toLowerCase()}_snu`;
+            else {
+                const symMapSnu = {
+                    "!": "sym_exclamation_point", "@": "sym_at_symbol", "#": "sym_hash",
+                    "$": "sym_dollar_sign", "%": "sym_percent", "^": "sym_carat",
+                    "&": "sym_ampersand", "*": "sym_asterisk", "(": "sym_open_parenthesis",
+                    ")": "sym_close_parenthesis", "-": "sym_dash", "=": "sym_equals",
+                    "/": "sym_forward_slash", "?": "sym_question_mark", "+": "sym_plus"
+                };
+                if(symMapSnu[char]) snuKey = `${symMapSnu[char]}_snu`;
+            }
+            if (snuKey && typeof GAME_DATA !== 'undefined' && GAME_DATA.audio_bank && GAME_DATA.audio_bank[snuKey]) {
+                return GAME_DATA.audio_bank[snuKey];
+            }
+        }
+        if (typeof AUDIO_MAP !== 'undefined') {
+            if (AUDIO_MAP[char]) path = AUDIO_MAP[char];
+            else if (AUDIO_MAP[char.toLowerCase()]) path = AUDIO_MAP[char.toLowerCase()];
+        }
+        if (!path) {
+            if (/[0-9]/.test(char)) path = `audio/numbers/num_${char}_am`;
+            else if (/[A-Z]/.test(char)) path = `audio/alpha/char_${char.toLowerCase()}_ame`;
+            else {
+                const symMap = {
+                    "!": "sym_exclamation_point_am", "@": "sym_at_symbol_am", "#": "sym_hash_am",
+                    "$": "sym_dollar_sign_am", "%": "sym_percent_am", "^": "sym_carat_am",
+                    "&": "sym_ampersand_am", "*": "sym_asterisk_am", "(": "sym_open_parenthesis_am",
+                    ")": "sym_close_parenthesis_am"
+                };
+                if(symMap[char]) path = `audio/symbols/${symMap[char]}`;
+            }
+        }
+        return path;
+    },", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js
+Thinking: Let me start by reading the relevant files to understand their current state before making changes.
+Created 4 todos. 4 items: Read audio_bank_update.txt (not-started); Update kc_data.js version + inject audio bank (not-started); Update kc_mission_core.js version + add voice row (not-started); Update mission_launch.js version + replace getCharAudio (not-started)
+Read audio_bank_update.txt
+Thinking: Good, I have the audio bank update content. Now let me read the relevant parts of the files I need to modify.
+Now let me read the three target files in parallel:
+Searched for text kc_data.js - v (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
+Searched for text audio_bank: { (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 195 to 230
+Thinking: Let me look for the end of the audio_bank object.
+Searched for regex ^\s+},\s*$ (**/kc_data.js), 5 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Searched for text bmu_launch (**/kc_data.js), no results
+Searched for text mu_launch (**/kc_data.js), no results
+Let me find the end of the
+audio_bank (c:\nbs\kc\kc_data.js:199)
+object:
+Searched for text AUDIO_DICT (**/kc_data.js), no results
+Searched for text ck_mut_hmm (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 700 to 740
+Read kc_data.js, lines 740 to 790
+Thinking: Good. The `audio_bank` object ends at line 746 (the `}`). I need to insert the new SNU assets before the closing `}` of `audio_bank`. The last entry is `"mu_arcade8": "audio/music/mu_arcade8.mp3"` and then `},`.
+Now let me check the kc_mission_core.js file.
+Now let me read the mission core and launch files in parallel:
+Searched for text renderMissionStart (**/kc_mission_core.js), 8 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Read kc_mission_core.js, lines 1 to 350
+Read kc_mission_core.js, lines 380 to 530
+Thinking: Now I need to understand the current structure of `renderMissionStart` to understand how to add a "Tactical Voice" row. Let me look at what `settingRowCount`, `startRow`, `exitRow` and `maxCursor` look like now, and how the cursor navigation and `adjustCurrentRow` works.
+Looking at the current code:
+- `settingRowCount = hasSpecialRow ? 5 : 4` (rows 0..3 always, row 4 if special)
+- `startRow = settingRowCount` (5 or 4)
+- `exitRow = settingRowCount + 1` (6 or 5)
+- `maxCursor = exitRow` (6 or 5)
+The rows are currently: Quadrant, Hand Mode, Difficulty, Length, Special (if applicable), START MISSION, and EXIT TO DECK. I'm thinking about where to insert "Tactical Voice" — it would make sense to place it after Length but before the special row, which would shift everything down and require adjusting the row indices accordingly. I need to reconsider the placement—adding Tactical Voice after Length means adjusting how the special row and cursor logic work together. The key is understanding how `settingRowCount`, `startRow`, and `exitRow` interact with the helper functions like `_getMaxCursor` and `adjustCurrentRow` to make sure the navigation flows correctly with the new row inserted. Now I'm mapping out the row indices with the new Tactical Voice setting inserted at position 4, which shifts the special row and action buttons down accordingly. I need to update the cursor bounds and the conditional logic in `adjustCurrentRow` to handle the voice change at row 4, then adjust the special row check to row 5 when it exists. The helper functions need to account for this extra row, so the max cursor, start row, and exit row all increment by one depending on whether the special row is present.
+I also need to initialize the voice parameter in `loadLesson` with a default value of "Amelia" and ensure it gets saved to `KC.state.missionParams` when the mission starts.
+Now let me read
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
 :
--
-: Version bumped to v3.32.0
-: "Reflex Calibration" and "Password Decryption" removed from the
-→ "Combat Training"
-array — only "Launch Codes" remains.
+Searched for text getCharAudio (**/mission_launch.js), 2 results. Files: c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js
+Read mission_launch.js, lines 1 to 100
+Thinking: Now I have all the information I need. Let me plan the changes:
+**kc_data.js changes:**
+1. Update version comment from `/* kc_data.js - v3.32.0 */` to `/* kc_data.js - v3.34.0 */`
+2. Inject the SNU assets into the `audio_bank` before the closing `},`. The last entry is `"mu_arcade8": "audio/music/mu_arcade8.mp3"` and then `  },`.
+**kc_mission_core.js changes:**
+1. Update version comment from `/* kc_mission_core.js - v3.31.0 */` to `/* kc_mission_core.js - v3.34.0 */`
+2. Add tactical voice support by defining the voice options and integrating them into the setup menu, then update all the cursor navigation functions to account for the new row, and add the logic to handle voice selection and initialization. I need to trace through the helper functions that calculate cursor bounds—they return different values depending on whether there's a special row, so adding Tactical Voice at row 4 means I'll need to shift the START MISSION and EXIT TO DECK rows down and update these boundary calculations accordingly. Voice (NEW)
+- Row 5: Special row (if hasSpecialRow)
+- Row 5 or 6: START MISSION
+- Row 6 or 7: EXIT TO DECK
+Changes to `renderMissionStart`:
+- `settingRowCount = hasSpecialRow ? 6 : 5` (was `5 : 4`)
+- `startRow = settingRowCount`
+- `exitRow = settingRowCount + 1`
+New `rowLabels` / `rowValues` entries need to include "Tactical Voice".
+Changes to helper functions:
+- `_getMaxCursor`: `hasSpecialRow ? 7 : 6` (was `6 : 5`)
+- `_getStartRow`: `hasSpecialRow ? 6 : 5` (was `5 : 4`)
+- `_getExitRow`: `hasSpecialRow ? 7 : 6` (was `6 : 5`)
+Now I need to update `adjustCurrentRow` to handle the voice selection at row 4, remap the special row logic to row 5 when applicable, and add a new `changeVoice` function. I'll also need to pass `voice: "Amelia"` into the mission parameters when loading the lesson. I should verify that the input handling in `kc_input.js` doesn't need changes, but I'll stick to just the three files mentioned in the request.
+Let me check how
+kc_input.js (/c:/nbs/kc/kc_input.js)
+interacts with the setup cursor so I don't break navigation:
+Searched for text MISSION_START (**/kc_input.js), 1 result. Files: c:\nbs\kc\kc_input.js
+Read kc_input.js, lines 214 to 280
+Thinking: Good. Now I have a complete picture of how the navigation works. The `kc_input.js` uses `_getMaxCursor`, `_getStartRow`, and `_getExitRow` from `kc_mission_core.js`, so updating those is the correct approach.
+Let me now plan all the changes to `kc_mission_core.js`:
+1. Version comment: `/* kc_mission_core.js - v3.31.0 */` → `/* kc_mission_core.js - v3.34.0 */`
+2. In `loadLesson`, add `voice: "Amelia"` to `missionParams`.
+3. In `renderMissionStart`, I need to define the tactical voice options, add a voice label variable, increase the row count to accommodate the new voice setting, render the voice row in the content, and add it to the labels and values arrays.
+4. Then I'll update the cursor navigation functions to account for the additional row: `_getMaxCursor` becomes `hasSpecialRow ? 7 : 6`, and I need to adjust `_getStartRow` and `_getExitRow` similarly.
+5. In `adjustCurrentRow`, I'm remapping the voice selection to row 4 and shifting the special row logic down to row 5, then adding the `changeVoice` function to handle cycling through the voice options.
+6. Now I'm planning out the exact text replacements needed, starting with the cursor bounds section in `renderMissionStart`.
+Updating the row calculations...
+I have everything I need. Let me now execute all changes. I'll start with the three files:
+Starting: Update kc_data.js version + inject audio bank (2/4). 4 items: Read audio_bank_update.txt (completed); Update kc_data.js version + inject audio bank (in-progress); Update kc_mission_core.js version + add voice row (not-started); Update mission_launch.js version + replace getCharAudio (not-started)
+Replacing 3 lines with 91 lines in kc_data.js
+```
+```
+```
+```
+Starting: Update kc_mission_core.js version + add voice row (3/4). 4 items: Read audio_bank_update.txt (completed); Update kc_data.js version + inject audio bank (completed); Update kc_mission_core.js version + add voice row (in-progress); Update mission_launch.js version + replace getCharAudio (not-started)
+Now I'll make all the
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+changes. First the version bump and the
+loadLesson (c:\nbs\kc\kc_mission_core.js:109)
+voice init, then the
+renderMissionStart (c:\nbs\kc\kc_mission_core.js:151)
+updates, then the helper/cursor functions:
+Replacing 57 lines with 65 lines in kc_mission_core.js
+```
+```
+```
+```
+Now add the
+changeVoice (c:\nbs\kc\kc_mission_core.js:485)
+function right after
+changeCodeLength (c:\nbs\kc\kc_mission_core.js:496)
+:
+Read kc_mission_core.js, lines 490 to 510
+Replacing 12 lines with 24 lines in kc_mission_core.js
+```
+```
+```
+```
+Starting: Update mission_launch.js version + replace getCharAudio (4/4). 4 items: Read audio_bank_update.txt (completed); Update kc_data.js version + inject audio bank (completed); Update kc_mission_core.js version + add voice row (completed); Update mission_launch.js version + replace getCharAudio (in-progress)
+Now update
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+— version bump and replace
+getCharAudio (c:\nbs\kc\mission_launch.js:28)
+:
+Replacing 25 lines with 46 lines in mission_launch.js
+```
+```
+```
+```
+Now let me verify the changes look correct:
+Read kc_data.js, lines 1 to 5
+Searched for text sym_underscore_snu (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 830 to 840
+Good.
+audio_bank (c:\nbs\kc\kc_data.js:199)
+closes cleanly. Let me do a quick spot-check on the mission core:
+Searched for text changeVoice (**/kc_mission_core.js), 2 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Searched for text Tact. Voice (**/kc_mission_core.js), 1 result. Files: c:\nbs\kc\kc_mission_core.js
+Searched for text _getMaxCursor (**/kc_mission_core.js), 1 result. Files: c:\nbs\kc\kc_mission_core.js
+Read kc_mission_core.js, lines 463 to 478
+Searched for text isBelle (**/mission_launch.js), 2 results. Files: c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js
+Completed: Update mission_launch.js version + replace getCharAudio (4/4). 4 items: Read audio_bank_update.txt (completed); Update kc_data.js version + inject audio bank (completed); Update kc_mission_core.js version + add voice row (completed); Update mission_launch.js version + replace getCharAudio (completed)
+All three files updated. Here's a summary of what was done:
+**
+kc_data.js (/c:/nbs/kc/kc_data.js)
+** → v3.34.0
+Injected all 86 `_snu` key-value pairs (alpha, modifiers, numbers, symbols) into
+audio_bank (c:\nbs\kc\kc_data.js:199)
+under a // SNU (Belle) Voice Assets (v3.34.0) comment block.
+**
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+** → v3.34.0
+Added
+voice: "Amelia" (c:\nbs\kc\kc_mission_core.js:125)
+default to
+missionParams (c:\nbs\kc\kc_mission_core.js:59)
+in
+loadLesson (c:\nbs\kc\kc_mission_core.js:109)
+.
+Added `const tacticalVoices = ["Amelia", "Belle"]` and a
+voiceLabel (c:\nbs\kc\kc_mission_core.js:186)
+variable in
+renderMissionStart (c:\nbs\kc\kc_mission_core.js:152)
+.
+Injected "Tact. Voice" as row 4 in the setup menu display and
+rowLabels (c:\nbs\kc\kc_mission_core.js:270)
+/
+rowValues (c:\nbs\kc\kc_mission_core.js:271)
+arrays.
+Updated
+settingRowCount (c:\nbs\kc\kc_mission_core.js:245)
+from 5:4 → 6:5, pushing START/EXIT rows up by 1.
+Updated
+_getMaxCursor (c:\nbs\kc\kc_mission_core.js:463)
+/
+_getStartRow (c:\nbs\kc\kc_mission_core.js:467)
+/
+_getExitRow (c:\nbs\kc\kc_mission_core.js:471)
+helpers accordingly (7:6, 6:5, 7:6).
+Updated
+adjustCurrentRow (c:\nbs\kc\kc_mission_core.js:475)
+: row 4 now calls
+changeVoice(dir) (c:\nbs\kc\kc_mission_core.js:507)
+, the old special-row logic promoted to row 5.
+Added
+changeVoice(dir) (c:\nbs\kc\kc_mission_core.js:507)
+function (cycles Amelia ↔ Belle, announces the change, uses synth 62).
+**
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+** → v3.34.0
+Replaced
+getCharAudio (c:\nbs\kc\mission_launch.js:28)
+with the new Belle/SNU routing block: checks
+KC.state.missionParams.voice === "Belle" (c:\nbs\kc\kc_input.js:3)
+, builds a
+snuKey (c:\nbs\kc\mission_launch.js:34)
+, resolves it via
+GAME_DATA.audio_bank (c:\nbs\kc\kc_data.js:199)
+, then falls through to Amelia's paths if not found.

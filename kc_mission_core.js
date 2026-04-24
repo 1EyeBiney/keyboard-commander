@@ -1,4 +1,4 @@
-/* kc_mission_core.js - v3.31.0 */
+/* kc_mission_core.js - v3.34.0 */
 
 KC.handlers = KC.handlers || {}; 
 
@@ -121,7 +121,8 @@ KC.mission = {
             reflexMode: lesson.params?.reflexMode || 2,
             difficulty: lesson.params?.difficulty || 3,
             lengthMode: 1,
-            codeLength: lesson.params?.codeLength || 4
+            codeLength: lesson.params?.codeLength || 4,
+            voice: "Amelia"
         };
 
         this.setupCursor = 0;
@@ -180,6 +181,10 @@ KC.mission = {
         const hands = ["Left Hand", "Right Hand", "Both Hands"];
         const handLabel = (isLaunch || (region && region.forceBoth)) ? "Both Hands (Fixed)" : hands[params.reflexMode || 0];
 
+        // Tactical Voice
+        const tacticalVoices = ["Amelia", "Belle"];
+        const voiceLabel = params.voice || "Amelia";
+
         // Length Logic
         let lenLabel = "";
         if (isRace) {
@@ -236,7 +241,8 @@ KC.mission = {
         }
 
         // Cursor bounds
-        const settingRowCount = hasSpecialRow ? 5 : 4; // rows 0..3 always, row 4 if special
+        // rows 0..3 always, row 4 = Tactical Voice, row 5 if special
+        const settingRowCount = hasSpecialRow ? 6 : 5;
         const startRow = settingRowCount;      // START MISSION row index
         const exitRow  = settingRowCount + 1;  // EXIT TO DECK row index
         const maxCursor = exitRow;
@@ -254,14 +260,15 @@ KC.mission = {
         content += R(1, `Hand Mode:   ${handLabel}`)                      + '\n';
         content += R(2, `Difficulty:  ${diffName}`)                       + '\n';
         content += R(3, `Length:      ${lenLabel}`)                       + '\n';
+        content += R(4, `Tact. Voice: ${voiceLabel}`)                     + '\n';
         if (hasSpecialRow) {
-            content += R(4, specialLabel) + '\n';
+            content += R(5, specialLabel) + '\n';
         }
         content += R(startRow, `[ START MISSION ]`) + '\n';
         content += R(exitRow,  `[ EXIT TO DECK  ]`) + '\n';
         // v3.27.1: Build row labels/values
-        const rowLabels = ["Quadrant", "Hand Mode", "Difficulty", "Length"];
-        const rowValues = [region ? region.name : "N/A", handLabel, diffName, lenLabel];
+        const rowLabels = ["Quadrant", "Hand Mode", "Difficulty", "Length", "Tactical Voice"];
+        const rowValues = [region ? region.name : "N/A", handLabel, diffName, lenLabel, voiceLabel];
         if (hasSpecialRow) {
             const parts = specialLabel.split(':');
             rowLabels.push(parts[0].trim());
@@ -454,15 +461,15 @@ KC.mission = {
     },
 
     _getMaxCursor: function() {
-        return this._getHasSpecialRow() ? 6 : 5;
+        return this._getHasSpecialRow() ? 7 : 6;
     },
 
     _getStartRow: function() {
-        return this._getHasSpecialRow() ? 5 : 4;
+        return this._getHasSpecialRow() ? 6 : 5;
     },
 
     _getExitRow: function() {
-        return this._getHasSpecialRow() ? 6 : 5;
+        return this._getHasSpecialRow() ? 7 : 6;
     },
 
     adjustCurrentRow: function(dir) {
@@ -475,7 +482,8 @@ KC.mission = {
         else if (c === 1) { this.changeMissionSetting(dir); }
         else if (c === 2) { this.changeDifficulty(dir); }
         else if (c === 3) { this.changeMissionLength(dir); }
-        else if (c === 4 && this._getHasSpecialRow()) {
+        else if (c === 4) { this.changeVoice(dir); }
+        else if (c === 5 && this._getHasSpecialRow()) {
             const lesson = KC.state.activeLesson;
             if (lesson && (lesson.generator === "launch" || lesson.id === "D00-MISSION-LAUNCH")) {
                 this.changeCodeLength(dir);
@@ -494,6 +502,18 @@ KC.mission = {
         KC.state.missionParams.codeLength = current;
         this.renderMissionStart(KC.state.activeLesson, true);
         KC.core.announce(`Code Length: ${current}`);
+    },
+
+    changeVoice: function(dir) {
+        if (KC.audio.playSynth) KC.audio.playSynth(62); else KC.audio.playSound('click');
+        const tacticalVoices = ["Amelia", "Belle"];
+        let current = tacticalVoices.indexOf(KC.state.missionParams.voice || "Amelia");
+        current += dir;
+        if (current < 0) current = tacticalVoices.length - 1;
+        if (current >= tacticalVoices.length) current = 0;
+        KC.state.missionParams.voice = tacticalVoices[current];
+        this.renderMissionStart(KC.state.activeLesson, true);
+        KC.core.announce(`Tactical Voice: ${tacticalVoices[current]}`);
     },
 
     executeMission: function() {
