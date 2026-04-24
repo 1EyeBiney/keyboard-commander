@@ -1,224 +1,105 @@
-Searched codebase for "Target Version: v3.37.0
-Open kc_core.js.
-Locate the version comment at the top of the file. Update it to `/* kc_core.js - v3.37.0 */`.
-Locate `createProfile: function(name) {` and find the `settings:` line inside it. Replace it with:
-         settings: { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10, preferred_voice: "Belle", mission_voices: {} },
-Locate `loadProfile: function(name) {` and find the `if (!KC.state.profile.settings.font_size)` line. Add these two lines immediately after it:
-         if (!KC.state.profile.settings.preferred_voice) KC.state.profile.settings.preferred_voice = "Belle";
-         if (!KC.state.profile.settings.mission_voices) KC.state.profile.settings.mission_voices = {};
-Open kc_hub.js.
-Locate the version comment at the top of the file. Update it to `/* kc_hub.js - v3.37.0 */`.
-Locate `settingsMenu: {` and update the object so it looks exactly like this:
- settingsMenu: {
-     themes: ["matrix", "amber", "solar", "blue", "inverse", "violet", "moon", "blueprint"],
-     fontSizes: ["100", "125", "150", "200"],
-     musicStyles: ["default", "spaghetti", "arcade"],
-     volumeStages: [0, 5, 10, 20, 30, 40],
-     tacticalVoices: ["Amelia", "Belle", "Per-Mission"],
-     row: 0,
-     themeIndex: 0,
-     fontIndex: 0,
-     styleIndex: 0,
-     volumeIndex: 2,
-     voiceIndex: 1
- },
-Locate `openSettingsMenu: function() {` and add the voiceIndex logic at the end of the variable declarations (right before `this.renderSettingsMenu(true);`):
-     const voiceIdx = sm.tacticalVoices.indexOf(settings.preferred_voice || "Belle");
-     sm.voiceIndex = (voiceIdx !== -1) ? voiceIdx : 1;
-Locate `renderSettingsMenu: function(isEntering = false) {` and replace the `rowLabels` and `rowValues` constants with the following:
-     const rowLabels = ["Theme", "Font Size", "Music Style", "Volume", "Tactical Voice"];
-     const rowValues = [
-         sm.themes[sm.themeIndex],
-         sm.fontSizes[sm.fontIndex] + "%",
-         styleNames[sm.musicStyles[sm.styleIndex]] || sm.musicStyles[sm.styleIndex],
-         sm.volumeStages[sm.volumeIndex],
-         sm.tacticalVoices[sm.voiceIndex]
-     ];
-Open kc_input.js.
-Locate the version comment at the top of the file. Update it to `/* kc_input.js - v3.37.0 */`.
-Locate the `// --- SETTINGS ---` block. Find the Up and Down arrow checks and update the modulos from 4 to 5:
-         if (e.key === "ArrowUp") {
-             KC.audio.playSound('click');
-             sm.row = (sm.row - 1 + 5) % 5;
-             KC.hub.renderSettingsMenu(false);
-         } else if (e.key === "ArrowDown") {
-             KC.audio.playSound('click');
-             sm.row = (sm.row + 1) % 5;
-             KC.hub.renderSettingsMenu(false);
+Searched codebase for "Target Version: v3.38.0
+Open kc_data.js.
+Locate the version comment at the top of the file. Update it to `/* kc_data.js - v3.38.0 */`.
+Locate the `audio_bank: {` object inside `GAME_DATA`.
+Paste the following 18 entries from `audio_bank_update.txt` into the `audio_bank` object:
+ "8bit_neutral1": "audio/sfx/stream/8bit_neutral1.mp3",
+ "8bit_neutral2": "audio/sfx/stream/8bit_neutral2.mp3",
+ "8bit_neutral3": "audio/sfx/stream/8bit_neutral3.mp3",
+ "8bit_neutral4": "audio/sfx/stream/8bit_neutral4.mp3",
+ "8bit_neutral5": "audio/sfx/stream/8bit_neutral5.mp3",
+ "8bit_neutral6": "audio/sfx/stream/8bit_neutral6.mp3",
+ "8bit_sadness1": "audio/sfx/stream/8bit_sadness1.mp3",
+ "8bit_sadness2": "audio/sfx/stream/8bit_sadness2.mp3",
+ "8bit_sadness3": "audio/sfx/stream/8bit_sadness3.mp3",
+ "8bit_sadness4": "audio/sfx/stream/8bit_sadness4.mp3",
+ "8bit_sadness5": "audio/sfx/stream/8bit_sadness5.mp3",
+ "8bit_sadness6": "audio/sfx/stream/8bit_sadness6.mp3",
+ "8bit_triumph1": "audio/sfx/stream/8bit_triumph1.mp3",
+ "8bit_triumph2": "audio/sfx/stream/8bit_triumph2.mp3",
+ "8bit_triumph3": "audio/sfx/stream/8bit_triumph3.mp3",
+ "8bit_triumph4": "audio/sfx/stream/8bit_triumph4.mp3",
+ "8bit_triumph5": "audio/sfx/stream/8bit_triumph5.mp3",
+ "8bit_triumph6": "audio/sfx/stream/8bit_triumph6.mp3",
+Open mission_stream.js.
+Locate the version comment at the top of the file. Update it to `/* mission_stream.js - v3.38.0 */`.
+Locate the `triggerOverflow: function()` block.
+Replace the `KC.audio.playSFX('sfx_explode_1');` line with:
+     const randSad = Math.floor(Math.random() * 6) + 1;
+     KC.audio.playSFX(`8bit_sadness${randSad}`);
+Locate the `endMission: function(success) {` block.
+Replace the entire `if (success) { ... }` block with the following:
+     if (success) {
+         let performanceKey = (this.score > 2000) ? "triumph" : "neutral";
+         const randNum = Math.floor(Math.random() * 6) + 1;
+         KC.audio.playSFX(`8bit_${performanceKey}${randNum}`);
+         const rewardBlocks = Math.floor(this.score / 100);
+         if (rewardBlocks > 0) {
+              KC.state.profile.wallet.data_blocks += rewardBlocks;
+              KC.core.saveProgress();
          }
-A few lines down in the Left/Right arrow logic, find the `} else if (sm.row === 3) {` volume block. Add the new `sm.row === 4` case directly below it:
-             } else if (sm.row === 3) {
-                 // Volume
-                 sm.volumeIndex = (sm.volumeIndex + dir + sm.volumeStages.length) % sm.volumeStages.length;
-                 KC.bgm.setVolume(sm.volumeStages[sm.volumeIndex]);
-             } else if (sm.row === 4) {
-                 // Tactical Voice
-                 sm.voiceIndex = (sm.voiceIndex + dir + sm.tacticalVoices.length) % sm.tacticalVoices.length;
-                 settings.preferred_voice = sm.tacticalVoices[sm.voiceIndex];
-                 KC.core.saveProgress();
-             }
-Open kc_mission_core.js.
-Locate the version comment at the top of the file. Update it to `/* kc_mission_core.js - v3.37.0 */`.
-Locate `loadLesson: function(target_id) {`. Find the `KC.state.missionParams = {` block inside it and replace it entirely with:
-     let defaultVoice = KC.state.profile.settings.preferred_voice || "Belle";
-     if (defaultVoice === "Per-Mission") {
-         defaultVoice = KC.state.profile.settings.mission_voices[target_id] || "Belle";
-     }
-     KC.state.missionParams = {
-         regionMode: lesson.params?.regionMode || 0,
-         reflexMode: lesson.params?.reflexMode || 2,
-         difficulty: lesson.params?.difficulty || 3,
-         lengthMode: 1,
-         codeLength: lesson.params?.codeLength || 4,
-         voice: defaultVoice
-     };
-Locate `executeMission: function() {` and inject this save logic at the very top of the function:
- executeMission: function() {
-     if (KC.state.profile.settings && KC.state.profile.settings.preferred_voice === "Per-Mission") {
-         if (!KC.state.profile.settings.mission_voices) KC.state.profile.settings.mission_voices = {};
-         KC.state.profile.settings.mission_voices[KC.state.activeLesson.id] = KC.state.missionParams.voice;
-         KC.core.saveProgress();
-     }", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
-Thinking: Let me read the relevant files to understand the current state before making changes.
-Let me read all the relevant sections in parallel first.
-Searched for regex createProfile: function|loadProfile: function|settings: { theme (**/kc_core.js), 3 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
-Searched for text if (!KC.state.profile.settings.font_size) (**/kc_core.js), 1 result. Files: c:\nbs\kc\kc_core.js
-Searched for regex settingsMenu: \{|openSettingsMenu: function|renderSettingsMenu: function|rowLabels = \[|rowValues = \[ (**/kc_hub.js), 5 results. Files: c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
-Searched for regex SETTINGS|sm\.row.*% 4|sm\.row.*\+ 4|ArrowUp.*click.*sm\.row|ArrowDown.*sm\.row|sm\.row === 3 (**/kc_input.js), 19 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
-Read kc_core.js, lines 88 to 130
-Read kc_hub.js, lines 1 to 30
-Read kc_hub.js, lines 530 to 590
-Read kc_input.js, lines 457 to 510
-Now let me read the
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-executeMission (c:\nbs\kc\kc_mission_core.js:519)
-top and
-loadLesson (c:\nbs\kc\kc_mission_core.js:109)
-block:
-Read kc_mission_core.js, lines 130 to 145
-Read kc_mission_core.js, lines 110 to 135
-Read kc_mission_core.js, lines 520 to 535
-Read kc_mission_core.js, lines 517 to 522
-Now I have all the context. Let me apply all changes across all four files:
-Created 1 todo. 1 items: Apply all v3.37.0 changes across 4 files (in-progress)
-Replacing 3 lines with 5 lines in kc_core.js
-```
-```
-```
-```
-Read kc_core.js, lines 1 to 3
-Replacing 3 lines with 5 lines in kc_core.js
-```
-```
-```
-```
-The
-settings: (c:\nbs\kc\kc_core.js:96)
-line changed in the first pass. Let me check the current state:
-Read kc_core.js, lines 94 to 120
-The migration lines got duplicated (added twice). Let me clean that up:
-Replacing 4 lines with 2 lines in kc_core.js
-```
-```
-```
-```
-Now apply the
-kc_hub.js (/c:/nbs/kc/kc_hub.js)
-,
-kc_input.js (/c:/nbs/kc/kc_input.js)
-, and
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-changes all at once:
-Replacing 48 lines with 69 lines in kc_hub.js, kc_input.js, kc_mission_core.js
+         setTimeout(() => {
+             KC.mission.completeLesson();
+         }, 4000);
+     }", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\asset_mapper.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me start by reading the relevant files to understand their current state before making changes.
+Read kc_data.js, lines 1 to 30
+Read mission_stream.js, lines 1 to 30
+Thinking: Now I need to find:
+1. The `audio_bank: {` object in `kc_data.js` to understand where to paste the new entries
+2. The `triggerOverflow: function()` block in `mission_stream.js`
+3. The `endMission: function(success) {` block in `mission_stream.js`
+Searched for text audio_bank: (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
+Searched for text triggerOverflow|endMission (**/mission_stream.js), 4 results. Files: c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
+Read kc_data.js, lines 199 to 260
+Read mission_stream.js, lines 290 to 336
+Thinking: Now I have enough context to make all the changes. Let me find the end of the `audio_bank` object to know where to insert the new entries. Let me look for the closing of the audio_bank object.
+Looking at the data, I need to find the last entry in audio_bank to know where to insert the new entries. Let me search for more of it.
+Now I need to find the last entry in
+audio_bank (c:\nbs\kc\kc_data.js:199)
+to insert after it.
+Searched for text sfx/stream (**/kc_data.js), no results
+Searched for text sfx_explode (**/kc_data.js), no results
+Read kc_data.js, lines 260 to 400
+Read kc_data.js, lines 400 to 500
+Read kc_data.js, lines 500 to 600
+Read kc_data.js, lines 600 to 700
+Read kc_data.js, lines 700 to 800
+Read kc_data.js, lines 800 to 879
+Thinking: Now I have the full picture. The `audio_bank` object ends with `"sym_underscore_snu": "audio/symbols/sym_underscore_snu.mp3"` followed by `},`. I need to add the 18 new entries before the closing `}` of `audio_bank`.
+Now I have all the context to make the changes. Let me do all 4 edits in parallel:
+1. Update version in `kc_data.js`
+2. Add 18 entries to `audio_bank` in `kc_data.js`
+3. Update version in `mission_stream.js`
+4. Replace the explosion sound effect call in `triggerOverflow`
+5. Replace the success condition block in `endMission`
+I'll handle all of these with `multi_replace_string_in_file`.
+I have all the context needed. Making all 5 edits now:
+Replacing 14 lines with 42 lines in kc_data.js, mission_stream.js
 ```
 ```
 ```
 ```
 ```
 ```
-```
-```
-Let me check the
-kc_input.js (/c:/nbs/kc/kc_input.js)
-version line (it used a partial match):
-Read kc_input.js, lines 1 to 3
-The version got corrupted by a partial match. Fix it:
-Replacing 1 lines with 1 lines in kc_input.js
-```
-```
-```
-```
-Now do a final verification pass on all four files:
-Searched for regex v3\.37\.0, 6 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\index.html, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js
-Searched for text preferred_voice, 8 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
-There's still a duplicate
-preferred_voice (c:\nbs\kc\kc_core.js:96)
-line in
-kc_core.js (/c:/nbs/kc/kc_core.js)
-(line 117 shows twice in results — that's the grep showing the same line). Let me verify:
-Read kc_core.js, lines 114 to 122
-Clean — just a grep quirk. All four files are correct. Here's a summary:
+All 5 edits applied across both files:
 **
-kc_core.js (/c:/nbs/kc/kc_core.js)
-** → v3.37.0
-createProfile (c:\nbs\kc\kc_core.js:90)
+kc_data.js (/c:/nbs/kc/kc_data.js)
+**
+Version bumped to `v3.38.0`
+18 `8bit_neutral/sadness/triumph` entries added at the end of
+audio_bank (c:\nbs\kc\kc_data.js:199)
+under a // 8-Bit Stream Stingers (v3.38.0) comment
+**
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
+**
+Version bumped to `v3.38.0`
+triggerOverflow (c:\nbs\kc\mission_stream.js:297)
+: replaces sfx_explode_1 with a random 8bit_sadness1–6 pick
+endMission (c:\nbs\kc\mission_stream.js:309)
 :
-settings (c:\nbs\kc\kc_core.js:96)
-now includes
-preferred_voice: "Belle" (c:\nbs\kc\kc_core.js:96)
-and
-mission_voices: {} (c:\nbs\kc\kc_core.js:96)
-.
-loadProfile (c:\nbs\kc\kc_core.js:108)
-: Migration patch adds
-preferred_voice (c:\nbs\kc\kc_core.js:96)
-and
-mission_voices (c:\nbs\kc\kc_core.js:96)
-guards for existing saves.
-**
-kc_hub.js (/c:/nbs/kc/kc_hub.js)
-** → v3.37.0
-settingsMenu (c:\nbs\kc\kc_hub.js:5)
-: Added
-tacticalVoices: ["Amelia", "Belle", "Per-Mission"] (c:\nbs\kc\kc_hub.js:10)
-and
-voiceIndex: 1 (c:\nbs\kc\kc_hub.js:16)
-.
-openSettingsMenu (c:\nbs\kc\kc_hub.js:534)
-: Added
-voiceIndex (c:\nbs\kc\kc_hub.js:16)
-init from
-settings.preferred_voice (c:\nbs\kc\kc_core.js:96)
-.
-renderSettingsMenu (c:\nbs\kc\kc_hub.js:560)
-: Added "Tactical Voice" to
-rowLabels (c:\nbs\kc\kc_hub.js:563)
-/
-rowValues (c:\nbs\kc\kc_hub.js:564)
-.
-**
-kc_input.js (/c:/nbs/kc/kc_input.js)
-** → v3.37.0
-Settings Up/Down navigation modulo updated `4` → `5`.
-Added
-sm.row === 4 (c:\nbs\kc\kc_hub.js:539)
-branch for Tactical Voice cycling with
-saveProgress() (c:\nbs\kc\kc_core.js:80)
-.
-**
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-** → v3.37.0
-loadLesson (c:\nbs\kc\kc_mission_core.js:109)
-: Replaced hardcoded
-voice: "Amelia" (c:\nbs\kc\kc_mission_core.js:130)
-with
-defaultVoice (c:\nbs\kc\kc_mission_core.js:119)
-resolved from
-preferred_voice (c:\nbs\kc\kc_core.js:96)
-, with Per-Mission lookup fallback.
-executeMission (c:\nbs\kc\kc_mission_core.js:524)
-: Saves the session voice choice to
-mission_voices[lesson.id] (c:\nbs\kc\kc_core.js:96)
-when
-preferred_voice === "Per-Mission" (c:\nbs\kc\kc_core.js:96)
-.
+if (success) (c:\nbs\kc\mission_stream.js:309)
+block now picks triumph or neutral based on score >2000, plays a random stinger (1–6), then wraps
+completeLesson() (c:\nbs\kc\mission_stream.js:324)
+in a 4-second
+setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)

@@ -1,4 +1,4 @@
-/* kc_data.js - v3.34.5 */
+/* kc_data.js - v3.38.0 */
 
 // v3.13: Full Board Expansion — maps event.key values to their _am audio assets.
 const AUDIO_MAP = {
@@ -829,7 +829,27 @@ const GAME_DATA = {
       "sym_single_quote_snu": "audio/symbols/sym_single_quote_snu.mp3",
       "sym_spacebar_snu": "audio/symbols/sym_spacebar_snu.mp3",
       "sym_subtract_snu": "audio/symbols/sym_subtract_snu.mp3",
-      "sym_underscore_snu": "audio/symbols/sym_underscore_snu.mp3"
+      "sym_underscore_snu": "audio/symbols/sym_underscore_snu.mp3",
+
+      // 8-Bit Stream Stingers (v3.38.0)
+      "8bit_neutral1": "audio/sfx/stream/8bit_neutral1.mp3",
+      "8bit_neutral2": "audio/sfx/stream/8bit_neutral2.mp3",
+      "8bit_neutral3": "audio/sfx/stream/8bit_neutral3.mp3",
+      "8bit_neutral4": "audio/sfx/stream/8bit_neutral4.mp3",
+      "8bit_neutral5": "audio/sfx/stream/8bit_neutral5.mp3",
+      "8bit_neutral6": "audio/sfx/stream/8bit_neutral6.mp3",
+      "8bit_sadness1": "audio/sfx/stream/8bit_sadness1.mp3",
+      "8bit_sadness2": "audio/sfx/stream/8bit_sadness2.mp3",
+      "8bit_sadness3": "audio/sfx/stream/8bit_sadness3.mp3",
+      "8bit_sadness4": "audio/sfx/stream/8bit_sadness4.mp3",
+      "8bit_sadness5": "audio/sfx/stream/8bit_sadness5.mp3",
+      "8bit_sadness6": "audio/sfx/stream/8bit_sadness6.mp3",
+      "8bit_triumph1": "audio/sfx/stream/8bit_triumph1.mp3",
+      "8bit_triumph2": "audio/sfx/stream/8bit_triumph2.mp3",
+      "8bit_triumph3": "audio/sfx/stream/8bit_triumph3.mp3",
+      "8bit_triumph4": "audio/sfx/stream/8bit_triumph4.mp3",
+      "8bit_triumph5": "audio/sfx/stream/8bit_triumph5.mp3",
+      "8bit_triumph6": "audio/sfx/stream/8bit_triumph6.mp3"
   },
   
   resources: [

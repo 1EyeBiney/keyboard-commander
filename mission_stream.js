@@ -1,4 +1,4 @@
-/* mission_stream.js - v3.36.0 */
+/* mission_stream.js - v3.38.0 */
 
 KC.handlers.stream = {
     // State
@@ -298,7 +298,8 @@ KC.handlers.stream = {
         this.stop(); 
         
         KC.core.announce("BUFFER OVERFLOW. SYSTEM CRASH.");
-        KC.audio.playSFX('sfx_explode_1');
+        const randSad = Math.floor(Math.random() * 6) + 1;
+        KC.audio.playSFX(`8bit_sadness${randSad}`);
         
         setTimeout(() => {
             KC.mission.triggerMissionFail();
@@ -309,12 +310,19 @@ KC.handlers.stream = {
         this.stop(); 
         
         if (success) {
+            let performanceKey = (this.score > 2000) ? "triumph" : "neutral";
+            const randNum = Math.floor(Math.random() * 6) + 1;
+            KC.audio.playSFX(`8bit_${performanceKey}${randNum}`);
+
             const rewardBlocks = Math.floor(this.score / 100);
             if (rewardBlocks > 0) {
                  KC.state.profile.wallet.data_blocks += rewardBlocks;
                  KC.core.saveProgress();
             }
-            KC.mission.completeLesson();
+            
+            setTimeout(() => {
+                KC.mission.completeLesson();
+            }, 4000);
         }
     },
 
