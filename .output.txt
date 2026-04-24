@@ -1,49 +1,59 @@
-Searched codebase for "Target Version: v3.35.0
-Open mission_race.js.
-Locate the version comment at the top of the file. Update it to `/* mission_race.js - v3.35.0 */`.
-Locate the `spellWord: function(word, roundIndex) {` block.
+Searched codebase for "Target Version: v3.36.0
+Open mission_stream.js.
+Locate the version comment at the top of the file. Update it to `/* mission_stream.js - v3.36.0 */`.
+Locate the `speakTarget: function(char) {` block.
 Replace ONLY that function block with the following:
- spellWord: function(word, roundIndex) {
-     let delay = 0;
-     this.spellTimers = this.spellTimers || [];
+ speakTarget: function(char) {
      const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
-     for (let i = 0; i < word.length; i++) {
-         const timer = setTimeout(() => {
-             if (this.isActive && this.currentIndex === roundIndex && KC.state.status === "ACTIVE_TYPING") {
-                 let audioKey = "char_" + word[i].toLowerCase();
-                 if (isBelle) {
-                     audioKey += "_snu";
-                 }
-                 KC.audio.playSFX(audioKey);
+     let audioKey = "";
+     if (isBelle) {
+         if (/[0-9]/.test(char)) {
+             audioKey = `num_${char}_snu`;
+         } else if (/[a-zA-Z]/.test(char)) {
+             audioKey = `char_${char.toLowerCase()}_snu`;
+         } else {
+             const symMapSnu = {
+                 "!": "sym_exclamation_point", "@": "sym_at_symbol", "#": "sym_hash",
+                 "$": "sym_dollar_sign", "%": "sym_percent", "^": "sym_carat",
+                 "&": "sym_ampersand", "*": "sym_asterisk", "(": "sym_open_parenthesis",
+                 ")": "sym_closed_parenthesis", "-": "sym_dash", "=": "sym_equals",
+                 "/": "sym_forward_slash", "?": "sym_question_mark", "+": "sym_plus"
+             };
+             if (symMapSnu[char]) {
+                 audioKey = `${symMapSnu[char]}_snu`;
              }
-         }, delay);
-         this.spellTimers.push(timer);
-         delay += 400; // 400ms delay between letters
+         }
+     } else {
+         audioKey = "char_" + char.toLowerCase();
      }
- },", 16 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me find the current `spellWord` function in mission_race.js to get the exact text to replace.
-Searched for text spellWord: function(word, roundIndex) (**/mission_race.js), 1 result. Files: c:\nbs\kc\mission_race.js
-Read mission_race.js, lines 134 to 165
-Read mission_race.js, lines 1 to 3
-Replacing 14 lines with 20 lines in mission_race.js
+     if (audioKey && GAME_DATA.audio_bank && GAME_DATA.audio_bank[audioKey]) {
+         KC.audio.playSFX(audioKey);
+     } else {
+         KC.core.announce(char.toUpperCase());
+     }
+ },", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me find the current `speakTarget` function in `mission_stream.js`.
+Searched for text speakTarget: function(char) (**/mission_stream.js), 1 result. Files: c:\nbs\kc\mission_stream.js
+Read mission_stream.js, lines 1 to 285
+Replacing 9 lines with 32 lines in mission_stream.js
 ```
 ```
 ```
 ```
 Done. Two changes to
-mission_race.js (/c:/nbs/kc/mission_race.js)
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
 :
-**Version** → `v3.35.0`
+**Version** → `v3.36.0`
 **
-spellWord() (c:\nbs\kc\mission_race.js:137)
-** — Added Belle detection via
-KC.state.missionParams.voice (c:\nbs\kc\kc_mission_core.js:125)
-. The
+speakTarget() (c:\nbs\kc\mission_stream.js:265)
+** — Replaced the single-path lookup with full Belle/SNU routing: checks
+missionParams.voice (c:\nbs\kc\kc_mission_core.js:59)
+, builds the appropriate
 audioKey (c:\nbs\kc\mission_race.js:125)
-is now built as char_[letter] for Amelia or char_[letter]_snu for Belle before passing to
-KC.audio.playSFX() (c:\nbs\kc\kc_mission_core.js:3)
-. Also fixes the original bug where
-word[i] (c:\nbs\kc\kc_mission_core.js:94)
+(_snu suffix for Belle across alpha, numeric, and symbol chars), then resolves via
+GAME_DATA.audio_bank (c:\nbs\kc\kc_data.js:199)
+with a TTS fallback. Also fixes the original bug where
+char (c:\nbs\kc\kc_mission_core.js:95)
 was passed without
 .toLowerCase() (c:\nbs\kc\kc_mission_core.js:78)
-.
+for the Amelia path.
