@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.34.0 */
+/* mission_launch.js - v3.34.1 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -94,6 +94,7 @@ KC.mission_launch = {
     },
 
     start: function() {
+        this.state = "STARTING";
         KC.core.announce("Intercepting launch codes. Stand by.");
         this.startTimer();
         setTimeout(() => this.generateCode(), 1500);
@@ -190,11 +191,11 @@ KC.mission_launch = {
         if(!this.isActive) return;
 
         if (e.key === " ") {
-            if(!this.timerInterval) {
+            if(!this.timerInterval && this.state === "WAITING") {
                 this.start();
                 return;
             }
-            if(this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") {
+            if(this.state === "DONE" || this.state === "FAILED") {
                 this.generateCode();
             }
             return;
