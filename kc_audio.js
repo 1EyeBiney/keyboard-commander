@@ -1,4 +1,4 @@
-/* kc_audio.js - v3.39.0 */
+/* kc_audio.js - v3.39.2 */
 
 KC.audio = {
     ctx: null,
@@ -170,14 +170,19 @@ KC.audio = {
         let path = GAME_DATA.audio_bank[key];
         if (!path || !this.ctx) return;
         
-        const audio = new Audio(path);
-        const source = this.ctx.createMediaElementSource(audio);
-        const panner = this.ctx.createStereoPanner();
-        
-        panner.pan.value = panValue;
-        source.connect(panner).connect(this.ctx.destination);
-        
-        audio.play().catch(e => console.warn("Panned SFX Fail:", e));
+        try {
+            const audio = new Audio(path);
+            const source = this.ctx.createMediaElementSource(audio);
+            const panner = this.ctx.createStereoPanner();
+            
+            panner.pan.value = panValue;
+            source.connect(panner).connect(this.ctx.destination);
+            
+            audio.play().catch(e => console.warn("Panned SFX Fail:", e));
+        } catch (err) {
+            // Fallback for browser node-limit contention
+            this.playSFX(key);
+        }
     },
 
     playAudio: function(keyOrPath, fallbackText, callback) {
