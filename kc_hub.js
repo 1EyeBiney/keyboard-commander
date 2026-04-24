@@ -1,4 +1,4 @@
-/* kc_hub.js - v2.95 */
+/* kc_hub.js - v3.37.0 */
 
 KC.hub = {
 
@@ -7,11 +7,13 @@ KC.hub = {
         fontSizes: ["100", "125", "150", "200"],
         musicStyles: ["default", "spaghetti", "arcade"],
         volumeStages: [0, 5, 10, 20, 30, 40],
+        tacticalVoices: ["Amelia", "Belle", "Per-Mission"],
         row: 0,
         themeIndex: 0,
         fontIndex: 0,
         styleIndex: 0,
-        volumeIndex: 2
+        volumeIndex: 2,
+        voiceIndex: 1
     },
 
     renderMenu: function() {
@@ -549,18 +551,22 @@ KC.hub = {
         const volIdx = sm.volumeStages.indexOf(settings.bgm_volume !== undefined ? settings.bgm_volume : 10);
         sm.volumeIndex = (volIdx !== -1) ? volIdx : 2;
 
+        const voiceIdx = sm.tacticalVoices.indexOf(settings.preferred_voice || "Belle");
+        sm.voiceIndex = (voiceIdx !== -1) ? voiceIdx : 1;
+
         this.renderSettingsMenu(true);
     },
 
     renderSettingsMenu: function(isEntering = false) {
         const sm = this.settingsMenu;
         const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade" };
-        const rowLabels = ["Theme", "Font Size", "Music Style", "Volume"];
+        const rowLabels = ["Theme", "Font Size", "Music Style", "Volume", "Tactical Voice"];
         const rowValues = [
             sm.themes[sm.themeIndex],
             sm.fontSizes[sm.fontIndex] + "%",
             styleNames[sm.musicStyles[sm.styleIndex]] || sm.musicStyles[sm.styleIndex],
-            sm.volumeStages[sm.volumeIndex]
+            sm.volumeStages[sm.volumeIndex],
+            sm.tacticalVoices[sm.voiceIndex]
         ];
 
         let content = ">> SOUND AND SIGHT SETTINGS <<\n------------------------------\n\n";

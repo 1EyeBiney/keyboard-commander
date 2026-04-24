@@ -1,4 +1,4 @@
-/* kc_mission_core.js - v3.34.0 */
+/* kc_mission_core.js - v3.37.0 */
 
 KC.handlers = KC.handlers || {}; 
 
@@ -116,13 +116,18 @@ KC.mission = {
 
         KC.state.activeLesson = lesson;
         
+        let defaultVoice = KC.state.profile.settings.preferred_voice || "Belle";
+        if (defaultVoice === "Per-Mission") {
+            defaultVoice = KC.state.profile.settings.mission_voices[target_id] || "Belle";
+        }
+        
         KC.state.missionParams = {
             regionMode: lesson.params?.regionMode || 0,
             reflexMode: lesson.params?.reflexMode || 2,
             difficulty: lesson.params?.difficulty || 3,
             lengthMode: 1,
             codeLength: lesson.params?.codeLength || 4,
-            voice: "Amelia"
+            voice: defaultVoice
         };
 
         this.setupCursor = 0;
@@ -517,6 +522,11 @@ KC.mission = {
     },
 
     executeMission: function() {
+        if (KC.state.profile.settings && KC.state.profile.settings.preferred_voice === "Per-Mission") {
+            if (!KC.state.profile.settings.mission_voices) KC.state.profile.settings.mission_voices = {};
+            KC.state.profile.settings.mission_voices[KC.state.activeLesson.id] = KC.state.missionParams.voice;
+            KC.core.saveProgress();
+        }
         // v3.31.0: Trigger dynamic BGM transition with ambient map fallback
         const lesson = KC.state.activeLesson;
         if (KC.bgm && KC.bgm.switchToStyle) {

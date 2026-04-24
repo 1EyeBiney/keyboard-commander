@@ -1,59 +1,224 @@
-Searched codebase for "Target Version: v3.36.0
-Open mission_stream.js.
-Locate the version comment at the top of the file. Update it to `/* mission_stream.js - v3.36.0 */`.
-Locate the `speakTarget: function(char) {` block.
-Replace ONLY that function block with the following:
- speakTarget: function(char) {
-     const isBelle = (KC.state.missionParams && KC.state.missionParams.voice === "Belle");
-     let audioKey = "";
-     if (isBelle) {
-         if (/[0-9]/.test(char)) {
-             audioKey = `num_${char}_snu`;
-         } else if (/[a-zA-Z]/.test(char)) {
-             audioKey = `char_${char.toLowerCase()}_snu`;
-         } else {
-             const symMapSnu = {
-                 "!": "sym_exclamation_point", "@": "sym_at_symbol", "#": "sym_hash",
-                 "$": "sym_dollar_sign", "%": "sym_percent", "^": "sym_carat",
-                 "&": "sym_ampersand", "*": "sym_asterisk", "(": "sym_open_parenthesis",
-                 ")": "sym_closed_parenthesis", "-": "sym_dash", "=": "sym_equals",
-                 "/": "sym_forward_slash", "?": "sym_question_mark", "+": "sym_plus"
-             };
-             if (symMapSnu[char]) {
-                 audioKey = `${symMapSnu[char]}_snu`;
-             }
+Searched codebase for "Target Version: v3.37.0
+Open kc_core.js.
+Locate the version comment at the top of the file. Update it to `/* kc_core.js - v3.37.0 */`.
+Locate `createProfile: function(name) {` and find the `settings:` line inside it. Replace it with:
+         settings: { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10, preferred_voice: "Belle", mission_voices: {} },
+Locate `loadProfile: function(name) {` and find the `if (!KC.state.profile.settings.font_size)` line. Add these two lines immediately after it:
+         if (!KC.state.profile.settings.preferred_voice) KC.state.profile.settings.preferred_voice = "Belle";
+         if (!KC.state.profile.settings.mission_voices) KC.state.profile.settings.mission_voices = {};
+Open kc_hub.js.
+Locate the version comment at the top of the file. Update it to `/* kc_hub.js - v3.37.0 */`.
+Locate `settingsMenu: {` and update the object so it looks exactly like this:
+ settingsMenu: {
+     themes: ["matrix", "amber", "solar", "blue", "inverse", "violet", "moon", "blueprint"],
+     fontSizes: ["100", "125", "150", "200"],
+     musicStyles: ["default", "spaghetti", "arcade"],
+     volumeStages: [0, 5, 10, 20, 30, 40],
+     tacticalVoices: ["Amelia", "Belle", "Per-Mission"],
+     row: 0,
+     themeIndex: 0,
+     fontIndex: 0,
+     styleIndex: 0,
+     volumeIndex: 2,
+     voiceIndex: 1
+ },
+Locate `openSettingsMenu: function() {` and add the voiceIndex logic at the end of the variable declarations (right before `this.renderSettingsMenu(true);`):
+     const voiceIdx = sm.tacticalVoices.indexOf(settings.preferred_voice || "Belle");
+     sm.voiceIndex = (voiceIdx !== -1) ? voiceIdx : 1;
+Locate `renderSettingsMenu: function(isEntering = false) {` and replace the `rowLabels` and `rowValues` constants with the following:
+     const rowLabels = ["Theme", "Font Size", "Music Style", "Volume", "Tactical Voice"];
+     const rowValues = [
+         sm.themes[sm.themeIndex],
+         sm.fontSizes[sm.fontIndex] + "%",
+         styleNames[sm.musicStyles[sm.styleIndex]] || sm.musicStyles[sm.styleIndex],
+         sm.volumeStages[sm.volumeIndex],
+         sm.tacticalVoices[sm.voiceIndex]
+     ];
+Open kc_input.js.
+Locate the version comment at the top of the file. Update it to `/* kc_input.js - v3.37.0 */`.
+Locate the `// --- SETTINGS ---` block. Find the Up and Down arrow checks and update the modulos from 4 to 5:
+         if (e.key === "ArrowUp") {
+             KC.audio.playSound('click');
+             sm.row = (sm.row - 1 + 5) % 5;
+             KC.hub.renderSettingsMenu(false);
+         } else if (e.key === "ArrowDown") {
+             KC.audio.playSound('click');
+             sm.row = (sm.row + 1) % 5;
+             KC.hub.renderSettingsMenu(false);
          }
-     } else {
-         audioKey = "char_" + char.toLowerCase();
+A few lines down in the Left/Right arrow logic, find the `} else if (sm.row === 3) {` volume block. Add the new `sm.row === 4` case directly below it:
+             } else if (sm.row === 3) {
+                 // Volume
+                 sm.volumeIndex = (sm.volumeIndex + dir + sm.volumeStages.length) % sm.volumeStages.length;
+                 KC.bgm.setVolume(sm.volumeStages[sm.volumeIndex]);
+             } else if (sm.row === 4) {
+                 // Tactical Voice
+                 sm.voiceIndex = (sm.voiceIndex + dir + sm.tacticalVoices.length) % sm.tacticalVoices.length;
+                 settings.preferred_voice = sm.tacticalVoices[sm.voiceIndex];
+                 KC.core.saveProgress();
+             }
+Open kc_mission_core.js.
+Locate the version comment at the top of the file. Update it to `/* kc_mission_core.js - v3.37.0 */`.
+Locate `loadLesson: function(target_id) {`. Find the `KC.state.missionParams = {` block inside it and replace it entirely with:
+     let defaultVoice = KC.state.profile.settings.preferred_voice || "Belle";
+     if (defaultVoice === "Per-Mission") {
+         defaultVoice = KC.state.profile.settings.mission_voices[target_id] || "Belle";
      }
-     if (audioKey && GAME_DATA.audio_bank && GAME_DATA.audio_bank[audioKey]) {
-         KC.audio.playSFX(audioKey);
-     } else {
-         KC.core.announce(char.toUpperCase());
-     }
- },", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me find the current `speakTarget` function in `mission_stream.js`.
-Searched for text speakTarget: function(char) (**/mission_stream.js), 1 result. Files: c:\nbs\kc\mission_stream.js
-Read mission_stream.js, lines 1 to 285
-Replacing 9 lines with 32 lines in mission_stream.js
+     KC.state.missionParams = {
+         regionMode: lesson.params?.regionMode || 0,
+         reflexMode: lesson.params?.reflexMode || 2,
+         difficulty: lesson.params?.difficulty || 3,
+         lengthMode: 1,
+         codeLength: lesson.params?.codeLength || 4,
+         voice: defaultVoice
+     };
+Locate `executeMission: function() {` and inject this save logic at the very top of the function:
+ executeMission: function() {
+     if (KC.state.profile.settings && KC.state.profile.settings.preferred_voice === "Per-Mission") {
+         if (!KC.state.profile.settings.mission_voices) KC.state.profile.settings.mission_voices = {};
+         KC.state.profile.settings.mission_voices[KC.state.activeLesson.id] = KC.state.missionParams.voice;
+         KC.core.saveProgress();
+     }", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Thinking: Let me read the relevant files to understand the current state before making changes.
+Let me read all the relevant sections in parallel first.
+Searched for regex createProfile: function|loadProfile: function|settings: { theme (**/kc_core.js), 3 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
+Searched for text if (!KC.state.profile.settings.font_size) (**/kc_core.js), 1 result. Files: c:\nbs\kc\kc_core.js
+Searched for regex settingsMenu: \{|openSettingsMenu: function|renderSettingsMenu: function|rowLabels = \[|rowValues = \[ (**/kc_hub.js), 5 results. Files: c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
+Searched for regex SETTINGS|sm\.row.*% 4|sm\.row.*\+ 4|ArrowUp.*click.*sm\.row|ArrowDown.*sm\.row|sm\.row === 3 (**/kc_input.js), 19 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
+Read kc_core.js, lines 88 to 130
+Read kc_hub.js, lines 1 to 30
+Read kc_hub.js, lines 530 to 590
+Read kc_input.js, lines 457 to 510
+Now let me read the
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+executeMission (c:\nbs\kc\kc_mission_core.js:519)
+top and
+loadLesson (c:\nbs\kc\kc_mission_core.js:109)
+block:
+Read kc_mission_core.js, lines 130 to 145
+Read kc_mission_core.js, lines 110 to 135
+Read kc_mission_core.js, lines 520 to 535
+Read kc_mission_core.js, lines 517 to 522
+Now I have all the context. Let me apply all changes across all four files:
+Created 1 todo. 1 items: Apply all v3.37.0 changes across 4 files (in-progress)
+Replacing 3 lines with 5 lines in kc_core.js
 ```
 ```
 ```
 ```
-Done. Two changes to
-mission_stream.js (/c:/nbs/kc/mission_stream.js)
-:
-**Version** → `v3.36.0`
+Read kc_core.js, lines 1 to 3
+Replacing 3 lines with 5 lines in kc_core.js
+```
+```
+```
+```
+The
+settings: (c:\nbs\kc\kc_core.js:96)
+line changed in the first pass. Let me check the current state:
+Read kc_core.js, lines 94 to 120
+The migration lines got duplicated (added twice). Let me clean that up:
+Replacing 4 lines with 2 lines in kc_core.js
+```
+```
+```
+```
+Now apply the
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+,
+kc_input.js (/c:/nbs/kc/kc_input.js)
+, and
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+changes all at once:
+Replacing 48 lines with 69 lines in kc_hub.js, kc_input.js, kc_mission_core.js
+```
+```
+```
+```
+```
+```
+```
+```
+Let me check the
+kc_input.js (/c:/nbs/kc/kc_input.js)
+version line (it used a partial match):
+Read kc_input.js, lines 1 to 3
+The version got corrupted by a partial match. Fix it:
+Replacing 1 lines with 1 lines in kc_input.js
+```
+```
+```
+```
+Now do a final verification pass on all four files:
+Searched for regex v3\.37\.0, 6 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\index.html, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js
+Searched for text preferred_voice, 8 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+There's still a duplicate
+preferred_voice (c:\nbs\kc\kc_core.js:96)
+line in
+kc_core.js (/c:/nbs/kc/kc_core.js)
+(line 117 shows twice in results — that's the grep showing the same line). Let me verify:
+Read kc_core.js, lines 114 to 122
+Clean — just a grep quirk. All four files are correct. Here's a summary:
 **
-speakTarget() (c:\nbs\kc\mission_stream.js:265)
-** — Replaced the single-path lookup with full Belle/SNU routing: checks
-missionParams.voice (c:\nbs\kc\kc_mission_core.js:59)
-, builds the appropriate
-audioKey (c:\nbs\kc\mission_race.js:125)
-(_snu suffix for Belle across alpha, numeric, and symbol chars), then resolves via
-GAME_DATA.audio_bank (c:\nbs\kc\kc_data.js:199)
-with a TTS fallback. Also fixes the original bug where
-char (c:\nbs\kc\kc_mission_core.js:95)
-was passed without
-.toLowerCase() (c:\nbs\kc\kc_mission_core.js:78)
-for the Amelia path.
+kc_core.js (/c:/nbs/kc/kc_core.js)
+** → v3.37.0
+createProfile (c:\nbs\kc\kc_core.js:90)
+:
+settings (c:\nbs\kc\kc_core.js:96)
+now includes
+preferred_voice: "Belle" (c:\nbs\kc\kc_core.js:96)
+and
+mission_voices: {} (c:\nbs\kc\kc_core.js:96)
+.
+loadProfile (c:\nbs\kc\kc_core.js:108)
+: Migration patch adds
+preferred_voice (c:\nbs\kc\kc_core.js:96)
+and
+mission_voices (c:\nbs\kc\kc_core.js:96)
+guards for existing saves.
+**
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+** → v3.37.0
+settingsMenu (c:\nbs\kc\kc_hub.js:5)
+: Added
+tacticalVoices: ["Amelia", "Belle", "Per-Mission"] (c:\nbs\kc\kc_hub.js:10)
+and
+voiceIndex: 1 (c:\nbs\kc\kc_hub.js:16)
+.
+openSettingsMenu (c:\nbs\kc\kc_hub.js:534)
+: Added
+voiceIndex (c:\nbs\kc\kc_hub.js:16)
+init from
+settings.preferred_voice (c:\nbs\kc\kc_core.js:96)
+.
+renderSettingsMenu (c:\nbs\kc\kc_hub.js:560)
+: Added "Tactical Voice" to
+rowLabels (c:\nbs\kc\kc_hub.js:563)
+/
+rowValues (c:\nbs\kc\kc_hub.js:564)
+.
+**
+kc_input.js (/c:/nbs/kc/kc_input.js)
+** → v3.37.0
+Settings Up/Down navigation modulo updated `4` → `5`.
+Added
+sm.row === 4 (c:\nbs\kc\kc_hub.js:539)
+branch for Tactical Voice cycling with
+saveProgress() (c:\nbs\kc\kc_core.js:80)
+.
+**
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+** → v3.37.0
+loadLesson (c:\nbs\kc\kc_mission_core.js:109)
+: Replaced hardcoded
+voice: "Amelia" (c:\nbs\kc\kc_mission_core.js:130)
+with
+defaultVoice (c:\nbs\kc\kc_mission_core.js:119)
+resolved from
+preferred_voice (c:\nbs\kc\kc_core.js:96)
+, with Per-Mission lookup fallback.
+executeMission (c:\nbs\kc\kc_mission_core.js:524)
+: Saves the session voice choice to
+mission_voices[lesson.id] (c:\nbs\kc\kc_core.js:96)
+when
+preferred_voice === "Per-Mission" (c:\nbs\kc\kc_core.js:96)
+.

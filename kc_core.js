@@ -1,4 +1,4 @@
-/* kc_core.js - V1.70.0 */
+/* kc_core.js - v3.37.0 */
 
 window.KC = {
     state: {
@@ -93,7 +93,7 @@ KC.core = {
             rank: "Cadet",
             currentLessonID: "D00-01",
             currentDeck: 0,
-            settings: { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10 },
+            settings: { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10, preferred_voice: "Belle", mission_voices: {} },
             wallet: { data_blocks: 0, logic_shards: 0, sync_sparks: 0, consecutive_coins: 0, glitch: 0 },
             career: { startTime: Date.now(), totalKeys: 0, errors: 0, missions_completed: 0, history_buffer: [], zone_stats: {} }
         };
@@ -114,6 +114,8 @@ KC.core = {
             if (!KC.state.profile.settings) KC.state.profile.settings = { theme: "matrix", font_size: "100", bgm_style: "default", bgm_volume: 10 };
             if (!KC.state.profile.settings.theme) KC.state.profile.settings.theme = "matrix";
             if (!KC.state.profile.settings.font_size) KC.state.profile.settings.font_size = "100";
+            if (!KC.state.profile.settings.preferred_voice) KC.state.profile.settings.preferred_voice = "Belle";
+            if (!KC.state.profile.settings.mission_voices) KC.state.profile.settings.mission_voices = {};
             
             // --- Migration Patch for v3.9.1 ---
             if (typeof KC.state.profile.currentLessonIndex !== 'undefined') {

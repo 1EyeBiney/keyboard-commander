@@ -1,4 +1,4 @@
-/* kc_input.js - v2.73.1 */
+/* kc_input.js - v3.37.0 */
 
 KC.input = {
     init: function() {
@@ -461,11 +461,11 @@ KC.input = {
 
             if (e.key === "ArrowUp") {
                 KC.audio.playSound('click');
-                sm.row = (sm.row - 1 + 4) % 4;
+                sm.row = (sm.row - 1 + 5) % 5;
                 KC.hub.renderSettingsMenu(false);
             } else if (e.key === "ArrowDown") {
                 KC.audio.playSound('click');
-                sm.row = (sm.row + 1) % 4;
+                sm.row = (sm.row + 1) % 5;
                 KC.hub.renderSettingsMenu(false);
             } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
                 KC.audio.playSound('click');
@@ -494,6 +494,11 @@ KC.input = {
                     // Volume
                     sm.volumeIndex = (sm.volumeIndex + dir + sm.volumeStages.length) % sm.volumeStages.length;
                     KC.bgm.setVolume(sm.volumeStages[sm.volumeIndex]);
+                } else if (sm.row === 4) {
+                    // Tactical Voice
+                    sm.voiceIndex = (sm.voiceIndex + dir + sm.tacticalVoices.length) % sm.tacticalVoices.length;
+                    settings.preferred_voice = sm.tacticalVoices[sm.voiceIndex];
+                    KC.core.saveProgress();
                 }
 
                 KC.hub.renderSettingsMenu(false);
