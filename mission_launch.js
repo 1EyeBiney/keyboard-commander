@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.34.1 */
+/* mission_launch.js - v3.34.2 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -183,7 +183,12 @@ KC.mission_launch = {
             } else {
                 KC.core.announce(item.val); 
             }
-            setTimeout(() => this.playAudioSequence(seq, index + 1), 550);
+            
+            let charDelay = 500;
+            if (!/[a-zA-Z0-9]/.test(item.val)) {
+                charDelay = 1000;
+            }
+            setTimeout(() => this.playAudioSequence(seq, index + 1), charDelay);
         }
     },
 
