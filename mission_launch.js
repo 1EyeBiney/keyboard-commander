@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.39.3 */
+/* mission_launch.js - v3.39.4 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -72,7 +72,6 @@ KC.mission_launch = {
     },
 
     init: function(config) {
-        // v3.26.2: Ensure the interval cache is flushed so subsequent plays trigger startTimer
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.timerInterval = null;
         
@@ -86,6 +85,11 @@ KC.mission_launch = {
         this.zone = config.zone || "Numbers (Numpad)";
         this.currentIndex = 0;
         this.state = "WAITING";
+        
+        // v3.39.4: Diagnostic and ARIA Tracking
+        this.lastDiagKey = "";
+        this.lastDiagTime = 0;
+        this.ariaToggle = false; 
         
         KC.core.updateStatusBar(`LAUNCH CODES | SCORE: 0 | TIME: ${this.timeRemaining}`);
         KC.els.displayText.innerHTML = `MISSION: LAUNCH CODES<br>Press SPACE to dictate the first code.<br>Press DOWN ARROW to repeat code (-10s penalty).`;
@@ -196,6 +200,15 @@ KC.mission_launch = {
     handleInput: function(e) {
         if(!this.isActive) return;
 
+        // v3.39.4: Diagnostic Trap (Does NOT block input)
+        const now = Date.now();
+        const delta = now - this.lastDiagTime;
+        if (e.key === this.lastDiagKey && delta < 60) {
+            KC.core.announce(`Duplicate detected. Gap was ${delta} milliseconds.`);
+        }
+        this.lastDiagKey = e.key;
+        this.lastDiagTime = now;
+
         if (e.key === " ") {
             if(!this.timerInterval && this.state === "WAITING") {
                 this.start();
@@ -210,7 +223,6 @@ KC.mission_launch = {
         if(this.state === "DICTATING" || this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") return;
 
         if (e.key === "ArrowDown") {
-            // v3.26.2: Instantly terminate if penalty drops time below zero
             this.timeRemaining -= 10;
             if (this.timeRemaining <= 0) {
                 this.timeRemaining = 0;
@@ -244,7 +256,12 @@ KC.mission_launch = {
                 if (this.currentIndex === this.targetCode.length) {
                     this.state = "DONE";
                     this.codesCleared++;
-                    KC.core.announce("Code accepted. Press Space for next code.");
+                    
+                    // v3.39.4: ARIA Mutation Toggle
+                    this.ariaToggle = !this.ariaToggle;
+                    const successMsg = this.ariaToggle ? "Code accepted. Press Space for next code." : "Code verified. Press Space for next code.";
+                    KC.core.announce(successMsg);
+                    
                     if(KC.audio && KC.audio.playSound) KC.audio.playSound('powerup');
                     this.score += (this.targetCode.length * 10);
                 } else {
