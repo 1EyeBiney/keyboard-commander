@@ -1,37 +1,55 @@
-Searched codebase for "Target Version: v3.39.1
-Open kc_data.js.
-Locate the version comment at the top of the file. Update it to `/* kc_data.js - v3.39.1 */`.
-Locate the `audio_bank: {` object inside `GAME_DATA`.
-Locate the seven explosion entries. Ensure the keys match this EXACT naming convention (rename them if they currently start with 'sfx_'):
- "explode_1": "audio/sfx/hazards/explode_1.mp3",
- "explode_2": "audio/sfx/hazards/explode_2.mp3",
- "explode_3": "audio/sfx/hazards/explode_3.mp3",
- "explode_4": "audio/sfx/hazards/explode_4.mp3",
- "explode_5": "audio/sfx/hazards/explode_5.mp3",
- "explode_6": "audio/sfx/hazards/explode_6.mp3",
- "explode_7": "audio/sfx/hazards/explode_7.mp3",
+Searched codebase for "Target Version: v3.39.2
+Open kc_audio.js.
+Locate the version comment at the top of the file. Update it to `/* kc_audio.js - v3.39.2 */`. 
+Replace the `playPannedSFX` function with this optimized version:
+ playPannedSFX: function(key, panValue = 0) {
+     let path = GAME_DATA.audio_bank[key];
+     if (!path || !this.ctx) return;
+     try {
+         const audio = new Audio(path);
+         const source = this.ctx.createMediaElementSource(audio);
+         const panner = this.ctx.createStereoPanner();
+         panner.pan.value = panValue;
+         source.connect(panner).connect(this.ctx.destination);
+         audio.play().catch(e => console.warn("Panned SFX Fail:", e));
+     } catch (err) {
+         // Fallback for browser node-limit contention
+         this.playSFX(key);
+     }
+ },
 Open mission_launch.js.
-Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.39.1 */`.
-Find the `endMission: function() {` block.
-Confirm the three `playPannedSFX` calls are using the `explode_` template literal:
- // Shot 1: Center (0)
- KC.audio.playPannedSFX(`explode_${picks[0]}`, 0);
- // Shot 2: 40% Left (-0.4) after 50ms
- setTimeout(() => {
-     KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.4);
- }, 50);
- // Shot 3: 60% Right (0.6) after 125ms (50+75)
- setTimeout(() => {
-     KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.6);
- }, 125);", 25 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js
-Thinking: The user is sending the same request again (v3.39.1). I already completed this task in the previous turn. Let me verify the current state of both files to confirm everything is already in place.
-This was already completed in the previous turn. Let me verify both files are correct:
-Read kc_data.js, lines 1 to 3
-Read mission_launch.js, lines 1 to 3
-Both files are already at v3.39.1, the explode_1–7 entries are in
-audio_bank (c:\nbs\kc\kc_data.js:199)
-with the correct keys and paths, and the
+Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.39.2 */`. 
+Find the `endMission: function()` block and update the explosion staggered timing:
+     // Shot 1: Center (0)
+     KC.audio.playPannedSFX(`explode_${picks[0]}`, 0);
+     // Shot 2: 40% Left (-0.4) after 150ms
+     setTimeout(() => {
+         KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.4);
+     }, 150);
+     // Shot 3: 60% Right (0.6) after 400ms (150+250)
+     setTimeout(() => {
+         KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.6);
+     }, 400);", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me read the relevant sections of both files to make the targeted edits.
+Read kc_audio.js, lines 161 to 185
+Read mission_launch.js, lines 280 to 315
+Replacing 27 lines with 32 lines in kc_audio.js, mission_launch.js
+```
+```
+```
+```
+```
+```
+Done:
+**
+kc_audio.js (/c:/nbs/kc/kc_audio.js)
+** — bumped to v3.39.2,
 playPannedSFX (c:\nbs\kc\kc_audio.js:169)
-calls in
-endMission (c:\nbs\kc\mission_launch.js:280)
-are using the correct explode_${picks[n]} template literals. Nothing to do — all changes from this request were applied in the previous turn.
+now wraps the node-graph construction in a
+try/catch (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.es5.d.ts:1562)
+that falls back to
+playSFX(key) (c:\nbs\kc\kc_audio.js:161)
+if the browser hits its MediaElementSource node limit.
+**
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+** — bumped to v3.39.2, explosion stagger timings updated to 150ms (shot 2) and 400ms (shot 3) for a more pronounced spatial spread.

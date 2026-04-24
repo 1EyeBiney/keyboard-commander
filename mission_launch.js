@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.39.2 */
+/* mission_launch.js - v3.39.3 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -290,18 +290,18 @@ KC.mission_launch = {
             picks.push(availableExplosions.splice(idx, 1)[0]);
         }
 
-        // Shot 1: Center (0)
+        // Shot 1: Center (0) at 0ms
         KC.audio.playPannedSFX(`explode_${picks[0]}`, 0);
 
-        // Shot 2: 40% Left (-0.4) after 150ms
+        // Shot 2: 60% Left (-0.6) after 300ms (150ms + 150ms injection)
         setTimeout(() => {
-            KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.4);
-        }, 150);
+            KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.6);
+        }, 300);
 
-        // Shot 3: 60% Right (0.6) after 400ms (150+250)
+        // Shot 3: 75% Right (0.75) after 700ms (300ms + 250ms + 150ms injection)
         setTimeout(() => {
-            KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.6);
-        }, 400);
+            KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.75);
+        }, 700);
 
         let acc = 0;
         if (this.totalKeys > 0) {
