@@ -1,105 +1,115 @@
-Searched codebase for "Target Version: v3.38.0
-Open kc_data.js.
-Locate the version comment at the top of the file. Update it to `/* kc_data.js - v3.38.0 */`.
-Locate the `audio_bank: {` object inside `GAME_DATA`.
-Paste the following 18 entries from `audio_bank_update.txt` into the `audio_bank` object:
- "8bit_neutral1": "audio/sfx/stream/8bit_neutral1.mp3",
- "8bit_neutral2": "audio/sfx/stream/8bit_neutral2.mp3",
- "8bit_neutral3": "audio/sfx/stream/8bit_neutral3.mp3",
- "8bit_neutral4": "audio/sfx/stream/8bit_neutral4.mp3",
- "8bit_neutral5": "audio/sfx/stream/8bit_neutral5.mp3",
- "8bit_neutral6": "audio/sfx/stream/8bit_neutral6.mp3",
- "8bit_sadness1": "audio/sfx/stream/8bit_sadness1.mp3",
- "8bit_sadness2": "audio/sfx/stream/8bit_sadness2.mp3",
- "8bit_sadness3": "audio/sfx/stream/8bit_sadness3.mp3",
- "8bit_sadness4": "audio/sfx/stream/8bit_sadness4.mp3",
- "8bit_sadness5": "audio/sfx/stream/8bit_sadness5.mp3",
- "8bit_sadness6": "audio/sfx/stream/8bit_sadness6.mp3",
- "8bit_triumph1": "audio/sfx/stream/8bit_triumph1.mp3",
- "8bit_triumph2": "audio/sfx/stream/8bit_triumph2.mp3",
- "8bit_triumph3": "audio/sfx/stream/8bit_triumph3.mp3",
- "8bit_triumph4": "audio/sfx/stream/8bit_triumph4.mp3",
- "8bit_triumph5": "audio/sfx/stream/8bit_triumph5.mp3",
- "8bit_triumph6": "audio/sfx/stream/8bit_triumph6.mp3",
-Open mission_stream.js.
-Locate the version comment at the top of the file. Update it to `/* mission_stream.js - v3.38.0 */`.
-Locate the `triggerOverflow: function()` block.
-Replace the `KC.audio.playSFX('sfx_explode_1');` line with:
-     const randSad = Math.floor(Math.random() * 6) + 1;
-     KC.audio.playSFX(`8bit_sadness${randSad}`);
-Locate the `endMission: function(success) {` block.
-Replace the entire `if (success) { ... }` block with the following:
-     if (success) {
-         let performanceKey = (this.score > 2000) ? "triumph" : "neutral";
-         const randNum = Math.floor(Math.random() * 6) + 1;
-         KC.audio.playSFX(`8bit_${performanceKey}${randNum}`);
-         const rewardBlocks = Math.floor(this.score / 100);
-         if (rewardBlocks > 0) {
-              KC.state.profile.wallet.data_blocks += rewardBlocks;
-              KC.core.saveProgress();
-         }
-         setTimeout(() => {
-             KC.mission.completeLesson();
-         }, 4000);
-     }", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\asset_mapper.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me start by reading the relevant files to understand their current state before making changes.
-Read kc_data.js, lines 1 to 30
-Read mission_stream.js, lines 1 to 30
-Thinking: Now I need to find:
-1. The `audio_bank: {` object in `kc_data.js` to understand where to paste the new entries
-2. The `triggerOverflow: function()` block in `mission_stream.js`
-3. The `endMission: function(success) {` block in `mission_stream.js`
-Searched for text audio_bank: (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
-Searched for text triggerOverflow|endMission (**/mission_stream.js), 4 results. Files: c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Read kc_data.js, lines 199 to 260
-Read mission_stream.js, lines 290 to 336
-Thinking: Now I have enough context to make all the changes. Let me find the end of the `audio_bank` object to know where to insert the new entries. Let me look for the closing of the audio_bank object.
-Looking at the data, I need to find the last entry in audio_bank to know where to insert the new entries. Let me search for more of it.
-Now I need to find the last entry in
-audio_bank (c:\nbs\kc\kc_data.js:199)
-to insert after it.
-Searched for text sfx/stream (**/kc_data.js), no results
-Searched for text sfx_explode (**/kc_data.js), no results
-Read kc_data.js, lines 260 to 400
-Read kc_data.js, lines 400 to 500
-Read kc_data.js, lines 500 to 600
-Read kc_data.js, lines 600 to 700
-Read kc_data.js, lines 700 to 800
-Read kc_data.js, lines 800 to 879
-Thinking: Now I have the full picture. The `audio_bank` object ends with `"sym_underscore_snu": "audio/symbols/sym_underscore_snu.mp3"` followed by `},`. I need to add the 18 new entries before the closing `}` of `audio_bank`.
-Now I have all the context to make the changes. Let me do all 4 edits in parallel:
-1. Update version in `kc_data.js`
-2. Add 18 entries to `audio_bank` in `kc_data.js`
-3. Update version in `mission_stream.js`
-4. Replace the explosion sound effect call in `triggerOverflow`
-5. Replace the success condition block in `endMission`
-I'll handle all of these with `multi_replace_string_in_file`.
-I have all the context needed. Making all 5 edits now:
-Replacing 14 lines with 42 lines in kc_data.js, mission_stream.js
+Searched codebase for "Target Version: v3.39.0
+Open kc_audio.js.
+Locate the version comment at the top of the file. Update it to `/* kc_audio.js - v3.39.0 */`.
+Inside the `KC.audio` object, add the following new function:
+ playPannedSFX: function(key, panValue = 0) {
+     let path = GAME_DATA.audio_bank[key];
+     if (!path || !this.ctx) return;
+     const audio = new Audio(path);
+     const source = this.ctx.createMediaElementSource(audio);
+     const panner = this.ctx.createStereoPanner();
+     panner.pan.value = panValue;
+     source.connect(panner).connect(this.ctx.destination);
+     audio.play().catch(e => console.warn("Panned SFX Fail:", e));
+ },
+Open mission_launch.js.
+Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.39.0 */`.
+In the `start: function()` block, add the powerup sound immediately:
+ start: function() {
+     this.state = "STARTING";
+     if (KC.audio && KC.audio.playSound) KC.audio.playSound('powerup');
+     KC.core.announce("Intercepting launch codes. Stand by.");
+     this.startTimer();
+     setTimeout(() => this.generateCode(), 1500);
+ },
+Locate the `endMission: function()` block. 
+Replace the entire function with the following to implement the triple-shot spatial finale:
+ endMission: function() {
+     this.isActive = false;
+     clearInterval(this.timerInterval);
+     if (KC.mission) KC.mission.activeHandler = null;
+     // Triple-Staggered Spatial Explosion Sequence
+     const availableExplosions = [1, 2, 3, 4, 5, 6, 7];
+     const picks = [];
+     while(picks.length < 3) {
+         const idx = Math.floor(Math.random() * availableExplosions.length);
+         picks.push(availableExplosions.splice(idx, 1)[0]);
+     }
+     // Shot 1: Center (0)
+     KC.audio.playPannedSFX(`explode_${picks[0]}`, 0);
+     // Shot 2: 40% Left (-0.4) after 50ms
+     setTimeout(() => {
+         KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.4);
+     }, 50);
+     // Shot 3: 60% Right (0.6) after 125ms (50+75)
+     setTimeout(() => {
+         KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.6);
+     }, 125);
+     let acc = 0;
+     if (this.totalKeys > 0) {
+         acc = ((this.totalKeys - this.errors) / this.totalKeys) * 100;
+     }
+     let blocksEarned = Math.floor(this.score / 10);
+     if (KC.state.profile) {
+         KC.state.profile.data_blocks = (KC.state.profile.data_blocks || 0) + blocksEarned;
+         KC.core.saveProgress();
+     }
+     KC.state.status = "REPORT";
+     KC.state.reportLines = [
+         ">> LAUNCH CODES: AFTER ACTION REPORT <<",
+         "STATUS: TIME EXPIRED",
+         `CODES CLEARED: ${this.codesCleared}`,
+         `KEYSTROKES: ${this.totalKeys}`,
+         `ERRORS: ${this.errors}`,
+         `ACCURACY: ${acc.toFixed(1)}%`,
+         `FINAL SCORE: ${this.score}`,
+         `REWARD: ${blocksEarned} Data Blocks`,
+         `>> NEW BALANCE: ${KC.state.profile ? KC.state.profile.data_blocks : 0} Data Blocks <<`
+     ];
+     KC.state.reportIndex = 0;
+     let reportHTML = KC.state.reportLines.join("<br>") + "<br><br>[Up/Down: Review Report | Space: Return to Hub]";
+     KC.els.displayText.innerHTML = reportHTML;
+     setTimeout(() => {
+         KC.core.announce(`Time expired. Mission Complete. Final Score: ${this.score}. Earned ${blocksEarned} Data Blocks. Press Space to return to Hub, or Down Arrow to review report.`);
+     }, 4000);
+ }", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\index.html, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me read both files to understand their current state before making changes.
+Read mission_launch.js, lines 1 to 50
+Read kc_audio.js, lines 1 to 50
+Searched for text playSFX: (**/kc_audio.js), 1 result. Files: c:\nbs\kc\kc_audio.js
+Searched for text start: function|endMission: function (**/mission_launch.js), 2 results. Files: c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js
+Read kc_audio.js, lines 155 to 200
+Read mission_launch.js, lines 90 to 120
+Read mission_launch.js, lines 275 to 318
+I have all the context. Making all edits now:
+Replacing 53 lines with 88 lines in kc_audio.js, mission_launch.js
 ```
 ```
 ```
 ```
 ```
 ```
-All 5 edits applied across both files:
+All edits applied:
 **
-kc_data.js (/c:/nbs/kc/kc_data.js)
+kc_audio.js (/c:/nbs/kc/kc_audio.js)
 **
-Version bumped to `v3.38.0`
-18 `8bit_neutral/sadness/triumph` entries added at the end of
-audio_bank (c:\nbs\kc\kc_data.js:199)
-under a // 8-Bit Stream Stingers (v3.38.0) comment
+Version bumped to `v3.39.0`
+playPannedSFX(key, panValue = 0) (c:\nbs\kc\kc_audio.js:169)
+added immediately after
+playSFX (c:\nbs\kc\kc_audio.js:161)
+— routes audio through
+AudioContext (c:\nbs\kc\kc_audio.js:67)
+→ StereoPannerNode before connecting to destination
 **
-mission_stream.js (/c:/nbs/kc/mission_stream.js)
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
 **
-Version bumped to `v3.38.0`
-triggerOverflow (c:\nbs\kc\mission_stream.js:297)
-: replaces sfx_explode_1 with a random 8bit_sadness1–6 pick
-endMission (c:\nbs\kc\mission_stream.js:309)
-:
-if (success) (c:\nbs\kc\mission_stream.js:309)
-block now picks triumph or neutral based on score >2000, plays a random stinger (1–6), then wraps
-completeLesson() (c:\nbs\kc\mission_stream.js:324)
+Version bumped to `v3.39.0`
+start (c:\nbs\kc\mission_launch.js:96)
+: powerup sound now fires at the top before the announce call
+endMission (c:\nbs\kc\mission_launch.js:280)
+: replaced
+playSound('powerup') (c:\nbs\kc\kc_audio.js:71)
+with the triple-shot spatial explosion sequence (center at 0ms, left −0.4 at 50ms, right +0.6 at 125ms using 3 unique randomly sampled picks from explode_1–7), and wrapped the final
+announce (c:\nbs\kc\kc_audio.js:187)
 in a 4-second
 setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)

@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.34.4 */
+/* mission_launch.js - v3.39.1 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -95,6 +95,7 @@ KC.mission_launch = {
 
     start: function() {
         this.state = "STARTING";
+        if (KC.audio && KC.audio.playSound) KC.audio.playSound('powerup');
         KC.core.announce("Intercepting launch codes. Stand by.");
         this.startTimer();
         setTimeout(() => this.generateCode(), 1500);
@@ -279,11 +280,29 @@ KC.mission_launch = {
     endMission: function() {
         this.isActive = false;
         clearInterval(this.timerInterval);
-        
-        if (KC.mission) KC.mission.activeHandler = null; 
-        
-        if (KC.audio && KC.audio.playSound) KC.audio.playSound('powerup');
-        
+        if (KC.mission) KC.mission.activeHandler = null;
+
+        // Triple-Staggered Spatial Explosion Sequence
+        const availableExplosions = [1, 2, 3, 4, 5, 6, 7];
+        const picks = [];
+        while(picks.length < 3) {
+            const idx = Math.floor(Math.random() * availableExplosions.length);
+            picks.push(availableExplosions.splice(idx, 1)[0]);
+        }
+
+        // Shot 1: Center (0)
+        KC.audio.playPannedSFX(`explode_${picks[0]}`, 0);
+
+        // Shot 2: 40% Left (-0.4) after 50ms
+        setTimeout(() => {
+            KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.4);
+        }, 50);
+
+        // Shot 3: 60% Right (0.6) after 125ms (50+75)
+        setTimeout(() => {
+            KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.6);
+        }, 125);
+
         let acc = 0;
         if (this.totalKeys > 0) {
             acc = ((this.totalKeys - this.errors) / this.totalKeys) * 100;
@@ -312,6 +331,8 @@ KC.mission_launch = {
         let reportHTML = KC.state.reportLines.join("<br>") + "<br><br>[Up/Down: Review Report | Space: Return to Hub]";
         KC.els.displayText.innerHTML = reportHTML;
         
-        KC.core.announce(`Time expired. Mission Complete. Final Score: ${this.score}. Earned ${blocksEarned} Data Blocks. Press Space to return to Hub, or Down Arrow to review report.`);
+        setTimeout(() => {
+            KC.core.announce(`Time expired. Mission Complete. Final Score: ${this.score}. Earned ${blocksEarned} Data Blocks. Press Space to return to Hub, or Down Arrow to review report.`);
+        }, 4000);
     }
 };

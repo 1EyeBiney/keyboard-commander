@@ -1,4 +1,4 @@
-/* kc_data.js - v3.38.0 */
+/* kc_data.js - v3.39.1 */
 
 // v3.13: Full Board Expansion — maps event.key values to their _am audio assets.
 const AUDIO_MAP = {
@@ -849,7 +849,16 @@ const GAME_DATA = {
       "8bit_triumph3": "audio/sfx/stream/8bit_triumph3.mp3",
       "8bit_triumph4": "audio/sfx/stream/8bit_triumph4.mp3",
       "8bit_triumph5": "audio/sfx/stream/8bit_triumph5.mp3",
-      "8bit_triumph6": "audio/sfx/stream/8bit_triumph6.mp3"
+      "8bit_triumph6": "audio/sfx/stream/8bit_triumph6.mp3",
+
+      // Hazard Explosions (v3.39.1)
+      "explode_1": "audio/sfx/hazards/explode_1.mp3",
+      "explode_2": "audio/sfx/hazards/explode_2.mp3",
+      "explode_3": "audio/sfx/hazards/explode_3.mp3",
+      "explode_4": "audio/sfx/hazards/explode_4.mp3",
+      "explode_5": "audio/sfx/hazards/explode_5.mp3",
+      "explode_6": "audio/sfx/hazards/explode_6.mp3",
+      "explode_7": "audio/sfx/hazards/explode_7.mp3"
   },
   
   resources: [
