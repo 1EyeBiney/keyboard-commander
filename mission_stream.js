@@ -5,6 +5,7 @@ KC.handlers.stream = {
     isActive: false,
     buffer: [],      
     dropTimer: null, 
+    phaseTimer: null,
     startTime: 0,    
     
     // Config
@@ -23,6 +24,8 @@ KC.handlers.stream = {
         this.isActive = false;
         if (this.dropTimer) clearTimeout(this.dropTimer);
         this.dropTimer = null;
+        if (this.phaseTimer) clearTimeout(this.phaseTimer);
+        this.phaseTimer = null;
         this.buffer = [];
     },
 
@@ -52,7 +55,7 @@ KC.handlers.stream = {
         
         this.winTime = this.phaseDuration * 3;
 
-        // 3. Centralized Keyboard Mapping (v2.91: Decoupled Menu Fix)
+        // 3. Centralized Keyboard Mapping
         this.activeKeys = KC.mission.getActiveKeys();
         
         const modeParams = KC.state.missionParams || {};
@@ -71,13 +74,39 @@ KC.handlers.stream = {
         KC.core.announce(`Data Dump Initialized. Target Zone: ${targetZoneStr}. Drops calibrated to ${this.currentSpeed} milliseconds.`);
 
         KC.mission.runCountdown(() => {
-            this.beginStream();
+            this.startPhaseBreak(1);
         });
     },
 
-    beginStream: function() {
+    startPhaseBreak: function(targetPhase) {
+        this.isActive = false;
+        if (this.dropTimer) {
+            clearTimeout(this.dropTimer);
+            this.dropTimer = null;
+        }
+        this.buffer = [];
+        
+        if (targetPhase > 1) {
+            this.playResonanceCascade();
+        }
+        
+        KC.audio.playAudio("phase_" + targetPhase + "_snu", "Phase " + targetPhase);
+        
+        this.phaseTimer = setTimeout(() => { 
+            this.resumeStream(targetPhase); 
+        }, 4000);
+    },
+
+    resumeStream: function(targetPhase) {
+        this.phase = targetPhase;
+        
+        if (targetPhase === 1) {
+            this.startTime = Date.now();
+        } else {
+            this.startTime += 4000; // Offset timer so the break doesn't drain the clock
+        }
+        
         this.isActive = true;
-        this.startTime = Date.now();
         this.triggerDrop();
     },
 
@@ -93,7 +122,6 @@ KC.handlers.stream = {
         const now = KC.audio.ctx.currentTime;
         
         if (severity <= 3) {
-            // "Bloop"
             osc.type = 'sine';
             osc.frequency.setValueAtTime(600, now);
             osc.frequency.exponentialRampToValueAtTime(150, now + 0.1);
@@ -102,7 +130,6 @@ KC.handlers.stream = {
             osc.start(now);
             osc.stop(now + 0.1);
         } else if (severity === 4) {
-            // "Warning Thunk"
             osc.type = 'square';
             osc.frequency.setValueAtTime(300, now);
             osc.frequency.exponentialRampToValueAtTime(50, now + 0.15);
@@ -111,7 +138,6 @@ KC.handlers.stream = {
             osc.start(now);
             osc.stop(now + 0.15);
         } else if (severity >= 5) {
-            // "Critical Buzz"
             osc.type = 'sawtooth';
             osc.frequency.setValueAtTime(150, now);
             osc.frequency.linearRampToValueAtTime(100, now + 0.2);
@@ -240,19 +266,10 @@ KC.handlers.stream = {
             return;
         }
         
-        this.updatePhase(elapsed);
-    },
-
-    updatePhase: function(elapsed) {
-        let expectedPhase = 1;
-        if (elapsed >= this.phaseDuration * 2) expectedPhase = 3;
-        else if (elapsed >= this.phaseDuration) expectedPhase = 2;
-
-        if (expectedPhase > this.phase) {
-            this.phase = expectedPhase;
-            // v3.45: Speed is fixed at initialSpeed for all phases (dynamic pacing removed).
-            this.currentSpeed = this.initialSpeed;
-            KC.core.announce(`Phase ${this.phase} beginning. Calibrated to ${this.currentSpeed} milliseconds.`);
+        if (elapsed >= this.phaseDuration * 2 && this.phase === 2) {
+            this.startPhaseBreak(3);
+        } else if (elapsed >= this.phaseDuration && this.phase === 1) {
+            this.startPhaseBreak(2);
         }
     },
 
