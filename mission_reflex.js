@@ -1,4 +1,4 @@
-/* mission_reflex.js - v2.87.1 */
+/* mission_reflex.js - v3.42.4 */
 
 KC.handlers.reflex = {
     // State
@@ -103,6 +103,9 @@ KC.handlers.reflex = {
     },
 
     handleInput: function(e) {
+        // v3.42.4: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+
         if (!this.isActive) return;
         
         if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;

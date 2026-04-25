@@ -1,4 +1,4 @@
-/* mission_stream.js - v3.38.0 */
+/* mission_stream.js - v3.42.2 */
 
 KC.handlers.stream = {
     // State
@@ -157,6 +157,9 @@ KC.handlers.stream = {
     },
 
     handleInput: function(e) {
+        // v3.42.2: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+
         if (!this.isActive) return;
         const inputChar = e.key.toLowerCase();
         

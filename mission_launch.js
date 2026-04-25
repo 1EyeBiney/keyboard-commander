@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.40.4 */
+/* mission_launch.js - v3.42.1 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -273,6 +273,9 @@ KC.mission_launch = {
     },
 
     handleInput: function(e) {
+        // v3.42.1: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+
         if(!this.isActive) return;
 
         // v3.40.3: PageUp accessible dump

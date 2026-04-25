@@ -1,61 +1,240 @@
-Searched codebase for "Target Version: v3.41
-File to Update: kc_input.js
+Searched codebase for "Target Versions: v3.42.2 through v3.42.5
+Files to Update: mission_stream.js, mission_race.js, mission_reflex.js, mission_echoc.js
 The Objective:
-Execute Patch 1 of our technical debt audit. We need to resolve a Sentinel S6 (Hub Audio Killswitch) violation. Currently, when pressing Escape during a mission or briefing, the intro music or active audio bleeds into the Hub. This is caused by a rogue global Escape trap intercepting the key before the specific state routers can execute their audio cleanup.
+Execute the remainder of Patch 2 of our technical debt audit. We need to resolve a Sentinel S4 (Ghost Keys) violation across the rest of the mission files. Currently, if a user holds down a key, the OS fires auto-repeat keystrokes that flood the input trap and desync the evaluation logic.
 The Action Plan:
-Update the version header to `/* kc_input.js - v3.41 */`.
-Locate and completely DELETE the rogue global `Escape` intercept (previously around line 117) inside `handleGlobalKeys`. This block is prematurely routing back to the Hub and stealing the keypress from menus.
-Navigate to the `ACTIVE_TYPING` state router. Ensure its `Escape` block explicitly executes the full killswitch:
-`if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();`
-`if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();`
-`if (KC.core && KC.core.stopNagTimer) KC.core.stopNagTimer();`
-`this.flush();`
-Then it should abort the mission or return to the Hub.
-Navigate to the `MISSION_START` / `BRIEFING` state router. Ensure its `Escape` block explicitly executes the killswitch:
-`if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();`
-`if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();`
-`this.flush();`
-Before returning to the Hub.
-Please output the fully refactored kc_input.js so I can commit the fix.", 19 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\rules.md
-Thinking: Let me read the full kc_input.js to understand its current structure before making changes.
-Read kc_input.js, lines 1 to 250
-Read kc_input.js, lines 250 to 400
-Read kc_input.js, lines 400 to 520
-Now I have the full picture. The structure is clear:
-**The rogue global trap** is at line ~153 — it fires for `ACTIVE_TYPING` and `BRIEFING` *before* those state routers run, calling
-abortActiveMission() (c:\nbs\kc\kc_mission_core.js:637)
-without any audio cleanup.
-2. The `ACTIVE_TYPING` router at line ~165 has its own nested Escape block but it's dead code — the global trap always fires first.
-3. The `MISSION_START`/`BRIEFING` router at line ~285 has its Escape but is missing
-stopActiveAudio() (c:\nbs\kc\kc_audio.js:222)
-.
-Created 2 todos. 2 items: Bump version, fix all 3 Escape paths (in-progress); Verify no errors (not-started)
-Replacing 41 lines with 33 lines in kc_input.js
+For EACH of the 4 files below, perform these two tasks:
+Update the version header at the top of the file to the specified version.
+Inject the following line at the absolute top of the `handleInput: function(e) {` block, immediately before any other logic, logging, or state checks:
+`if (e.repeat) return;`
+File & Version Mapping:
+mission_stream.js -> Update header to `/* mission_stream.js - v3.42.2 */`
+mission_race.js -> Update header to `/* mission_race.js - v3.42.3 */`
+mission_reflex.js -> Update header to `/* mission_reflex.js - v3.42.4 */`
+mission_echoc.js -> Update header to `/* mission_echoc.js - v3.42.5 */`
+Output Constraints:
+To absolutely ensure you do not hit output truncation limits, DO NOT output the entire files. For EACH of the 4 files, please output exactly two code blocks:
+The updated version header comment.
+The FULL, paste-ready `handleInput` function (do not truncate any of the logic inside the function).", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_succession.js, c:\nbs\kc\rules.md
+Thinking: Let me read all four files to find their current version headers and handleInput functions.
+Let me read all four files in parallel to find the relevant sections.
+Searched for regex handleInput: function\(e\) (**/mission_stream.js), 1 result. Files: c:\nbs\kc\mission_stream.js
+Searched for regex handleInput: function\(e\) (**/mission_race.js), 1 result. Files: c:\nbs\kc\mission_race.js
+Searched for regex handleInput: function\(e\) (**/mission_reflex.js), 1 result. Files: c:\nbs\kc\mission_reflex.js
+Searched for regex handleInput: function\(e\) (**/mission_echoc.js), 1 result. Files: c:\nbs\kc\mission_echoc.js
+Read mission_stream.js, lines 1 to 3
+Read mission_echoc.js, lines 1 to 3
+Read mission_race.js, lines 1 to 3
+Read mission_reflex.js, lines 1 to 3
+Now read the handleInput functions from all four files in parallel:
+Read mission_stream.js, lines 159 to 260
+Read mission_race.js, lines 207 to 310
+Read mission_reflex.js, lines 105 to 200
+Read mission_echoc.js, lines 69 to 110
+Thinking: Now I have all the information I need. Let me make all the changes simultaneously.
+For mission_stream.js:
+- Line 1: `/* mission_stream.js - v3.38.0 */` → `/* mission_stream.js - v3.42.2 */`
+- Line 159: inject `if (e.repeat) return;` at top of handleInput
+For mission_race.js:
+- Line 1: `/* mission_race.js - v3.35.0 */` → `/* mission_race.js - v3.42.3 */`
+- Line 207: inject `if (e.repeat) return;` at top of handleInput
+- Line 1: `/* mission_reflex.js - v2.87.1 */` → `/* mission_reflex.js - v3.42.4 */`
+- Line 105: inject `if (e.repeat) return;` at top of handleInput
+For mission_echoc.js:
+- Line 1: `/* mission_echoc.js - v1.71.2 */` → `/* mission_echoc.js - v3.42.5 */`
+- Line 69: inject `if (e.repeat) return;` at top of handleInput
+All four functions are captured. Applying all 8 changes simultaneously:
+Replacing 18 lines with 30 lines in mission_stream.js, mission_race.js, mission_reflex.js, mission_echoc.js
 ```
 ```
 ```
 ```
-Checked kc_input.js, no problems found
-Completed: Bump version, fix all 3 Escape paths (1/2). 2 items: Bump version, fix all 3 Escape paths (completed); Verify no errors (completed)
-v3.41 deployed. Four surgical changes to
-kc_input.js (/c:/nbs/kc/kc_input.js)
-:
-1. Version bump → v3.41.
-2. Rogue global Escape trap deleted. The block that was catching ACTIVE_TYPING and BRIEFING before their own state routers — and calling
-abortActiveMission() (c:\nbs\kc\kc_mission_core.js:637)
-with no audio cleanup — is gone. It was also the "else" branch that fired for every other state (menus, hub, etc.) and routed to
-enterHub() (c:\nbs\kc\kc_input.js:167)
-unconditionally, which was silently eating Escape keypresses in non-mission contexts.
-3. `ACTIVE_TYPING` Escape — full S6 killswitch applied:
 ```
-if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();
-if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();
-if (KC.core && KC.core.stopNagTimer) KC.core.stopNagTimer();
-this.flush();
-if (KC.mission && KC.mission.abortActiveMission) KC.mission.abortActiveMission();
-else KC.hub.enterHub();
 ```
-The
-abortActiveMission() (c:\nbs\kc\kc_mission_core.js:637)
-path is preserved so missions that handle their own abort logic (triggering report cards, explosion SFX, etc.) still do so — but audio is dead before they run.
-4. `MISSION_START`/`BRIEFING` Escape — added missing `stopActiveAudio()` (the audit-flagged S6 gap). Updated comment from v3.27.4 to v3.41.
+```
+```
+```
+```
+All 8 replacements succeeded. Here are your paste-ready blocks:
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
+— v3.42.2
+Block 1:
+```
+/* mission_stream.js - v3.42.2 */
+```
+Block 2:
+```
+    handleInput: function(e) {
+        // v3.42.2: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+        if (!this.isActive) return;
+        const inputChar = e.key.toLowerCase();
+        if (inputChar === "escape") return;
+        if (["shift", "control", "alt", "capslock", "tab", "meta"].includes(e.key.toLowerCase())) return;
+        if (inputChar === " ") {
+            if (this.buffer.length > 0) {
+                KC.core.announce(`Queue at ${this.buffer.length}. Target is ${this.buffer[0].char.toUpperCase()}`);
+            } else {
+                KC.core.announce("Buffer empty.");
+            }
+            return;
+        }
+        if (this.buffer.length > 0) {
+            const target = this.buffer[0];
+            if (inputChar === target.char) {
+                // Correct
+                KC.state.stats.totalKeys++;
+                KC.state.currentStreak++;
+                if (KC.state.currentStreak > KC.state.missionMaxStreak) {
+                    KC.state.missionMaxStreak = KC.state.currentStreak;
+                }
+                const rt = Date.now() - target.activeTime;
+                this.reactionTimes.push(rt);
+                this.awardScore(rt);
+                KC.audio.playSound('success');
+                this.buffer.shift(); 
+                if (this.buffer.length > 0) {
+                    this.buffer[0].activeTime = Date.now();
+                    this.speakTarget(this.buffer[0].char);
+                }
+                this.checkGameState();
+            } else {
+                // Incorrect
+                KC.state.stats.errors++;
+                KC.state.currentStreak = 0;
+                this.score -= 50; 
+                KC.audio.playSound('error');
+                this.speakTarget(target.char);
+            }
+        } else {
+            KC.audio.playSound('error');
+        }
+        this.render();
+    },
+```
+mission_race.js (/c:/nbs/kc/mission_race.js)
+— v3.42.3
+Block 1:
+```
+/* mission_race.js - v3.42.3 */
+```
+Block 2:
+```
+    handleInput: function(e) {
+        // v3.42.3: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+        if (!this.isActive) return;
+        if (e.key === " " || e.key === "Enter") {
+            const target = this.currentWord;
+            if (this.inputBuffer.toLowerCase().trim() === target.toLowerCase()) {
+                this.resolveRound("PLAYER");
+            } else {
+                KC.audio.playSound('error');
+                this.errors++;
+                this.inputBuffer = "";
+                this.render();
+            }
+            return;
+        }
+        if (e.key === "Backspace") {
+            this.inputBuffer = this.inputBuffer.slice(0, -1);
+            KC.audio.playSound('click');
+            this.render();
+            return;
+        }
+        if (e.key.length === 1) {
+            this.inputBuffer += e.key;
+            this.totalKeys++;
+            KC.audio.playSound('click');
+            this.render();
+        }
+    },
+```
+mission_reflex.js (/c:/nbs/kc/mission_reflex.js)
+— v3.42.4
+Block 1:
+```
+/* mission_reflex.js - v3.42.4 */
+```
+Block 2:
+```
+    handleInput: function(e) {
+        // v3.42.4: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+        if (!this.isActive) return;
+        if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
+        const inputChar = e.key;
+        KC.state.stats.totalKeys++;
+        if (inputChar.toLowerCase() === this.currentTarget.toLowerCase()) {
+            // SUCCESS
+            this.clearHint();
+            // v1.74.0: Streak Tracking
+            KC.state.currentStreak++;
+            if (KC.state.currentStreak > KC.state.missionMaxStreak) {
+                KC.state.missionMaxStreak = KC.state.currentStreak;
+            }
+            KC.audio.playSound('click');
+            KC.mission.updateInstability(false); // Heal hazard
+            this.currentIndex++;
+            setTimeout(() => this.nextEvent(), 50); 
+        } else {
+            // FAILURE
+            // v1.74.0: Streak Reset
+            KC.state.currentStreak = 0;
+            KC.audio.playSound('error');
+            KC.state.stats.errors++;
+            const exploded = KC.mission.updateInstability(true); // Worsen hazard
+            if (exploded) {
+                this.isActive = false;
+                this.clearHint();
+                return;
+            }
+            this.clearHint();
+            const target = this.currentTarget.toUpperCase();
+            setTimeout(() => {
+                if (this.isActive) KC.core.announce(`Type ${target}.`);
+            }, 300);
+        }
+    },
+```
+mission_echoc.js (/c:/nbs/kc/mission_echoc.js)
+— v3.42.5
+Block 1:
+```
+/* mission_echoc.js - v3.42.5 */
+```
+Block 2:
+```
+    handleInput: function(e) {
+        // v3.42.5: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+        // 1. Check for Exit
+        if (e.key === "Escape") {
+            KC.audio.playSound('click');
+            this.init(); // Go back to Start Screen
+            return;
+        }
+        // 2. Identify the Key
+        let keyName = this.key_map[e.key] || e.key;
+        let audioKey = "char_" + e.key.toLowerCase();
+        // Handle side-specific modifiers
+        if (e.code === "ControlLeft") keyName = "Left Control";
+        if (e.code === "ControlRight") keyName = "Right Control";
+        if (e.code === "ShiftLeft") keyName = "Left Shift";
+        if (e.code === "ShiftRight") keyName = "Right Shift";
+        if (e.code === "AltLeft") keyName = "Left Alt";
+        if (e.code === "AltRight") keyName = "Right Alt";
+        // 3. Announce or Play Audio
+        // v1.71.2: Check for Recorded Asset
+        if (GAME_DATA.audio_bank[audioKey]) {
+            // Found audio asset - Fire and Forget
+            KC.audio.playSFX(audioKey);
+            // Update visual only, do not use TTS
+            KC.els.displayText.textContent = ">> DIAGNOSTICS ACTIVE <<\n\nLast Input: " + keyName + " [AUDIO]";
+        } else {
+            // No asset found - Use TTS System Prompt
+            KC.core.announce(keyName, true);
+            KC.els.displayText.textContent = ">> DIAGNOSTICS ACTIVE <<\n\nLast Input: " + keyName;
+        }
+    },
+```

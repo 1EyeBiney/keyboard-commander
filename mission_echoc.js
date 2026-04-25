@@ -1,4 +1,4 @@
-/* mission_echoc.js - v1.71.2 */
+/* mission_echoc.js - v3.42.5 */
 
 KC.echoc = {
     // --- Assets ---
@@ -67,6 +67,9 @@ KC.echoc = {
      * INPUT HANDLER: Process raw keystrokes
      */
     handleInput: function(e) {
+        // v3.42.5: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+
         // 1. Check for Exit
         if (e.key === "Escape") {
             KC.audio.playSound('click');

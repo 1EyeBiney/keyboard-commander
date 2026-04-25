@@ -1,4 +1,4 @@
-/* mission_race.js - v3.35.0 */
+/* mission_race.js - v3.42.3 */
 
 KC.handlers.race = {
     // State
@@ -205,6 +205,9 @@ KC.handlers.race = {
     },
 
     handleInput: function(e) {
+        // v3.42.3: S4 Ghost-Key Filter. Must be the absolute first gate.
+        if (e.repeat) return;
+
         if (!this.isActive) return;
 
         if (e.key === " " || e.key === "Enter") {
