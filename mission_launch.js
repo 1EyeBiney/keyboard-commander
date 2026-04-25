@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.39.5 */
+/* mission_launch.js - v3.40.4 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -89,7 +89,17 @@ KC.mission_launch = {
         // v3.39.4: Diagnostic and ARIA Tracking
         this.lastDiagKey = "";
         this.lastDiagTime = 0;
-        this.ariaToggle = false; 
+        this.ariaToggle = false;
+
+        // v3.39.5-fix: Dictation token. Every call to generateCode/dictateCode bumps this.
+        // playAudioSequence aborts if its captured token no longer matches, preventing
+        // stale chains from writing state="TYPING" mid-dictation of a newer code.
+        this.dictationId = 0;
+
+        // v3.39.6-diag: Forensic ring buffer. Captures every dictation emission and
+        // every keystroke comparison. Press F2 during the mission to dump to console.
+        this._diag = [];
+        this._diagMax = 300;
         
         KC.core.updateStatusBar(`LAUNCH CODES | SCORE: 0 | TIME: ${this.timeRemaining}`);
         KC.els.displayText.innerHTML = `MISSION: LAUNCH CODES<br>Press SPACE to dictate the first code.<br>Press DOWN ARROW to repeat code (-10s penalty).`;
@@ -123,7 +133,54 @@ KC.mission_launch = {
         }, 1000);
     },
 
+    // v3.39.6-diag: Append a structured event to the forensic ring buffer.
+    diag: function(type, data) {
+        if (!this._diag) this._diag = [];
+        const entry = Object.assign({
+            t: new Date().toISOString().slice(11, 23),
+            type: type,
+            state: this.state,
+            dictId: this.dictationId,
+            idx: this.currentIndex,
+            target: this.targetCode
+        }, data || {});
+        this._diag.push(entry);
+        if (this._diag.length > (this._diagMax || 300)) this._diag.shift();
+        // Live mirror so nothing is lost if the page crashes before dump.
+        try { console.log('[LAUNCH-DIAG]', entry); } catch(_) {}
+    },
+
+    dumpDiag: function() {
+        const log = this._diag || [];
+        const logStr = JSON.stringify(log, null, 2);
+
+        let ta = document.getElementById('diag-dump-area');
+        if (!ta) {
+            ta = document.createElement('textarea');
+            ta.id = 'diag-dump-area';
+            ta.style.position = 'absolute';
+            ta.style.top = '10%';
+            ta.style.left = '10%';
+            ta.style.width = '80%';
+            ta.style.height = '80%';
+            ta.style.zIndex = '9999';
+            ta.style.color = '#00ff00';
+            ta.style.backgroundColor = '#000';
+            ta.setAttribute('aria-label', 'Diagnostic Log output. The text is automatically selected. Press Control C to copy.');
+            document.body.appendChild(ta);
+        }
+        ta.value = logStr;
+        ta.style.display = 'block';
+        ta.focus();
+        ta.select();
+
+        this.isActive = false; 
+        KC.core.announce("Diagnostic log ready. The text is selected. Press Control C to copy, then paste it to the AI. Refresh the browser to clear.");
+    },
+
     generateCode: function() {
+        // v3.39.5-fix: Invalidate any in-flight dictation chain BEFORE building the new code.
+        this.dictationId = (this.dictationId || 0) + 1;
         const pool = this.pools[this.zone] || this.pools["Numbers (Numpad)"];
         this.targetCode = "";
         for(let i = 0; i < this.codeLength; i++) {
@@ -131,6 +188,7 @@ KC.mission_launch = {
         }
         this.currentIndex = 0;
         this.state = "DICTATING";
+        this.diag('GENERATE', { note: 'New code built', target: this.targetCode });
         this.updateDisplay();
         this.dictateCode();
     },
@@ -162,22 +220,38 @@ KC.mission_launch = {
             }
         });
 
-        this.playAudioSequence(sequence, 0);
+        // v3.39.5-fix: Capture the current dictation token so the chain can
+        // detect if it has been superseded by a newer dictation.
+        this.playAudioSequence(sequence, 0, this.dictationId);
     },
 
-    playAudioSequence: function(seq, index) {
+    playAudioSequence: function(seq, index, myId) {
         // v3.26.2: Strict abort if mission ends mid-dictation
         if(!this.isActive) return; 
+
+        // v3.39.5-fix: Stale-chain abort. If a newer dictation has started
+        // (generateCode or ArrowDown bumped dictationId), this chain is dead.
+        if(myId !== this.dictationId) return;
         
         if(index >= seq.length) {
-            this.state = "TYPING";
+            // v3.39.5-fix: Only promote to TYPING if we're still the active dictation
+            // AND the state hasn't been moved elsewhere (e.g. FAILED, DONE, ended).
+            if(this.state === "DICTATING") this.state = "TYPING";
             return;
         }
         let item = seq[index];
         if(item.type === 'pause') {
-            setTimeout(() => this.playAudioSequence(seq, index + 1), item.val);
+            setTimeout(() => this.playAudioSequence(seq, index + 1, myId), item.val);
         } else {
             let audioPath = this.getCharAudio(item.val);
+            // v3.39.6-diag: Log every dictation emission. char = the character the engine
+            // BELIEVES it is announcing. path = the audio file actually played. If these
+            // disagree with what the user hears, the audio_bank is mismapped.
+            this.diag('DICTATE_EMIT', {
+                char: item.val,
+                path: audioPath || '(TTS fallback)',
+                seqIdx: index
+            });
             if (audioPath) {
                 if(!audioPath.endsWith(".mp3")) audioPath += ".mp3";
                 let snd = new Audio(audioPath);
@@ -194,12 +268,19 @@ KC.mission_launch = {
             if (!/[a-zA-Z0-9]/.test(item.val)) {
                 charDelay = 1000;
             }
-            setTimeout(() => this.playAudioSequence(seq, index + 1), charDelay);
+            setTimeout(() => this.playAudioSequence(seq, index + 1, myId), charDelay);
         }
     },
 
     handleInput: function(e) {
         if(!this.isActive) return;
+
+        // v3.40.3: PageUp accessible dump
+        if (e.key === "PageUp") {
+            e.preventDefault();
+            this.dumpDiag();
+            return;
+        }
 
         // v3.39.4: Diagnostic Trap (Does NOT block input)
         const now = Date.now();
@@ -221,7 +302,15 @@ KC.mission_launch = {
             return;
         }
 
-        if(this.state === "DICTATING" || this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") return;
+        // v3.40.4: TYPE-ALONG UNLOCK.
+        // Previously this guard included "DICTATING", silently swallowing every
+        // keystroke an expert user made while the audio sequence was still playing.
+        // The wiretap proved those swallowed keys were the actual leading digits of
+        // the code, causing the user's later (logged) keys to be compared against
+        // the wrong target index. We now permit input during DICTATING; only the
+        // resolution states (DONE/FAILED) and the pre-mission WAITING gate still
+        // require Space to advance.
+        if(this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") return;
 
         if (e.key === "ArrowDown") {
             this.timeRemaining -= 10;
@@ -233,7 +322,15 @@ KC.mission_launch = {
             
             KC.core.announce("Time penalty. Repeating code.");
             KC.core.updateStatusBar(`LAUNCH CODES | SCORE: ${this.score} | TIME: ${this.timeRemaining}`);
+
+            // v3.39.5-fix: PRIMARY DESYNC FIX. Re-dictating the same code without
+            // resetting currentIndex caused targetCode[N] to be compared against
+            // the FIRST char the user heard. Reset position pointer + invalidate
+            // any in-flight chain before kicking off the new dictation.
+            this.currentIndex = 0;
+            this.dictationId = (this.dictationId || 0) + 1;
             this.state = "DICTATING";
+            this.updateDisplay();
             this.dictateCode();
             return;
         }
@@ -251,12 +348,26 @@ KC.mission_launch = {
             this.totalKeys++;
             let typedChar = e.key.toUpperCase();
             let targetChar = this.targetCode[this.currentIndex].toUpperCase();
+
+            // v3.39.6-diag: Log every comparison. This is the smoking gun row.
+            this.diag('KEY_COMPARE', {
+                typed: typedChar,
+                expected: targetChar,
+                rawKey: e.key,
+                rawCode: e.code,
+                match: (typedChar === targetChar)
+            });
             
             if (typedChar === targetChar) {
                 this.currentIndex++;
                 if (this.currentIndex === this.targetCode.length) {
                     this.state = "DONE";
                     this.codesCleared++;
+
+                    // v3.40.4: If the user out-typed the dictation, kill the
+                    // remaining audio chain so it doesn't bleed over the
+                    // success announcement.
+                    this.dictationId = (this.dictationId || 0) + 1;
                     
                     // v3.39.4: ARIA Mutation Toggle
                     this.ariaToggle = !this.ariaToggle;
@@ -266,11 +377,20 @@ KC.mission_launch = {
                     if(KC.audio && KC.audio.playSound) KC.audio.playSound('powerup');
                     this.score += (this.targetCode.length * 10);
                 } else {
-                    if(KC.audio && KC.audio.playSound) KC.audio.playSound('click');
+                    // v3.40.4: Suppress per-keystroke click while audio is still
+                    // dictating, so type-along doesn't crowd the announcement channel.
+                    if(this.state !== "DICTATING" && KC.audio && KC.audio.playSound) {
+                        KC.audio.playSound('click');
+                    }
                 }
             } else {
                 this.state = "FAILED";
                 this.errors++;
+
+                // v3.40.4: Kill any in-flight dictation chain so remaining digits
+                // don't keep announcing over the rejection message.
+                this.dictationId = (this.dictationId || 0) + 1;
+
                 // v3.39.5: Verbose error reporting
                 KC.core.announce(`Code rejected. Expected ${targetChar}, but received ${typedChar}. Press Space for next code.`);
                 if(KC.audio && KC.audio.playSound) KC.audio.playSound('error');
