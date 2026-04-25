@@ -1,4 +1,4 @@
-/* kc_input.js - v3.37.0 */
+/* kc_input.js - v3.41 */
 
 KC.input = {
     init: function() {
@@ -152,29 +152,20 @@ KC.input = {
             return;
         }
 
-        if (e.key === "Escape") {
-            if (KC.state.status === "ACTIVE_TYPING" || KC.state.status === "BRIEFING") {
-                if (KC.mission && KC.mission.abortActiveMission) {
-                    KC.mission.abortActiveMission();
-                } else {
-                    if (KC.audio.playSynth) KC.audio.playSynth(18);
-                    KC.hub.enterHub();
-                }
-            } else {
-                if (KC.audio.playSynth) KC.audio.playSynth(18);
-                KC.hub.enterHub();
-            }
-            return;
-        }
-
         // --- ACTIVE TYPING ROUTER ---
         if (KC.state.status === "ACTIVE_TYPING") {
             if (e.key === "Escape") {
                 e.preventDefault();
-                KC.audio.stopActiveAudio();
-                KC.core.stopNagTimer();
+                // v3.41: Full S6 killswitch — audio cleaned up before Hub transition.
+                if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();
+                if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();
+                if (KC.core && KC.core.stopNagTimer) KC.core.stopNagTimer();
                 this.flush();
-                KC.hub.enterHub();
+                if (KC.mission && KC.mission.abortActiveMission) {
+                    KC.mission.abortActiveMission();
+                } else {
+                    KC.hub.enterHub();
+                }
             } else {
                 KC.mission.handleInput(e);
             }
@@ -281,8 +272,9 @@ KC.input = {
                 }
             }
             else if (e.key === "Escape") {
-                // v3.27.4: True killswitch for Mission Setup
+                // v3.41: Full S6 killswitch for Mission Setup / Briefing abort.
                 if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();
+                if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();
                 this.flush();
                 KC.hub.enterHub();
             }

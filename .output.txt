@@ -1,50 +1,61 @@
-Searched codebase for "please read rules.md. This is a file we use to prime the code assists when we start work for the day and as a guiderule to keep drift out of our code. As Opus is a superior reasoning model, I would like an evaluation of this file as compared to the current code. I want this file to be improved as we have seen drift in recent update cycles and have had to go back and "straighten out" the code, so we are basically having to re-do things that were once in place. Normally, this would be much easier for the sighted coder and doing checkouts with commits and things but I am restricted to using a screen reader so tI am tyrin gto stay in a most effecient  posture for this workflow. Before actually doing an audit to see if rules.md can be improved, I need to know the amount of "effort" needed to do this as I do not want to create a task for you that will take an extended amount of time or tokens, so part 1 of this prompt is to determine the "magnitude" of this request, and then to execute it", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\rules.md
-Thinking: The user wants me to provide a magnitude estimate before I actually execute whatever they're asking for.
-Magnitude estimate (Part 1)
-I've already read
-rules.md (/c:/nbs/kc/rules.md)
-(it's ~50 lines, 8 sections, ~3,000 words) earlier this session, and I have working familiarity with
-mission_launch.js (/c:/nbs/kc/mission_launch.js)
-,
-kc_audio.js (/c:/nbs/kc/kc_audio.js)
-,
+Searched codebase for "Target Version: v3.41
+File to Update: kc_input.js
+The Objective:
+Execute Patch 1 of our technical debt audit. We need to resolve a Sentinel S6 (Hub Audio Killswitch) violation. Currently, when pressing Escape during a mission or briefing, the intro music or active audio bleeds into the Hub. This is caused by a rogue global Escape trap intercepting the key before the specific state routers can execute their audio cleanup.
+The Action Plan:
+Update the version header to `/* kc_input.js - v3.41 */`.
+Locate and completely DELETE the rogue global `Escape` intercept (previously around line 117) inside `handleGlobalKeys`. This block is prematurely routing back to the Hub and stealing the keypress from menus.
+Navigate to the `ACTIVE_TYPING` state router. Ensure its `Escape` block explicitly executes the full killswitch:
+`if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();`
+`if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();`
+`if (KC.core && KC.core.stopNagTimer) KC.core.stopNagTimer();`
+`this.flush();`
+Then it should abort the mission or return to the Hub.
+Navigate to the `MISSION_START` / `BRIEFING` state router. Ensure its `Escape` block explicitly executes the killswitch:
+`if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();`
+`if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();`
+`this.flush();`
+Before returning to the Hub.
+Please output the fully refactored kc_input.js so I can commit the fix.", 19 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\rules.md
+Thinking: Let me read the full kc_input.js to understand its current structure before making changes.
+Read kc_input.js, lines 1 to 250
+Read kc_input.js, lines 250 to 400
+Read kc_input.js, lines 400 to 520
+Now I have the full picture. The structure is clear:
+**The rogue global trap** is at line ~153 — it fires for `ACTIVE_TYPING` and `BRIEFING` *before* those state routers run, calling
+abortActiveMission() (c:\nbs\kc\kc_mission_core.js:637)
+without any audio cleanup.
+2. The `ACTIVE_TYPING` router at line ~165 has its own nested Escape block but it's dead code — the global trap always fires first.
+3. The `MISSION_START`/`BRIEFING` router at line ~285 has its Escape but is missing
+stopActiveAudio() (c:\nbs\kc\kc_audio.js:222)
+.
+Created 2 todos. 2 items: Bump version, fix all 3 Escape paths (in-progress); Verify no errors (not-started)
+Replacing 41 lines with 33 lines in kc_input.js
+```
+```
+```
+```
+Checked kc_input.js, no problems found
+Completed: Bump version, fix all 3 Escape paths (1/2). 2 items: Bump version, fix all 3 Escape paths (completed); Verify no errors (completed)
+v3.41 deployed. Four surgical changes to
 kc_input.js (/c:/nbs/kc/kc_input.js)
-, and
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-from this conversation. To do a proper audit I'd need to spot-check the other ~10 files I haven't opened yet.
-Scope tiers
-Tier What you get Token cost Risk
-A. Light Read all top-level JS files once, identify rule-vs-code mismatches and obvious gaps in
-rules.md (/c:/nbs/kc/rules.md)
-, propose targeted edits. No deep tracing. | Low (3-5 file reads, single edit pass) | Misses subtle drift |
-| **B. Medium** *(recommended)* | Tier A + verify each rule has a concrete code anchor, add new rules covering patterns I've already seen drift in this session (state-token lifecycle, diagnostic logger pattern, audio-chain abort discipline, post-mortem learnings from the launch desync). Restructure for findability. | **Medium** (8-12 file reads + larger edit) | Low |
-| C. Heavy | Full forensic audit: trace every rule against every file, dispatch an Explore subagent for the bigger files, produce a rules-coverage matrix, rewrite. | High (subagent + many reads + multi-pass edit) | Overkill given the session-token cost |
-My recommendation
-Tier B, executed as a single focused pass. Concretely:
-Read the remaining 7 JS files I haven't opened (
-kc_core.js (/c:/nbs/kc/kc_core.js)
-,
-kc_data.js (/c:/nbs/kc/kc_data.js)
-,
-kc_hub.js (/c:/nbs/kc/kc_hub.js)
-,
-kc_tutorial.js (/c:/nbs/kc/kc_tutorial.js)
-, the other mission files) — parallelizable, one batch.
-2. Cross-reference each existing rule against actual code; flag any that are vague, outdated, or violated.
-3. Add new rules for patterns this session has revealed are drift-prone:
-The **
-dictationId (c:\nbs\kc\mission_launch.js:97)
-/token-cancel pattern** for any audio chain (we just rebuilt this twice — it deserves a rule so it doesn't get refactored away).
-**State guards must whitelist, not blacklist** (the `if state === "DICTATING" return;` blunder is exactly the kind of thing that bites you again).
-**PageUp diagnostic dump pattern** as the standard for screen-reader-friendly debugging (since console-only logging is hostile to your workflow).
-**Lifecycle reset checklist**: every state transition must enumerate which fields it resets (
-currentIndex (c:\nbs\kc\mission_launch.js:7)
-,
-dictationId (c:\nbs\kc\mission_launch.js:97)
-, timers, audio chains). The desync bug was a missed item on this implicit checklist.
-4. Tighten section headers and add a quick-scan "Drift Sentinels" section at the top — the rules most violated, kept short for fast re-priming each session.
-Estimated effort: roughly the same as the launch-codes desync fix took us. Single round-trip; no subagent needed.
-Decision needed
-Reply with A, B, or C — or "B" to proceed as recommended. I won't touch
-rules.md (/c:/nbs/kc/rules.md)
-until you confirm.
+:
+1. Version bump → v3.41.
+2. Rogue global Escape trap deleted. The block that was catching ACTIVE_TYPING and BRIEFING before their own state routers — and calling
+abortActiveMission() (c:\nbs\kc\kc_mission_core.js:637)
+with no audio cleanup — is gone. It was also the "else" branch that fired for every other state (menus, hub, etc.) and routed to
+enterHub() (c:\nbs\kc\kc_input.js:167)
+unconditionally, which was silently eating Escape keypresses in non-mission contexts.
+3. `ACTIVE_TYPING` Escape — full S6 killswitch applied:
+```
+if (KC.audio && KC.audio.stopIntro) KC.audio.stopIntro();
+if (KC.audio && KC.audio.stopActiveAudio) KC.audio.stopActiveAudio();
+if (KC.core && KC.core.stopNagTimer) KC.core.stopNagTimer();
+this.flush();
+if (KC.mission && KC.mission.abortActiveMission) KC.mission.abortActiveMission();
+else KC.hub.enterHub();
+```
+The
+abortActiveMission() (c:\nbs\kc\kc_mission_core.js:637)
+path is preserved so missions that handle their own abort logic (triggering report cards, explosion SFX, etc.) still do so — but audio is dead before they run.
+4. `MISSION_START`/`BRIEFING` Escape — added missing `stopActiveAudio()` (the audit-flagged S6 gap). Updated comment from v3.27.4 to v3.41.
