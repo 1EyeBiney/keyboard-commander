@@ -1,240 +1,131 @@
-Searched codebase for "Target Versions: v3.42.2 through v3.42.5
-Files to Update: mission_stream.js, mission_race.js, mission_reflex.js, mission_echoc.js
+Searched codebase for "Target Version: v3.43
+Primary File to Update: mission_launch.js
 The Objective:
-Execute the remainder of Patch 2 of our technical debt audit. We need to resolve a Sentinel S4 (Ghost Keys) violation across the rest of the mission files. Currently, if a user holds down a key, the OS fires auto-repeat keystrokes that flood the input trap and desync the evaluation logic.
-The Action Plan:
-For EACH of the 4 files below, perform these two tasks:
-Update the version header at the top of the file to the specified version.
-Inject the following line at the absolute top of the `handleInput: function(e) {` block, immediately before any other logic, logging, or state checks:
-`if (e.repeat) return;`
-File & Version Mapping:
-mission_stream.js -> Update header to `/* mission_stream.js - v3.42.2 */`
-mission_race.js -> Update header to `/* mission_race.js - v3.42.3 */`
-mission_reflex.js -> Update header to `/* mission_reflex.js - v3.42.4 */`
-mission_echoc.js -> Update header to `/* mission_echoc.js - v3.42.5 */`
-Output Constraints:
-To absolutely ensure you do not hit output truncation limits, DO NOT output the entire files. For EACH of the 4 files, please output exactly two code blocks:
-The updated version header comment.
-The FULL, paste-ready `handleInput` function (do not truncate any of the logic inside the function).", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_succession.js, c:\nbs\kc\rules.md
-Thinking: Let me read all four files to find their current version headers and handleInput functions.
-Let me read all four files in parallel to find the relevant sections.
-Searched for regex handleInput: function\(e\) (**/mission_stream.js), 1 result. Files: c:\nbs\kc\mission_stream.js
-Searched for regex handleInput: function\(e\) (**/mission_race.js), 1 result. Files: c:\nbs\kc\mission_race.js
-Searched for regex handleInput: function\(e\) (**/mission_reflex.js), 1 result. Files: c:\nbs\kc\mission_reflex.js
-Searched for regex handleInput: function\(e\) (**/mission_echoc.js), 1 result. Files: c:\nbs\kc\mission_echoc.js
-Read mission_stream.js, lines 1 to 3
-Read mission_echoc.js, lines 1 to 3
-Read mission_race.js, lines 1 to 3
-Read mission_reflex.js, lines 1 to 3
-Now read the handleInput functions from all four files in parallel:
-Read mission_stream.js, lines 159 to 260
-Read mission_race.js, lines 207 to 310
-Read mission_reflex.js, lines 105 to 200
-Read mission_echoc.js, lines 69 to 110
-Thinking: Now I have all the information I need. Let me make all the changes simultaneously.
-For mission_stream.js:
-- Line 1: `/* mission_stream.js - v3.38.0 */` → `/* mission_stream.js - v3.42.2 */`
-- Line 159: inject `if (e.repeat) return;` at top of handleInput
-For mission_race.js:
-- Line 1: `/* mission_race.js - v3.35.0 */` → `/* mission_race.js - v3.42.3 */`
-- Line 207: inject `if (e.repeat) return;` at top of handleInput
-- Line 1: `/* mission_reflex.js - v2.87.1 */` → `/* mission_reflex.js - v3.42.4 */`
-- Line 105: inject `if (e.repeat) return;` at top of handleInput
-For mission_echoc.js:
-- Line 1: `/* mission_echoc.js - v1.71.2 */` → `/* mission_echoc.js - v3.42.5 */`
-- Line 69: inject `if (e.repeat) return;` at top of handleInput
-All four functions are captured. Applying all 8 changes simultaneously:
-Replacing 18 lines with 30 lines in mission_stream.js, mission_race.js, mission_reflex.js, mission_echoc.js
+We are expanding "Launch Codes" to support two distinct gameplay modes: "Shadow Mode" (real-time processing) and "Recall Mode" (working memory). We need to implement this new logic and add a new row to the Mission Setup UI to toggle between them.
+The Mechanics:
+"Shadow Mode": This is the current behavior. Type-along is permitted during the `DICTATING` state. No end-of-dictation cue is played.
+"Recall Mode": 
+ * At the end of the dictation sequence (when promoting from DICTATING to TYPING), the engine must play a specific "Go" cue: `synth_23` (using standard SFX routing).
+ * If the user types a valid key DURING the `DICTATING` state, it triggers an "Early Launch" penalty.
+ * The penalty must: Deduct 10 seconds from `timeRemaining`, announce "Early launch! 10 second penalty.", play an alert tone (like an error buzz), and wipe their input buffer for the current code (reset `currentIndex` to 0). It does NOT abort the audio dictation; they just have to wait for the `synth_23` cue and start typing the code from scratch.
+The Setup UI:
+Add a new parameter row to the Mission Setup screen for this mission to toggle between "Shadow" and "Recall" (default to Shadow). Do NOT replace the existing Zone or Code Length rows. (Please provide the necessary code to update the UI, whether that lives in mission_launch.js, kc_mission_core.js, or the lesson data).
+Architectural Constraints (DO NOT DRIFT):
+Sentinel S1: Maintain whitelist state guards in `handleInput`.
+Sentinel S2: Ensure the `dictationId` token system remains fully intact for all audio chain aborts.
+Sentinel S3: Ensure the "Early Launch" penalty properly resets the index.
+Sentinel S4: Maintain `if (e.repeat) return;` at the absolute top of `handleInput`.
+Please output the fully updated mission_launch.js (v3.43) and any other specific file modifications required to add the new Setup UI row.", 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_reflex.js
+Thinking: I need to dig into mission_launch.js to understand its structure and how it connects with the Mission Setup UI.
+Read mission_launch.js, lines 1 to 280
+Searched for regex launch|Launch|setup|Setup|zone|Zone|param (**/kc_mission_core.js), 20 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Read mission_launch.js, lines 280 to 410
+Read kc_mission_core.js, lines 100 to 300
+Thinking: I'm looking at the Mission Setup UI for Launch, which currently has 6 rows including a special row for Code Length, and I need to insert a new "Mode" row to toggle between Shadow and Recall options. I'll need to update the setupCursor max value from 6 to 7 and locate the navigation handlers to accommodate this additional row.
+Read kc_mission_core.js, lines 300 to 600
+Thinking: I'm modifying `kc_mission_core.js` to add a shadow launch mode option—I'll set `launchMode: 'shadow'` as a default in the mission parameters, then adjust the Launch row layout to insert a Mode row at position 6, which shifts the cursor range to 7-8 for Launch missions while keeping race and reflex modes at their current 6-row structure.
+Then I need to update the cursor navigation functions (`_getMaxCursor`, `_getStartRow`, `_getExitRow`, `adjustCurrentRow`) to account for Launch's extra row, add a `changeLaunchMode` function to toggle between modes, and pass the `launchMode` config to the mission_launch module.
+In `mission_launch.js`, I'm bumping the version and reading the mode from config, then modifying the dictation-to-typing transition to play a recall sound if in recall mode, and adding an early launch penalty in recall mode that deducts 10 seconds and resets the index when the user types during dictation—but in shadow mode, typing during dictation is allowed without penalty.
+Refining the handleInput logic to check zone validity first for single-character keys, then apply the recall mode penalty only if the state is dictating and the mode is recall.
+For the end-of-dictation transition in recall mode, I'm setting the state to typing and playing a synth cue if audio is available.
+For Mission Setup, I need to adjust the row structure so Launch missions have an extra Mode setting row after Code Length, making it 7 setting rows instead of 6, which shifts the start and exit rows accordingly.
+Now I'm adding the Mode row rendering for Launch missions, showing either "Recall" or "Shadow" based on the launch mode parameter. I'm also implementing a handler in `adjustCurrentRow` for row 6 that calls a new `changeLaunchMode` function, which cycles through the modes with audio feedback and announces the selected mode to the user.
+For the rest of the setup, I need to ensure `loadLesson` initializes the launch mode default, update `executeMission` to pass the mode into the config, and adjust the cursor boundary functions to account for the extra Mode row in Launch missions. I'm also updating the local row count calculation in `renderMissionStart` to reflect these changes.
+Now I'm thinking through the state transitions and keystroke handling for Recall mode — when the user types during DICTATING, it should trigger the early-launch penalty only if it's a valid key, not if they hit the wrong zone. The zone check happens first and just buzzes, then the early-launch check fires after, so invalid keystrokes won't penalize. That matches the spec.
+Writing the implementation...
+Now I have full context. Implementing all changes:
+Replacing 72 lines with 115 lines in kc_mission_core.js
 ```
 ```
 ```
 ```
+Now updating mission_launch.js:
+Replacing 28 lines with 61 lines in mission_launch.js
 ```
 ```
 ```
 ```
-```
-```
-All 8 replacements succeeded. Here are your paste-ready blocks:
-mission_stream.js (/c:/nbs/kc/mission_stream.js)
-— v3.42.2
-Block 1:
-```
-/* mission_stream.js - v3.42.2 */
-```
-Block 2:
-```
-    handleInput: function(e) {
-        // v3.42.2: S4 Ghost-Key Filter. Must be the absolute first gate.
-        if (e.repeat) return;
-        if (!this.isActive) return;
-        const inputChar = e.key.toLowerCase();
-        if (inputChar === "escape") return;
-        if (["shift", "control", "alt", "capslock", "tab", "meta"].includes(e.key.toLowerCase())) return;
-        if (inputChar === " ") {
-            if (this.buffer.length > 0) {
-                KC.core.announce(`Queue at ${this.buffer.length}. Target is ${this.buffer[0].char.toUpperCase()}`);
-            } else {
-                KC.core.announce("Buffer empty.");
-            }
-            return;
-        }
-        if (this.buffer.length > 0) {
-            const target = this.buffer[0];
-            if (inputChar === target.char) {
-                // Correct
-                KC.state.stats.totalKeys++;
-                KC.state.currentStreak++;
-                if (KC.state.currentStreak > KC.state.missionMaxStreak) {
-                    KC.state.missionMaxStreak = KC.state.currentStreak;
-                }
-                const rt = Date.now() - target.activeTime;
-                this.reactionTimes.push(rt);
-                this.awardScore(rt);
-                KC.audio.playSound('success');
-                this.buffer.shift(); 
-                if (this.buffer.length > 0) {
-                    this.buffer[0].activeTime = Date.now();
-                    this.speakTarget(this.buffer[0].char);
-                }
-                this.checkGameState();
-            } else {
-                // Incorrect
-                KC.state.stats.errors++;
-                KC.state.currentStreak = 0;
-                this.score -= 50; 
-                KC.audio.playSound('error');
-                this.speakTarget(target.char);
-            }
-        } else {
-            KC.audio.playSound('error');
-        }
-        this.render();
-    },
-```
-mission_race.js (/c:/nbs/kc/mission_race.js)
-— v3.42.3
-Block 1:
-```
-/* mission_race.js - v3.42.3 */
-```
-Block 2:
-```
-    handleInput: function(e) {
-        // v3.42.3: S4 Ghost-Key Filter. Must be the absolute first gate.
-        if (e.repeat) return;
-        if (!this.isActive) return;
-        if (e.key === " " || e.key === "Enter") {
-            const target = this.currentWord;
-            if (this.inputBuffer.toLowerCase().trim() === target.toLowerCase()) {
-                this.resolveRound("PLAYER");
-            } else {
-                KC.audio.playSound('error');
-                this.errors++;
-                this.inputBuffer = "";
-                this.render();
-            }
-            return;
-        }
-        if (e.key === "Backspace") {
-            this.inputBuffer = this.inputBuffer.slice(0, -1);
-            KC.audio.playSound('click');
-            this.render();
-            return;
-        }
-        if (e.key.length === 1) {
-            this.inputBuffer += e.key;
-            this.totalKeys++;
-            KC.audio.playSound('click');
-            this.render();
-        }
-    },
-```
-mission_reflex.js (/c:/nbs/kc/mission_reflex.js)
-— v3.42.4
-Block 1:
-```
-/* mission_reflex.js - v3.42.4 */
-```
-Block 2:
-```
-    handleInput: function(e) {
-        // v3.42.4: S4 Ghost-Key Filter. Must be the absolute first gate.
-        if (e.repeat) return;
-        if (!this.isActive) return;
-        if (["Shift", "Control", "Alt", "CapsLock", "Tab"].includes(e.key)) return;
-        const inputChar = e.key;
-        KC.state.stats.totalKeys++;
-        if (inputChar.toLowerCase() === this.currentTarget.toLowerCase()) {
-            // SUCCESS
-            this.clearHint();
-            // v1.74.0: Streak Tracking
-            KC.state.currentStreak++;
-            if (KC.state.currentStreak > KC.state.missionMaxStreak) {
-                KC.state.missionMaxStreak = KC.state.currentStreak;
-            }
-            KC.audio.playSound('click');
-            KC.mission.updateInstability(false); // Heal hazard
-            this.currentIndex++;
-            setTimeout(() => this.nextEvent(), 50); 
-        } else {
-            // FAILURE
-            // v1.74.0: Streak Reset
-            KC.state.currentStreak = 0;
-            KC.audio.playSound('error');
-            KC.state.stats.errors++;
-            const exploded = KC.mission.updateInstability(true); // Worsen hazard
-            if (exploded) {
-                this.isActive = false;
-                this.clearHint();
-                return;
-            }
-            this.clearHint();
-            const target = this.currentTarget.toUpperCase();
-            setTimeout(() => {
-                if (this.isActive) KC.core.announce(`Type ${target}.`);
-            }, 300);
-        }
-    },
-```
-mission_echoc.js (/c:/nbs/kc/mission_echoc.js)
-— v3.42.5
-Block 1:
-```
-/* mission_echoc.js - v3.42.5 */
-```
-Block 2:
-```
-    handleInput: function(e) {
-        // v3.42.5: S4 Ghost-Key Filter. Must be the absolute first gate.
-        if (e.repeat) return;
-        // 1. Check for Exit
-        if (e.key === "Escape") {
-            KC.audio.playSound('click');
-            this.init(); // Go back to Start Screen
-            return;
-        }
-        // 2. Identify the Key
-        let keyName = this.key_map[e.key] || e.key;
-        let audioKey = "char_" + e.key.toLowerCase();
-        // Handle side-specific modifiers
-        if (e.code === "ControlLeft") keyName = "Left Control";
-        if (e.code === "ControlRight") keyName = "Right Control";
-        if (e.code === "ShiftLeft") keyName = "Left Shift";
-        if (e.code === "ShiftRight") keyName = "Right Shift";
-        if (e.code === "AltLeft") keyName = "Left Alt";
-        if (e.code === "AltRight") keyName = "Right Alt";
-        // 3. Announce or Play Audio
-        // v1.71.2: Check for Recorded Asset
-        if (GAME_DATA.audio_bank[audioKey]) {
-            // Found audio asset - Fire and Forget
-            KC.audio.playSFX(audioKey);
-            // Update visual only, do not use TTS
-            KC.els.displayText.textContent = ">> DIAGNOSTICS ACTIVE <<\n\nLast Input: " + keyName + " [AUDIO]";
-        } else {
-            // No asset found - Use TTS System Prompt
-            KC.core.announce(keyName, true);
-            KC.els.displayText.textContent = ">> DIAGNOSTICS ACTIVE <<\n\nLast Input: " + keyName;
-        }
-    },
-```
+Checked mission_launch.js, kc_mission_core.js, no problems found
+All edits applied cleanly. Summary of changes:
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+→ v3.43
+Version header bumped.
+Added
+mode: "shadow" (c:\nbs\kc\kc_mission_core.js:548)
+default property.
+init() (c:\nbs\kc\mission_launch.js:75)
+reads
+config.mode (c:\nbs\kc\kc_mission_core.js:617)
+and stores it (defaults to
+"shadow" (c:\nbs\kc\kc_mission_core.js:548)
+).
+playAudioSequence() (c:\nbs\kc\mission_launch.js:231)
+end-of-dictation transition: when promoting DICTATING → TYPING, fires
+KC.audio.playSynth(23) (c:\nbs\kc\kc_audio.js:3)
+only in Recall mode.
+handleInput() (c:\nbs\kc\kc_mission_core.js:646)
+adds an Early-Launch penalty branch (after zone validation, before the regular comparison): in Recall mode + DICTATING state, deducts 10s, resets
+currentIndex = 0 (c:\nbs\kc\mission_launch.js:7)
+, buzzes, announces "Early launch! 10 second penalty.", logs EARLY_LAUNCH to the diag ring buffer, and **deliberately does not bump
+dictationId (c:\nbs\kc\mission_launch.js:100)
+** so the in-flight chain keeps running and still emits the synth_23 cue at the end.
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+-
+loadLesson() (c:\nbs\kc\kc_mission_core.js:109)
+missionParams (c:\nbs\kc\kc_mission_core.js:59)
+defaults: added
+launchMode: lesson.params?.launchMode || "shadow" (c:\nbs\kc\kc_mission_core.js:548)
+.
+renderMissionStart() (c:\nbs\kc\kc_mission_core.js:158)
+: setting-row count is now
+isLaunch ? 7 : (hasSpecialRow ? 6 : 5) (c:\nbs\kc\kc_mission_core.js:229)
+. New row 6 renders Mode: Shadow|Recall for Launch only.
+rowLabels (c:\nbs\kc\kc_mission_core.js:282)
+/
+rowValues (c:\nbs\kc\kc_mission_core.js:283)
+extended with &quot;Mode&quot; so the cursor announcer reads it.
+New helper
+_isLaunchMission() (c:\nbs\kc\kc_mission_core.js:479)
+.
+_getMaxCursor (c:\nbs\kc\kc_mission_core.js:485)
+,
+_getStartRow (c:\nbs\kc\kc_mission_core.js:490)
+,
+_getExitRow (c:\nbs\kc\kc_mission_core.js:495)
+return 8 / 7 / 8 for Launch (vs 7/6/7 for race/reflex; 6/5/6 otherwise).
+adjustCurrentRow() (c:\nbs\kc\kc_mission_core.js:500)
+: cursor row 6 routes to
+changeLaunchMode(dir) (c:\nbs\kc\kc_mission_core.js:537)
+for Launch missions.
+New
+changeLaunchMode(dir) (c:\nbs\kc\kc_mission_core.js:537)
+cycles
+["shadow","recall"] (c:\nbs\kc\kc_mission_core.js:549)
+and announces a description of each mode.
+executeMission() (c:\nbs\kc\kc_mission_core.js:566)
+Launch branch: passes
+mode: KC.state.missionParams.launchMode || "shadow" (c:\nbs\kc\kc_mission_core.js:548)
+into the config object.
+Sentinel compliance
+**S1 (Whitelist):**
+handleInput (c:\nbs\kc\kc_mission_core.js:646)
+whitelist guard untouched (still rejects only DONE/FAILED/WAITING).
+**S2 (
+dictationId (c:\nbs\kc\mission_launch.js:100)
+):** Early-launch path intentionally does not bump
+dictationId (c:\nbs\kc\mission_launch.js:100)
+— the running chain must survive so the cue fires. All existing bumps (generateCode, ArrowDown, DONE, FAILED) remain intact.
+**S3 (Index reset):** Early-launch resets
+currentIndex = 0 (c:\nbs\kc\mission_launch.js:7)
+.
+**S4 (
+e.repeat (c:\nbs\kc\kc_mission_core.js:646)
+):** First-line guard preserved.
+Default lesson behavior
+Existing Launch lesson data needs no changes — missing
+params.launchMode (c:\nbs\kc\kc_mission_core.js:130)
+falls back to
+"shadow" (c:\nbs\kc\kc_mission_core.js:548)
+, preserving current behavior for all existing lessons. To ship a Recall variant, set
+params: { launchMode: "recall" } (c:\nbs\kc\kc_mission_core.js:549)
+on the lesson.

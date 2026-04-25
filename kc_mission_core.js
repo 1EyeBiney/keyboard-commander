@@ -127,6 +127,7 @@ KC.mission = {
             difficulty: lesson.params?.difficulty || 3,
             lengthMode: 1,
             codeLength: lesson.params?.codeLength || 4,
+            launchMode: lesson.params?.launchMode || "shadow",
             voice: defaultVoice
         };
 
@@ -246,8 +247,8 @@ KC.mission = {
         }
 
         // Cursor bounds
-        // rows 0..3 always, row 4 = Tactical Voice, row 5 if special
-        const settingRowCount = hasSpecialRow ? 6 : 5;
+        // rows 0..3 always, row 4 = Tactical Voice, row 5 if special, row 6 = Launch Mode (Launch only)
+        const settingRowCount = isLaunch ? 7 : (hasSpecialRow ? 6 : 5);
         const startRow = settingRowCount;      // START MISSION row index
         const exitRow  = settingRowCount + 1;  // EXIT TO DECK row index
         const maxCursor = exitRow;
@@ -269,6 +270,12 @@ KC.mission = {
         if (hasSpecialRow) {
             content += R(5, specialLabel) + '\n';
         }
+        // v3.43: Launch Mode row (Shadow vs Recall)
+        let launchModeLabel = "";
+        if (isLaunch) {
+            launchModeLabel = (params.launchMode === "recall") ? "Recall" : "Shadow";
+            content += R(6, `Mode:        ${launchModeLabel}`) + '\n';
+        }
         content += R(startRow, `[ START MISSION ]`) + '\n';
         content += R(exitRow,  `[ EXIT TO DECK  ]`) + '\n';
         // v3.27.1: Build row labels/values
@@ -278,6 +285,10 @@ KC.mission = {
             const parts = specialLabel.split(':');
             rowLabels.push(parts[0].trim());
             rowValues.push(parts.slice(1).join(':').trim());
+        }
+        if (isLaunch) {
+            rowLabels.push("Mode");
+            rowValues.push(launchModeLabel);
         }
         rowLabels.push("Start Mission"); rowValues.push("");
         rowLabels.push("Exit to Deck");  rowValues.push("");
@@ -465,15 +476,24 @@ KC.mission = {
         return (lesson.generator === "race") || (lesson.id === "D00-MISSION-RACE") || (lesson.generator === "reflex") || (lesson.generator === "launch") || (lesson.id === "D00-MISSION-LAUNCH");
     },
 
+    _isLaunchMission: function() {
+        const lesson = KC.state.activeLesson;
+        if (!lesson) return false;
+        return (lesson.generator === "launch") || (lesson.id === "D00-MISSION-LAUNCH");
+    },
+
     _getMaxCursor: function() {
+        if (this._isLaunchMission()) return 8;
         return this._getHasSpecialRow() ? 7 : 6;
     },
 
     _getStartRow: function() {
+        if (this._isLaunchMission()) return 7;
         return this._getHasSpecialRow() ? 6 : 5;
     },
 
     _getExitRow: function() {
+        if (this._isLaunchMission()) return 8;
         return this._getHasSpecialRow() ? 7 : 6;
     },
 
@@ -496,6 +516,10 @@ KC.mission = {
                 this.changeDifficulty(dir);
             }
         }
+        // v3.43: Row 6 — Launch Mode (Shadow / Recall). Launch missions only.
+        else if (c === 6 && this._isLaunchMission()) {
+            this.changeLaunchMode(dir);
+        }
     },
 
     changeCodeLength: function(dir) {
@@ -507,6 +531,24 @@ KC.mission = {
         KC.state.missionParams.codeLength = current;
         this.renderMissionStart(KC.state.activeLesson, true);
         KC.core.announce(`Code Length: ${current}`);
+    },
+
+    // v3.43: Toggle between Shadow Mode (type-along) and Recall Mode (working-memory).
+    changeLaunchMode: function(dir) {
+        if (KC.audio.playSynth) KC.audio.playSynth(34); else KC.audio.playSound('click');
+        const modes = ["shadow", "recall"];
+        let current = modes.indexOf(KC.state.missionParams.launchMode || "shadow");
+        if (current < 0) current = 0;
+        current += dir;
+        if (current < 0) current = modes.length - 1;
+        if (current >= modes.length) current = 0;
+        KC.state.missionParams.launchMode = modes[current];
+        this.renderMissionStart(KC.state.activeLesson, true);
+        const announceMap = {
+            shadow: "Shadow Mode. Type-along permitted during dictation.",
+            recall: "Recall Mode. Wait for the launch tone before typing."
+        };
+        KC.core.announce(announceMap[modes[current]]);
     },
 
     changeVoice: function(dir) {
@@ -571,7 +613,8 @@ KC.mission = {
             const config = {
                 time: timeLimit,
                 codeLength: KC.state.missionParams.codeLength || 4,
-                zone: zoneName
+                zone: zoneName,
+                mode: KC.state.missionParams.launchMode || "shadow"
             };
             KC.state.status = "ACTIVE_TYPING";
             this.activeHandler = KC.mission_launch;

@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.42.1 */
+/* mission_launch.js - v3.43 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -14,6 +14,7 @@ KC.mission_launch = {
     state: "WAITING", 
     codeLength: 4,
     zone: "Numbers (Numpad)",
+    mode: "shadow", // v3.43: 'shadow' (type-along) | 'recall' (wait-for-tone)
     timerInterval: null,
     
     pools: {
@@ -83,6 +84,8 @@ KC.mission_launch = {
         this.timeRemaining = config.time || 120;
         this.codeLength = config.codeLength || 4;
         this.zone = config.zone || "Numbers (Numpad)";
+        // v3.43: Gameplay mode. Defaults to legacy Shadow behavior.
+        this.mode = (config.mode === "recall") ? "recall" : "shadow";
         this.currentIndex = 0;
         this.state = "WAITING";
         
@@ -236,7 +239,13 @@ KC.mission_launch = {
         if(index >= seq.length) {
             // v3.39.5-fix: Only promote to TYPING if we're still the active dictation
             // AND the state hasn't been moved elsewhere (e.g. FAILED, DONE, ended).
-            if(this.state === "DICTATING") this.state = "TYPING";
+            if(this.state === "DICTATING") {
+                this.state = "TYPING";
+                // v3.43: Recall Mode end-of-dictation "Go" cue. Shadow mode plays nothing.
+                if (this.mode === "recall" && KC.audio && KC.audio.playSynth) {
+                    KC.audio.playSynth(23);
+                }
+            }
             return;
         }
         let item = seq[index];
@@ -347,7 +356,31 @@ KC.mission_launch = {
                 if(KC.audio && KC.audio.playSound) KC.audio.playSound('error');
                 return;
             }
-            
+
+            // v3.43: RECALL MODE — Early Launch Penalty.
+            // In recall mode, any zone-valid keystroke fired during DICTATING is an
+            // early launch: -10s, wipe input buffer (currentIndex = 0), buzz, and
+            // announce. The audio dictation is NOT aborted; the user must wait for
+            // the synth_23 "Go" cue and re-type the code from the start.
+            // Sentinel S2: dictationId is intentionally NOT bumped — we want the
+            // current chain to keep running so the cue still fires at the end.
+            // Sentinel S3: currentIndex reset to 0 to keep evaluation aligned.
+            if (this.mode === "recall" && this.state === "DICTATING") {
+                this.timeRemaining -= 10;
+                if (this.timeRemaining <= 0) {
+                    this.timeRemaining = 0;
+                    this.endMission();
+                    return;
+                }
+                this.currentIndex = 0;
+                this.diag('EARLY_LAUNCH', { rawKey: e.key, rawCode: e.code });
+                KC.core.updateStatusBar(`LAUNCH CODES | SCORE: ${this.score} | TIME: ${this.timeRemaining}`);
+                if (KC.audio && KC.audio.playSound) KC.audio.playSound('error');
+                KC.core.announce("Early launch! 10 second penalty.");
+                this.updateDisplay();
+                return;
+            }
+
             this.totalKeys++;
             let typedChar = e.key.toUpperCase();
             let targetChar = this.targetCode[this.currentIndex].toUpperCase();
