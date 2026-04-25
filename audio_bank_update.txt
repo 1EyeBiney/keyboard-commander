@@ -1,9 +1,6 @@
-/* NEW EXPLOSION ASSETS - PASTE INTO kc_data.js */
+/* NEW PHASE ANNOUNCEMENTS - PASTE INTO kc_data.js */
 
-    "explode_1": "audio/sfx/hazards/explode_1.mp3",
-    "explode_2": "audio/sfx/hazards/explode_2.mp3",
-    "explode_3": "audio/sfx/hazards/explode_3.mp3",
-    "explode_4": "audio/sfx/hazards/explode_4.mp3",
-    "explode_5": "audio/sfx/hazards/explode_5.mp3",
-    "explode_6": "audio/sfx/hazards/explode_6.mp3",
-    "explode_7": "audio/sfx/hazards/explode_7.mp3",
+    "phase_1_snu": "audio/char/phase_1_snu.mp3",
+    "phase_2_snu": "audio/char/phase_2_snu.mp3",
+    "phase_3_snu": "audio/char/phase_3_snu.mp3",
+    "phase_ju": "audio/words/phase_ju.mp3",

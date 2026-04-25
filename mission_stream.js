@@ -1,4 +1,4 @@
-/* mission_stream.js - v3.42.2 */
+/* mission_stream.js - v3.45.1 */
 
 KC.handlers.stream = {
     // State
@@ -15,10 +15,9 @@ KC.handlers.stream = {
     winTime: 30000,  
     activeKeys: "",  
     
-    // Stats & Dynamic Pacing
+    // Stats
     phase: 1,
     score: 0,
-    reactionTimes: [], 
     
     stop: function() {
         this.isActive = false;
@@ -32,7 +31,6 @@ KC.handlers.stream = {
         this.isActive = false; 
         this.phase = 1;
         this.score = 0;
-        this.reactionTimes = [];
         
         // Reset Global Stats
         KC.state.status = "ACTIVE_TYPING";
@@ -124,6 +122,25 @@ KC.handlers.stream = {
         }
     },
 
+    // v3.45.1: Harmonic cascade played at the start of each new phase.
+    playResonanceCascade: function() {
+        if (!KC.audio.ctx) return;
+        if (KC.audio.ctx.state === 'suspended') KC.audio.ctx.resume();
+        const now = KC.audio.ctx.currentTime;
+        [1,2,3,4,5,6,7,8].forEach((n, i) => {
+            const osc = KC.audio.ctx.createOscillator();
+            const gain = KC.audio.ctx.createGain();
+            osc.type = 'sine';
+            const t = now + (i * 0.28);
+            const dur = 1.5 - (i * 0.12);
+            osc.frequency.setValueAtTime(110 * n, t);
+            gain.gain.setValueAtTime(0.12, t);
+            gain.gain.exponentialRampToValueAtTime(0.01, t + dur);
+            osc.connect(gain); gain.connect(KC.audio.ctx.destination);
+            osc.start(t); osc.stop(t + dur);
+        });
+    },
+
     triggerDrop: function() {
         if (!this.isActive) return;
 
@@ -187,7 +204,6 @@ KC.handlers.stream = {
                 }
                 
                 const rt = Date.now() - target.activeTime;
-                this.reactionTimes.push(rt);
                 this.awardScore(rt);
                 
                 KC.audio.playSound('success');
@@ -234,25 +250,10 @@ KC.handlers.stream = {
 
         if (expectedPhase > this.phase) {
             this.phase = expectedPhase;
-            this.calculateDynamicSpeed();
+            // v3.45: Speed is fixed at initialSpeed for all phases (dynamic pacing removed).
+            this.currentSpeed = this.initialSpeed;
             KC.core.announce(`Phase ${this.phase} beginning. Calibrated to ${this.currentSpeed} milliseconds.`);
         }
-    },
-
-    calculateDynamicSpeed: function() {
-        if (this.reactionTimes.length === 0) return;
-
-        const sum = this.reactionTimes.reduce((a, b) => a + b, 0);
-        const avgRt = sum / this.reactionTimes.length;
-        
-        this.reactionTimes = [];
-
-        let newSpeed = avgRt * 1.2; 
-
-        const floor = this.initialSpeed * 0.5;
-        const ceiling = this.initialSpeed * 1.2;
-
-        this.currentSpeed = Math.round(Math.max(floor, Math.min(ceiling, newSpeed)));
     },
 
     awardScore: function(rt) {

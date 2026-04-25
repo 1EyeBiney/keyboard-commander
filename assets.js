@@ -12,8 +12,8 @@ function walkDir(dir, fileList = []) {
         if (fs.statSync(filePath).isDirectory()) {
             walkDir(filePath, fileList); 
         } else {
-            // THE LASER FILTER: Now targeting the new explosion assets
-            if (file.startsWith('explode_')) {
+            // THE LASER FILTER: Now targeting the Phase Announcements
+            if (file.toLowerCase().startsWith('phase_')) {
                 fileList.push(filePath);
             }
         }
@@ -31,7 +31,7 @@ function generateNewAudioBankEntries() {
     const existingData = fs.readFileSync(dataFilePath, 'utf8');
     const allAudioFiles = walkDir(baseAudioFolder);
     
-    let outputString = "/* NEW EXPLOSION ASSETS - PASTE INTO kc_data.js */\n\n";
+    let outputString = "/* NEW PHASE ANNOUNCEMENTS - PASTE INTO kc_data.js */\n\n";
     let newAssetCount = 0;
 
     allAudioFiles.forEach(filePath => {
@@ -48,8 +48,7 @@ function generateNewAudioBankEntries() {
 
     const outputFile = path.join(__dirname, 'audio_bank_update.txt');
     fs.writeFileSync(outputFile, outputString);
-    
-    console.log(`Success! Found ${newAssetCount} new EXPLOSION assets. Saved to: ${outputFile}`);
+    console.log(`Successfully generated ${newAssetCount} new audio bank entries in audio_bank_update.txt`);
 }
 
 generateNewAudioBankEntries();

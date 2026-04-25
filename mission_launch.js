@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.43 */
+/* mission_launch.js - v3.43.2 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -242,7 +242,10 @@ KC.mission_launch = {
             if(this.state === "DICTATING") {
                 this.state = "TYPING";
                 // v3.43: Recall Mode end-of-dictation "Go" cue. Shadow mode plays nothing.
+                // v3.43.2: Triple-fire for phase-aligned waveform summing (amplitude boost).
                 if (this.mode === "recall" && KC.audio && KC.audio.playSynth) {
+                    KC.audio.playSynth(23);
+                    KC.audio.playSynth(23);
                     KC.audio.playSynth(23);
                 }
             }
@@ -314,15 +317,11 @@ KC.mission_launch = {
             return;
         }
 
-        // v3.40.4: TYPE-ALONG UNLOCK.
-        // Previously this guard included "DICTATING", silently swallowing every
-        // keystroke an expert user made while the audio sequence was still playing.
-        // The wiretap proved those swallowed keys were the actual leading digits of
-        // the code, causing the user's later (logged) keys to be compared against
-        // the wrong target index. We now permit input during DICTATING; only the
-        // resolution states (DONE/FAILED) and the pre-mission WAITING gate still
-        // require Space to advance.
-        if(this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") return;
+        // v3.43.1: S1 Whitelist Guard. Only the two live-input states pass through.
+        // STARTING/DICTATING (before tone) are gated by recall mode below; DONE/FAILED/
+        // WAITING/STARTING are all correctly rejected here.
+        const allow = (this.state === "TYPING" || this.state === "DICTATING");
+        if (!allow) return;
 
         if (e.key === "ArrowDown") {
             this.timeRemaining -= 10;
