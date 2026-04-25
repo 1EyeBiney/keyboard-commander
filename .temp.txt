@@ -1,1 +1,5 @@
 hand holding mission, identify which key pressed and guide to how to get to correct key, as in, I see you pressed "o", you need to press "i", , simply move one key to the left for the I key.
+
+
+visuals for Data Dump, border the mission info like score and time up near top and bring the callouts to the middle and more pronounced
+Bottom part of mission setup scrrens is getting cutoff or missing in Launch for new setting options
