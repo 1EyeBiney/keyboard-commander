@@ -1,57 +1,50 @@
-Searched codebase for "Target Version: v3.40.4
-File to Update: mission_launch.js
-The Objective:
-Implement "Option C: Allow Type-Along." The recent diagnostic wiretap proved that our expert user is "shadow typing" — they are accurately hitting the keys based on the first audio prompt while the engine is still playing the rest of the sequence. Because the engine is in the "DICTATING" state, handleInput is swallowing these valid early keystrokes, leading to a desync when they type the final numbers.
-The Action Plan:
-Update the version header to `/* mission_launch.js - v3.40.4 */`.
-Refactor the state lock in `handleInput` (currently: `if(this.state === "DICTATING" || this.state === "DONE" ... ) return;`).
-We need to allow the user to start typing the millisecond the GENERATE phase finishes and the sequence begins. 
-Crucial Constraint: If the user types a correct key while the audio is still dictating, it MUST evaluate correctly, advance `currentIndex`, and NOT interrupt the ongoing `dictationId` audio sequence. The user should be able to hear "Eight... Three..." while they have already typed 8 and 3.
-Ensure that if they make an error while typing early, it still correctly drops them into the "FAILED" state and safely aborts the active audio sequence using the token system you built in v3.40.1.
-Please provide the updated mission_launch.js code to safely unlock the keyboard during dictation.", 17 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js
-Thinking: I'm examining the current handleInput function to refactor it so it supports the type-along feature properly.
-Read mission_launch.js, lines 230 to 340
-Thinking: I'm going to implement Option C by updating the version, modifying the guard logic to let DICTATING states through while still blocking DONE/FAILED/WAITING, bumping the dictationId on wrong key presses to abort the audio chain, and handling cases where the user types ahead of the dictation without advancing the state prematurely. I should suppress the click sound while in DICTATING mode to avoid clashing with the dictation audio, then make that change now.
-Replacing 26 lines with 42 lines in mission_launch.js
-```
-```
-```
-```
-Read mission_launch.js, lines 340 to 385
-Thinking: I'm noticing the whitespace formatting is slightly off—there's no blank line before the version comment—so I need to adjust that to match exactly.
-Replacing 24 lines with 38 lines in mission_launch.js
-```
-```
-```
-```
-Checked mission_launch.js, no problems found
-v3.40.4 deployed. Summary of changes to mission_launch.js:
-1. Version bump → v3.40.4.
-**2. Type-along unlock (
-handleInput (c:\nbs\kc\mission_launch.js:275)
-state guard).** The old guard rejected DICTATING outright. New guard:
-```
-if(this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") return;
-```
-DICTATING now passes through, so an expert user's shadow-typed keystrokes are evaluated against
-targetCode[currentIndex] (c:\nbs\kc\mission_launch.js:7)
-in real time. The dictation chain itself is untouched — the audio keeps playing because we never bump
+Searched codebase for "please read rules.md. This is a file we use to prime the code assists when we start work for the day and as a guiderule to keep drift out of our code. As Opus is a superior reasoning model, I would like an evaluation of this file as compared to the current code. I want this file to be improved as we have seen drift in recent update cycles and have had to go back and "straighten out" the code, so we are basically having to re-do things that were once in place. Normally, this would be much easier for the sighted coder and doing checkouts with commits and things but I am restricted to using a screen reader so tI am tyrin gto stay in a most effecient  posture for this workflow. Before actually doing an audit to see if rules.md can be improved, I need to know the amount of "effort" needed to do this as I do not want to create a task for you that will take an extended amount of time or tokens, so part 1 of this prompt is to determine the "magnitude" of this request, and then to execute it", 22 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\.temp.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\rules.md
+Thinking: The user wants me to provide a magnitude estimate before I actually execute whatever they're asking for.
+Magnitude estimate (Part 1)
+I've already read
+rules.md (/c:/nbs/kc/rules.md)
+(it's ~50 lines, 8 sections, ~3,000 words) earlier this session, and I have working familiarity with
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+,
+kc_audio.js (/c:/nbs/kc/kc_audio.js)
+,
+kc_input.js (/c:/nbs/kc/kc_input.js)
+, and
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+from this conversation. To do a proper audit I'd need to spot-check the other ~10 files I haven't opened yet.
+Scope tiers
+Tier What you get Token cost Risk
+A. Light Read all top-level JS files once, identify rule-vs-code mismatches and obvious gaps in
+rules.md (/c:/nbs/kc/rules.md)
+, propose targeted edits. No deep tracing. | Low (3-5 file reads, single edit pass) | Misses subtle drift |
+| **B. Medium** *(recommended)* | Tier A + verify each rule has a concrete code anchor, add new rules covering patterns I've already seen drift in this session (state-token lifecycle, diagnostic logger pattern, audio-chain abort discipline, post-mortem learnings from the launch desync). Restructure for findability. | **Medium** (8-12 file reads + larger edit) | Low |
+| C. Heavy | Full forensic audit: trace every rule against every file, dispatch an Explore subagent for the bigger files, produce a rules-coverage matrix, rewrite. | High (subagent + many reads + multi-pass edit) | Overkill given the session-token cost |
+My recommendation
+Tier B, executed as a single focused pass. Concretely:
+Read the remaining 7 JS files I haven't opened (
+kc_core.js (/c:/nbs/kc/kc_core.js)
+,
+kc_data.js (/c:/nbs/kc/kc_data.js)
+,
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+,
+kc_tutorial.js (/c:/nbs/kc/kc_tutorial.js)
+, the other mission files) — parallelizable, one batch.
+2. Cross-reference each existing rule against actual code; flag any that are vague, outdated, or violated.
+3. Add new rules for patterns this session has revealed are drift-prone:
+The **
 dictationId (c:\nbs\kc\mission_launch.js:97)
-. The chain's terminal state-promotion (if(this.state === &quot;DICTATING&quot;) this.state = &quot;TYPING&quot;;) already guards against overwriting a state the user moved to first.
-3. Audio kill on FAILED. A wrong key now bumps
-dictationId (c:\nbs\kc\mission_launch.js:97)
-, which makes the next
-playAudioSequence (c:\nbs\kc\mission_launch.js:228)
-tick abort (the v3.39.5 token system). The remaining digits stop announcing immediately so the rejection message has a clean channel.
-4. Audio kill on DONE. Same trick when the user out-types the dictation — kill the residual chain so it doesn't bleed over the "Code accepted" / "Code verified" toggle.
-5. Click suppression during type-along. Per-keystroke click SFX is muted while
-state === "DICTATING" (c:\nbs\kc\mission_launch.js:14)
-, so rapid shadow-typing doesn't pile clicks on top of the digit recordings. After the chain naturally promotes to TYPING, the click returns for any straggler keys.
-Constraints preserved:
-✅ User can hear "Eight... Three..." while having already typed 8, 3.
-✅ Wrong key drops to FAILED and kills the audio chain via the token system.
-✅ ArrowDown re-dictate path (already resets
+/token-cancel pattern** for any audio chain (we just rebuilt this twice — it deserves a rule so it doesn't get refactored away).
+**State guards must whitelist, not blacklist** (the `if state === "DICTATING" return;` blunder is exactly the kind of thing that bites you again).
+**PageUp diagnostic dump pattern** as the standard for screen-reader-friendly debugging (since console-only logging is hostile to your workflow).
+**Lifecycle reset checklist**: every state transition must enumerate which fields it resets (
 currentIndex (c:\nbs\kc\mission_launch.js:7)
-bumps
+,
 dictationId (c:\nbs\kc\mission_launch.js:97)
-) is untouched and still works.
+, timers, audio chains). The desync bug was a missed item on this implicit checklist.
+4. Tighten section headers and add a quick-scan "Drift Sentinels" section at the top — the rules most violated, kept short for fast re-priming each session.
+Estimated effort: roughly the same as the launch-codes desync fix took us. Single round-trip; no subagent needed.
+Decision needed
+Reply with A, B, or C — or "B" to proceed as recommended. I won't touch
+rules.md (/c:/nbs/kc/rules.md)
+until you confirm.
