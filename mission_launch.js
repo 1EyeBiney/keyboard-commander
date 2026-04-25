@@ -1,4 +1,4 @@
-/* mission_launch.js - v3.39.4 */
+/* mission_launch.js - v3.39.5 */
 window.KC = window.KC || {};
 
 KC.mission_launch = {
@@ -114,9 +114,10 @@ KC.mission_launch = {
             } else {
                 KC.core.updateStatusBar(`LAUNCH CODES | SCORE: ${this.score} | TIME: ${this.timeRemaining}`);
                 
-                // v3.26.2: 15-second auditory indicator
-                if (this.timeRemaining % 15 === 0) {
-                    if (KC.audio && KC.audio.playSound) KC.audio.playSound('click');
+                // v3.39.5: Alert Double-Beep countdown sequence
+                const t = this.timeRemaining;
+                if (t === 15 || t === 10 || (t <= 5 && t > 0)) {
+                    if (KC.audio && KC.audio.playSynth) KC.audio.playSynth(16);
                 }
             }
         }, 1000);
@@ -270,7 +271,8 @@ KC.mission_launch = {
             } else {
                 this.state = "FAILED";
                 this.errors++;
-                KC.core.announce(`Code rejected. Incorrect key. Press Space for next code.`);
+                // v3.39.5: Verbose error reporting
+                KC.core.announce(`Code rejected. Expected ${targetChar}, but received ${typedChar}. Press Space for next code.`);
                 if(KC.audio && KC.audio.playSound) KC.audio.playSound('error');
             }
             this.updateDisplay();

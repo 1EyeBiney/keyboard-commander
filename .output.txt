@@ -1,34 +1,151 @@
-Searched codebase for "Target Version: v3.39.3
+Searched codebase for "Target Version: v3.39.5
 Open kc_audio.js.
-Locate the version comment at the top of the file. Update it to `/* kc_audio.js - v3.39.3 */`.
+Locate the version comment at the top of the file. Update it to `/* kc_audio.js - v3.39.5 */`.
+Locate the `playSynth: function(id) {` block.
+Find the `switch(id) {` statement inside that function.
+Add `case 16` directly above `case 17` so it looks like this:
+     switch(id) {
+         case 3: playTone('triangle', 300, 600, 0.15, 0.25); break; // Floor Up
+         case 4: playTone('triangle', 600, 300, 0.15, 0.25); break; // Floor Down
+         case 16: playSequence(['sine','sine'], [800, 800], 0.08, 0.2); break; // Alert Double-Beep
+         case 17: playTone('sine', 200, 800, 0.4, 0.3); break;      // Power Up
+         case 18: playTone('sine', 800, 200, 0.4, 0.3); break;      // Power Down
 Open mission_launch.js.
-Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.39.3 */`.
-Locate the `endMission: function()` block.
-Update the staggered timing and spatial panning values to the new wider specifications:
-     // Shot 1: Center (0) at 0ms
-     KC.audio.playPannedSFX(`explode_${picks[0]}`, 0);
-     // Shot 2: 60% Left (-0.6) after 300ms (150ms + 150ms injection)
-     setTimeout(() => {
-         KC.audio.playPannedSFX(`explode_${picks[1]}`, -0.6);
-     }, 300);
-     // Shot 3: 75% Right (0.75) after 700ms (300ms + 250ms + 150ms injection)
-     setTimeout(() => {
-         KC.audio.playPannedSFX(`explode_${picks[2]}`, 0.75);
-     }, 700);", 25 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js
-Thinking: Let me read the relevant sections to confirm current state before editing.
-Read kc_audio.js, lines 1 to 3
-Read mission_launch.js, lines 292 to 310
-Replacing 14 lines with 14 lines in kc_audio.js, mission_launch.js
+Locate the version comment at the top of the file. Update it to `/* mission_launch.js - v3.39.5 */`.
+Locate the `startTimer: function()` block. Replace the ENTIRE function with the following to apply the new countdown sequence:
+ startTimer: function() {
+     this.timerInterval = setInterval(() => {
+         if(!this.isActive) return;
+         this.timeRemaining--;
+         if(this.timeRemaining <= 0) {
+             this.endMission();
+         } else {
+             KC.core.updateStatusBar(`LAUNCH CODES | SCORE: ${this.score} | TIME: ${this.timeRemaining}`);
+             // v3.39.5: Alert Double-Beep countdown sequence
+             const t = this.timeRemaining;
+             if (t === 15 || t === 10 || (t <= 5 && t > 0)) {
+                 if (KC.audio && KC.audio.playSynth) KC.audio.playSynth(16);
+             }
+         }
+     }, 1000);
+ },
+Locate the `handleInput: function(e)` block. Replace the ENTIRE function with the following to add the verbose error reporting:
+ handleInput: function(e) {
+     if(!this.isActive) return;
+     // v3.39.4: Diagnostic Trap (Does NOT block input)
+     const now = Date.now();
+     const delta = now - this.lastDiagTime;
+     if (e.key === this.lastDiagKey && delta < 60) {
+         KC.core.announce(`Duplicate detected. Gap was ${delta} milliseconds.`);
+     }
+     this.lastDiagKey = e.key;
+     this.lastDiagTime = now;
+     if (e.key === " ") {
+         if(!this.timerInterval && this.state === "WAITING") {
+             this.start();
+             return;
+         }
+         if(this.state === "DONE" || this.state === "FAILED") {
+             this.generateCode();
+         }
+         return;
+     }
+     if(this.state === "DICTATING" || this.state === "DONE" || this.state === "FAILED" || this.state === "WAITING") return;
+     if (e.key === "ArrowDown") {
+         this.timeRemaining -= 10;
+         if (this.timeRemaining <= 0) {
+             this.timeRemaining = 0;
+             this.endMission();
+             return;
+         }
+         KC.core.announce("Time penalty. Repeating code.");
+         KC.core.updateStatusBar(`LAUNCH CODES | SCORE: ${this.score} | TIME: ${this.timeRemaining}`);
+         this.state = "DICTATING";
+         this.dictateCode();
+         return;
+     }
+     if (e.key.length === 1) {
+         if(this.zone === "Numbers (Numpad)" && !e.code.startsWith("Numpad")) {
+             if(KC.audio && KC.audio.playSound) KC.audio.playSound('error');
+             return;
+         }
+         if(this.zone === "Numbers (Number Row)" && !e.code.startsWith("Digit")) {
+             if(KC.audio && KC.audio.playSound) KC.audio.playSound('error');
+             return;
+         }
+         this.totalKeys++;
+         let typedChar = e.key.toUpperCase();
+         let targetChar = this.targetCode[this.currentIndex].toUpperCase();
+         if (typedChar === targetChar) {
+             this.currentIndex++;
+             if (this.currentIndex === this.targetCode.length) {
+                 this.state = "DONE";
+                 this.codesCleared++;
+                 // v3.39.4: ARIA Mutation Toggle
+                 this.ariaToggle = !this.ariaToggle;
+                 const successMsg = this.ariaToggle ? "Code accepted. Press Space for next code." : "Code verified. Press Space for next code.";
+                 KC.core.announce(successMsg);
+                 if(KC.audio && KC.audio.playSound) KC.audio.playSound('powerup');
+                 this.score += (this.targetCode.length * 10);
+             } else {
+                 if(KC.audio && KC.audio.playSound) KC.audio.playSound('click');
+             }
+         } else {
+             this.state = "FAILED";
+             this.errors++;
+             // v3.39.5: Verbose error reporting
+             KC.core.announce(`Code rejected. Expected ${targetChar}, but received ${typedChar}. Press Space for next code.`);
+             if(KC.audio && KC.audio.playSound) KC.audio.playSound('error');
+         }
+         this.updateDisplay();
+     }
+ },", 15 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_stream.js
+Thinking: Let me read both files first to understand their current state before making changes.
+Read mission_launch.js, lines 1 to 50
+Read kc_audio.js, lines 1 to 50
+Thinking: Now let me find the specific sections I need to modify. Let me look for the `playSynth` function in `kc_audio.js` and the `startTimer` and `handleInput` functions in `mission_launch.js`.
+Searched for text playSynth|case 17|case 16 (**/kc_audio.js), 2 results. Files: c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js
+Searched for text startTimer|handleInput (**/mission_launch.js), 3 results. Files: c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js
+Read kc_audio.js, lines 140 to 165
+Read mission_launch.js, lines 108 to 290
+Thinking: Now I have all the context I need. Let me make all the changes:
+1. `kc_audio.js`: Update version comment and add `case 16` before `case 17`
+2. `mission_launch.js`: Update version comment, replace `startTimer` function, replace `handleInput` function
+The `handleInput` function in `mission_launch.js` is almost identical to what's provided - the only change I can see is the error message:
+- Current: `KC.core.announce(`Code rejected. Incorrect key. Press Space for next code.`);`
+- New: `KC.core.announce(`Code rejected. 
+Expected ${targetChar}, but received ${typedChar}. Press Space for next code.`);`
+Let me make all the changes using multi_replace_string_in_file.
+Now I have everything I need. I can see the
+handleInput (c:\nbs\kc\mission_launch.js:200)
+function already has the diagnostic trap and most of the new code — only the error message in the else block differs. I'll apply all changes at once.
+Created 2 todos. 2 items: Update kc_audio.js version + case 16 (in-progress); Update mission_launch.js version + startTimer + handleInput (not-started)
+Replacing 3 lines with 4 lines in kc_audio.js
 ```
 ```
 ```
 ```
+Starting: Update mission_launch.js version + startTimer + handleInput (2/2). 2 items: Update kc_audio.js version + case 16 (completed); Update mission_launch.js version + startTimer + handleInput (in-progress)
+Replacing 18 lines with 20 lines in mission_launch.js
 ```
 ```
-Done:
+```
+```
+Completed: Update mission_launch.js version + startTimer + handleInput (2/2). 2 items: Update kc_audio.js version + case 16 (completed); Update mission_launch.js version + startTimer + handleInput (completed)
+All changes applied for v3.39.5:
 **
 kc_audio.js (/c:/nbs/kc/kc_audio.js)
-** — bumped to v3.39.3.
+**
+Version bumped to `v3.39.5`
+`case 16` (Alert Double-Beep) added between `case 4` and `case 17` in
+playSynth (c:\nbs\kc\kc_audio.js:110)
 **
 mission_launch.js (/c:/nbs/kc/mission_launch.js)
-** — bumped to v3.39.3, explosion sequence updated to: center at 0ms, −0.6 left at 300ms, +0.75 right at 700ms.
+**
+Version bumped to `v3.39.5`
+startTimer (c:\nbs\kc\mission_launch.js:108)
+replaced: old % 15 === 0 click-sound logic swapped for the new countdown triggers at t=15, t=10, and t≤5 using
+playSynth(16) (c:\nbs\kc\kc_audio.js:110)
+-
+handleInput (c:\nbs\kc\mission_launch.js:201)
+error branch updated: generic "Incorrect key" message replaced with verbose &quot;Expected X, but received Y&quot; reporting

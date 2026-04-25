@@ -1,4 +1,4 @@
-/* kc_audio.js - v3.39.3 */
+/* kc_audio.js - v3.39.5 */
 
 KC.audio = {
     ctx: null,
@@ -147,6 +147,7 @@ KC.audio = {
         switch(id) {
             case 3: playTone('triangle', 300, 600, 0.15, 0.25); break; // Floor Up
             case 4: playTone('triangle', 600, 300, 0.15, 0.25); break; // Floor Down
+            case 16: playSequence(['sine','sine'], [800, 800], 0.08, 0.2); break; // Alert Double-Beep
             case 17: playTone('sine', 200, 800, 0.4, 0.3); break;      // Power Up
             case 18: playTone('sine', 800, 200, 0.4, 0.3); break;      // Power Down
             case 23: playSequence(['square','square'], [200, 300], 0.1, 0.05); break; // Menu Select
