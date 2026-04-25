@@ -1,74 +1,47 @@
-Searched codebase for "Target Version: v3.45.1
-File to Update: mission_stream.js
+Searched codebase for "Target Version: v3.45.2
+File to Update: kc_data.js
 The Objective:
-We are evolving the "Data Dump" mission into a 3-round structure. We need to inject a 4000ms "spacer" (pause) before each phase begins. During this gap, the game must pause drops, clear the buffer, play specific audio cues, and then resume.
+Execute a quick hotfix (v3.45.2) to our global data dictionary. The game engine is successfully requesting three new phase announcement MP3s during the Data Dump mission, but because they are missing from our audio_bank, it is falling back to TTS. We need to register these assets.
 The Action Plan:
-Update the version header to `/* mission_stream.js - v3.45.1 */`.
-Add a new AudioContext function called `playResonanceCascade: function()` to the `KC.handlers.stream` object:
-```javascript
-playResonanceCascade: function() {
-    if (!KC.audio.ctx) return;
-    if (KC.audio.ctx.state === 'suspended') KC.audio.ctx.resume();
-    const now = KC.audio.ctx.currentTime;
-    [1,2,3,4,5,6,7,8].forEach((n, i) => {
-        const osc = KC.audio.ctx.createOscillator();
-        const gain = KC.audio.ctx.createGain();
-        osc.type = 'sine';
-        const t = now + (i * 0.28);
-        const dur = 1.5 - (i * 0.12);
-        osc.frequency.setValueAtTime(110 * n, t);
-        gain.gain.setValueAtTime(0.12, t);
-        gain.gain.exponentialRampToValueAtTime(0.01, t + dur);
-        osc.connect(gain); gain.connect(KC.audio.ctx.destination);
-        osc.start(t); osc.stop(t + dur);
-    });
-}", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js
-Thinking: The user wants to:
-1. Bump the version header to v3.45.1
-2. Add a new `playResonanceCascade` function to the `KC.handlers.stream` object
-I need to find a good insertion point for the new function. Let me look at the existing audio function `playDropSound` which is already in the object.
-Searched for text playDropSound: function( (**/mission_stream.js), 1 result. Files: c:\nbs\kc\mission_stream.js
-Read mission_stream.js, lines 85 to 125
-Replacing 5 lines with 24 lines in mission_stream.js
+Update the version header at the absolute top of the file to `/* kc_data.js - v3.45.2 */`.
+Locate the `audio_bank` object within the file.
+Scroll to the bottom of the `audio_bank` object (you should see the hazard explosion keys like `explode_7`).
+Add a comma after the final existing entry, and append the following three keys:
+"phase_1_snu": "audio/char/phase_1_snu.mp3",
+"phase_2_snu": "audio/char/phase_2_snu.mp3",
+"phase_3_snu": "audio/char/phase_3_snu.mp3"
+Output Constraints:
+To absolutely avoid output truncation limits, DO NOT output the entire file. Please output exactly two code blocks:
+The updated version header comment.
+The final 15 lines of the `audio_bank` object showing the successful injection of the new phase keys (make sure to include the closing `},` of the object so the syntax is clear).", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Thinking: Let me read the relevant parts of kc_data.js to find the version header and the end of the audio_bank object.
+Searched for text explode_7 (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 1 to 3
+Read kc_data.js, lines 855 to 868
+Replacing 4 lines with 7 lines in kc_data.js
 ```
 ```
 ```
 ```
-Checked mission_stream.js, no problems found
+Checked kc_data.js, no problems found
 Clean. Your two blocks:
 Block 1:
 ```
-/* mission_stream.js - v3.45.1 */
+/* kc_data.js - v3.45.2 */
 ```
-**Block 2 — new function (inserted between
-playDropSound (c:\nbs\kc\mission_stream.js:85)
-and
-triggerDrop (c:\nbs\kc\mission_stream.js:144)
-):**
+**Block 2 — final 15 lines of
+audio_bank (c:\nbs\kc\kc_data.js:199)
+:**
 ```
-    // v3.45.1: Harmonic cascade played at the start of each new phase.
-    playResonanceCascade: function() {
-        if (!KC.audio.ctx) return;
-        if (KC.audio.ctx.state === 'suspended') KC.audio.ctx.resume();
-        const now = KC.audio.ctx.currentTime;
-        [1,2,3,4,5,6,7,8].forEach((n, i) => {
-            const osc = KC.audio.ctx.createOscillator();
-            const gain = KC.audio.ctx.createGain();
-            osc.type = 'sine';
-            const t = now + (i * 0.28);
-            const dur = 1.5 - (i * 0.12);
-            osc.frequency.setValueAtTime(110 * n, t);
-            gain.gain.setValueAtTime(0.12, t);
-            gain.gain.exponentialRampToValueAtTime(0.01, t + dur);
-            osc.connect(gain); gain.connect(KC.audio.ctx.destination);
-            osc.start(t); osc.stop(t + dur);
-        });
-    },
+      "explode_1": "audio/sfx/hazards/explode_1.mp3",
+      "explode_2": "audio/sfx/hazards/explode_2.mp3",
+      "explode_3": "audio/sfx/hazards/explode_3.mp3",
+      "explode_4": "audio/sfx/hazards/explode_4.mp3",
+      "explode_5": "audio/sfx/hazards/explode_5.mp3",
+      "explode_6": "audio/sfx/hazards/explode_6.mp3",
+      "explode_7": "audio/sfx/hazards/explode_7.mp3",
+      "phase_1_snu": "audio/char/phase_1_snu.mp3",
+      "phase_2_snu": "audio/char/phase_2_snu.mp3",
+      "phase_3_snu": "audio/char/phase_3_snu.mp3"
+  },
 ```
-The function is placed immediately after
-playDropSound (c:\nbs\kc\mission_stream.js:85)
-and before
-triggerDrop (c:\nbs\kc\mission_stream.js:144)
-, grouped with the other AudioContext utilities. It's ready to be called from
-updatePhase (c:\nbs\kc\mission_stream.js:246)
-whenever you wire in the 4000ms phase-spacer logic.

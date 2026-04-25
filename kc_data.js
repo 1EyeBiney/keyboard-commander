@@ -1,4 +1,4 @@
-/* kc_data.js - v3.39.1 */
+/* kc_data.js - v3.45.2 */
 
 // v3.13: Full Board Expansion — maps event.key values to their _am audio assets.
 const AUDIO_MAP = {
@@ -858,7 +858,10 @@ const GAME_DATA = {
       "explode_4": "audio/sfx/hazards/explode_4.mp3",
       "explode_5": "audio/sfx/hazards/explode_5.mp3",
       "explode_6": "audio/sfx/hazards/explode_6.mp3",
-      "explode_7": "audio/sfx/hazards/explode_7.mp3"
+      "explode_7": "audio/sfx/hazards/explode_7.mp3",
+      "phase_1_snu": "audio/char/phase_1_snu.mp3",
+      "phase_2_snu": "audio/char/phase_2_snu.mp3",
+      "phase_3_snu": "audio/char/phase_3_snu.mp3"
   },
   
   resources: [
