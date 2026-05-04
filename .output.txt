@@ -1,47 +1,59 @@
-Searched codebase for "Target Version: v3.45.2
-File to Update: kc_data.js
-The Objective:
-Execute a quick hotfix (v3.45.2) to our global data dictionary. The game engine is successfully requesting three new phase announcement MP3s during the Data Dump mission, but because they are missing from our audio_bank, it is falling back to TTS. We need to register these assets.
-The Action Plan:
-Update the version header at the absolute top of the file to `/* kc_data.js - v3.45.2 */`.
-Locate the `audio_bank` object within the file.
-Scroll to the bottom of the `audio_bank` object (you should see the hazard explosion keys like `explode_7`).
-Add a comma after the final existing entry, and append the following three keys:
-"phase_1_snu": "audio/char/phase_1_snu.mp3",
-"phase_2_snu": "audio/char/phase_2_snu.mp3",
-"phase_3_snu": "audio/char/phase_3_snu.mp3"
-Output Constraints:
-To absolutely avoid output truncation limits, DO NOT output the entire file. Please output exactly two code blocks:
-The updated version header comment.
-The final 15 lines of the `audio_bank` object showing the successful injection of the new phase keys (make sure to include the closing `},` of the object so the syntax is clear).", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Thinking: Let me read the relevant parts of kc_data.js to find the version header and the end of the audio_bank object.
-Searched for text explode_7 (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Read kc_data.js, lines 1 to 3
-Read kc_data.js, lines 855 to 868
-Replacing 4 lines with 7 lines in kc_data.js
-```
-```
-```
-```
-Checked kc_data.js, no problems found
-Clean. Your two blocks:
-Block 1:
-```
-/* kc_data.js - v3.45.2 */
-```
-**Block 2 — final 15 lines of
-audio_bank (c:\nbs\kc\kc_data.js:199)
-:**
-```
-      "explode_1": "audio/sfx/hazards/explode_1.mp3",
-      "explode_2": "audio/sfx/hazards/explode_2.mp3",
-      "explode_3": "audio/sfx/hazards/explode_3.mp3",
-      "explode_4": "audio/sfx/hazards/explode_4.mp3",
-      "explode_5": "audio/sfx/hazards/explode_5.mp3",
-      "explode_6": "audio/sfx/hazards/explode_6.mp3",
-      "explode_7": "audio/sfx/hazards/explode_7.mp3",
-      "phase_1_snu": "audio/char/phase_1_snu.mp3",
-      "phase_2_snu": "audio/char/phase_2_snu.mp3",
-      "phase_3_snu": "audio/char/phase_3_snu.mp3"
-  },
-```
+Searched codebase for "System Check: Read project_brief.md. Recite the 'Current Status' line exactly as written to confirm uplink.
+Once confirmed, read .rules/audio_engine.md and .rules/accessibility.md to load the audio and UX constraints into your active memory.
+Task: We are executing Active Roadmap Item 1. Review mission_launch.js and generate the final ElevenLabs VO tutorial script for the Launch Codes mission. 
+Target Audience: Non-gamers and visually impaired users relying on screen readers.
+Requirements: You must explicitly explain the physical keyboard actions (e.g., Arrow keys to navigate, Enter to select, etc.) and clearly differentiate the rules for 'Shadow Mode' (type immediately) vs. 'Recall Mode' (wait for the tone). Keep the tone military, urgent, and highly explicit.", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\rules.md, c:\nbs\kc\rules.md, c:\nbs\kc\rules.md
+Thinking: I'm starting by reading through the required files.
+Searched for files matching **/.rules/**, 5 matches. Files: c:\nbs\kc\.rules\ux_ui.md, c:\nbs\kc\.rules\sentinels.md, c:\nbs\kc\.rules\audio_engine.md, c:\nbs\kc\.rules\async_state.md, c:\nbs\kc\.rules\accessibility.md
+Read project_brief.md
+Read mission_launch.js
+Read audio_engine.md
+Read accessibility.md
+Uplink Confirmed.
+Current Status: Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy is officially backburnered. Currently focusing on Audio script drafting and beta polish.
+Audio engine + accessibility constraints loaded. Proceeding with Roadmap Item 1.
+ElevenLabs VO Script — Mission: Launch Codes (v3.43.2)
+Voice Direction: Military command instructor. Clipped, urgent, authoritative. No warmth, no apology. Pause where marked [BEAT] (≈400ms) and [HOLD] (≈800ms). Every line is a discrete .mp3 so the engine can sequence them. File naming convention:
+audio/intros/launch_NN_<slug>.mp3 (c:\nbs\kc\mission_launch.js:115)
+.
+SECTION 1 — MISSION BRIEFING (Plays on mission entry, both modes)
+launch_01_briefing.mp3
+Operative. This is Launch Codes. [BEAT] Your task: intercept encrypted launch sequences, transcribe them keystroke for keystroke, and clear the channel before the timer expires. [HOLD] One wrong key rejects the entire code. Hesitation costs seconds. Seconds cost lives.
+launch_02_controls_core.mp3
+Listen carefully. Your keyboard is your console. [BEAT] To begin dictation of the first code, press the SPACE BAR — that is the long bar at the bottom of your keyboard, operated with either thumb. [BEAT] To repeat a code you missed, press the DOWN ARROW key. Be advised: repeating a code costs you ten seconds off the clock. [BEAT] To dump the diagnostic log for review, press PAGE UP. [BEAT] To abort the mission and return to the hub, press ESCAPE — top-left corner of your keyboard.
+launch_03_controls_typing.mp3
+When a code is dictated, you will type the characters you hear, in order, using the standard keys: number row, letter keys, or the symbol keys reached with SHIFT. [BEAT] If your assigned zone is Numpad, only the numeric keypad on the right side of your keyboard will register. Other keys will buzz and be ignored. [BEAT] After a code is accepted or rejected, press SPACE BAR to request the next code.
+SECTION 2 — SHADOW MODE BRIEFING
+launch_04_shadow_intro.mp3
+Mode selected: SHADOW. [BEAT] In Shadow Mode, you type along with the dictation in real time. [HOLD] As each character is spoken, you mirror it on the keyboard immediately. Do not wait. Do not pause. Match the cadence of the transmission. [BEAT] If you out-pace the dictation, the remaining characters are skipped — code accepted, channel cleared. Speed is rewarded.
+launch_05_shadow_rules.mp3
+Shadow Mode rules of engagement: [BEAT] One. Listen and type simultaneously. [BEAT] Two. The first wrong character rejects the entire code. [BEAT] Three. There is no "go" tone in Shadow Mode. The first character you hear is your cue to fire. [HOLD] Stand by for transmission.
+SECTION 3 — RECALL MODE BRIEFING
+launch_06_recall_intro.mp3
+Mode selected: RECALL. [BEAT] In Recall Mode, you do NOT type during dictation. [HOLD] You will listen to the entire code in silence, commit it to memory, and wait for the launch tone before typing a single key.
+launch_07_recall_tone.mp3
+The launch tone is a sharp, three-pulse synthetic chirp. It fires the instant dictation ends. That tone — and only that tone — is your authorization to type.
+launch_08_recall_penalty.mp3
+Warning. Any key pressed before the launch tone is an EARLY LAUNCH. [BEAT] Penalty: minus ten seconds. Your input buffer is wiped. The dictation continues, the tone still fires, and you must transcribe the code from the first character. [HOLD] Discipline, operative. Wait. For. The. Tone.
+launch_09_recall_rules.mp3
+Recall Mode rules of engagement: [BEAT] One. Listen in full silence. Hands off the keys. [BEAT] Two. Wait for the three-pulse tone. [BEAT] Three. Type the entire code from memory. [BEAT] Four. One wrong character rejects the code. [HOLD] Stand by for transmission.
+SECTION 4 — IN-MISSION CALLOUTS (already wired via
+KC.core.announce (c:\nbs\kc\mission_launch.js:4)
+; provide as VO overrides if desired)
+Trigger File Line
+start() (c:\nbs\kc\mission_launch.js:113)
+| launch_10_standby.mp3 | "Intercepting launch codes. Stand by." |
+| Code accepted (A) | launch_11_accept_a.mp3 | "Code accepted. Press space for next code." |
+| Code accepted (B) | launch_11_accept_b.mp3 | "Code verified. Press space for next code." |
+| Code rejected | launch_12_reject.mp3 | "Code rejected. Press space for next code." |
+| ArrowDown repeat | launch_13_repeat.mp3 | "Time penalty. Repeating code." |
+| Early launch (Recall) | launch_14_early.mp3 | "Early launch. Ten second penalty. Wait for the tone." |
+| Time expired | launch_15_expired.mp3 | "Time expired. Mission complete." |
+SECTION 5 — TUTORIAL FIRST-RUN COACH (plays once, before SECTION 1, on first mission entry)
+launch_00_first_run.mp3
+First run detected. Orientation follows. [BEAT] Your hands rest on the keyboard. The SPACE BAR is the long bar at the bottom — your "transmit" key. The ARROW KEYS sit at the lower right; the DOWN ARROW points downward and is your "repeat" key. The ESCAPE key sits alone at the top-left and aborts the mission. [HOLD] Throughout this mission, focus is locked to a hidden input field. You do not need to click anything. You do not need to find a cursor. Every keystroke is captured. [HOLD] Briefing begins now.
+Sequencing note for engineering: Mission entry should chain 00 → 01 → 02 → 03 → (04+05 | 06+07+08+09) based on
+KC.state.missionParams.mode (c:\nbs\kc\mission_launch.js:17)
+, then yield to the existing
+init() (c:\nbs\kc\mission_launch.js:75)
+prompt ("Press Space to dictate the first code"). Each file is independent so stopActiveAudio() (Sentinel S6) can cleanly kill the chain on Escape.

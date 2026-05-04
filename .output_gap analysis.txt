@@ -1,0 +1,242 @@
+Searched codebase for "System Directive: Senior Architectural Audit
+We have just implemented a "Watchdog Engine" to protect our codebase from AI-induced drift. The engine consists of a Hub (project_brief.md) and several technical Spokes (the .rules/ folder). 
+Your task is to perform a strict Gap Analysis to ensure we haven't missed any load-bearing architectural rules.
+Read `project_brief.md` and all files inside the `.rules/` folder.
+Deep-scan the core codebase (`kc_core.js`, `kc_data.js`, `mission_launch.js`, `mission_stream.js`).
+Cross-reference the code against the Watchdog Engine.
+Identify any critical invariants that exist in the code but are MISSING from our documentation. Pay specific attention to:
+The exact structure and routing requirements of the `GAME_DATA.audio_bank` in `kc_data.js` (e.g., how the engine expects keys to be formatted and mapped).
+Mission-specific state objects or mechanics that must never be altered.
+Any hardcoded global variables or persistence mechanics (`KC.state`, `localStorage`) not adequately protected by the current Spokes.
+Do not write or refactor any code. Output a concise, bulleted "Threat Report" detailing what rules are missing, and suggest exactly which Watchdog file (Hub or a specific Spoke) should be updated to include them.", 18 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\rules.md
+Thinking: I need to review the rules files and core code to understand what's currently implemented and identify gaps for the analysis.
+Read .rules
+Read sentinels.md
+Read async_state.md
+Read ux_ui.md
+Read kc_data.js, lines 1 to 120
+Read mission_stream.js, lines 1 to 200
+Read kc_core.js, lines 1 to 200
+Searched for regex audio_bank|_snu|_am|playAudio\( (**/kc_data.js), 40 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Searched for text audio_bank, 38 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\assets.js, c:\nbs\kc\assets.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\rules.md, c:\nbs\kc\rules.md.bak, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt
+Searched for regex missionParams|missionState|streamBuffer|dictationId, 40 results. Files: c:\nbs\kc\.output.txt, c:\nbs\kc\.changelog.md, c:\nbs\kc\.rules\async_state.md, c:\nbs\kc\.rules\async_state.md, c:\nbs\kc\.rules\async_state.md, c:\nbs\kc\.rules\async_state.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Read kc_data.js, lines 195 to 340
+Thinking: Let me quickly verify the input flushing behavior and a couple other edge cases.
+Searched for regex phase_\d+_snu|ck_char_|_snu|word_ju_|sn_\d, 25 results. Files: c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\watchdog1.txt, c:\nbs\kc\mission_stream.js
+Searched for regex flush|preventDefault|input-trap (**/kc_input.js), 20 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
+Thinking: I've gathered enough information to put together the threat report now. The main gaps I'm identifying in the Watchdog documentation center around the `audio_bank` key naming system—specifically how voice suffixes map to different voice options like Amelia, Belle, Junie, and Commander Keyboard, along with their corresponding prefixes and conventions.
+There's also a critical inconsistency between how `audio_bank` stores paths with `.mp3` extensions while `AUDIO_MAP` omits them, and routing mismatches in the countdown logic where different modules reference the same audio assets using incompatible key formats. Beyond that, the relationship between `AUDIO_MAP` and `audio_bank` as parallel dictionaries lacks any documented source of truth, the `KC.state.missionParams` contract isn't pinned down anywhere, and the `localStorage` profile persistence schema has been evolving without formal specification.
+Storage keys are hardcoded but unprotected, there's a numbering gap in the sentinel documentation (S2 is referenced but doesn't exist, and S5 is missing), and several mission-critical behaviors like the 3-round phase structure with 4000ms breaks, dictation chunking rules, and the early launch counter-intuitive behavior of not bumping the dictationId are mentioned in briefs but never formalized as invariants. The forensic dump trigger via PageUp is documented but the actual implementation in mission_launch appears incomplete. ements its OWN `dumpDiag()` on PageUp directly, not via `KC.core`. Spoke is wrong/aspirational vs reality.
+9. **Hardcoded DOM IDs** spoke is good but missing `#game-header`, `#game-footer`, `#boot-screen`, `#btn-init` — all referenced in `kc_core.init`.
+10. **Ghost-key S4** only documented for `handleInput`; PageUp dump in mission_launch does NOT check `e.repeat`. Held PageUp would re-spawn dump textareas. Either the rule needs widening or the implementation needs an audit (Roadmap #2 implies the audit is pending).
+11. **`KC.handlers.*` namespace** — mission_stream uses `KC.handlers.stream`, mission_launch uses `KC.mission_launch`. Inconsistent module attachment isn't pinned anywhere.
+12. **Mouse listener exists** in `kc_core.bootSystem` — `KC.els.btnInit.addEventListener('click', ...)`. ux_ui.md says no mouse events. Bootstrap exception isn't documented.
+13. **Symbol filename typos** baked in (`sym_Underscore_am` capital U; `sym_semi_colonr_am`/`sym_colonr_am` extra `r`; `Raft_ju` capital R). These are real assets — Spoke should warn "filenames are case-sensitive and intentionally typo'd; do not 'fix' them."
+14. **`#input-trap` focus** — no rule about restoring focus after `dumpDiag` shifts it to a textarea. After Ctrl+C the user must refresh, leaving the trap unfocused. Accessibility spoke should flag this exit path.
+Watchdog Gap Analysis — Threat Report
+T1 —
+audio_bank (c:\nbs\kc\kc_data.js:199)
+Routing Contract Is Undocumented (CRITICAL)
+The codebase carries an unwritten taxonomy that any AI editor will violate within one round:
+**Voice suffixes:** `_am`/`_ame` = Amelia, `_sn`/`_snu` = Belle (Southern Neutral), `_ju` = Junie (Race), `ck_char_` = Commander Keyboard. No spoke names them.
+**Prefix families:** `char_`, `num_`, `num_sn_`, `sym_`, `word_`, `word_ju_`, `phase_N_snu`, `mu_*` (BGM).
+**Extension trap:**
+audio_bank (c:\nbs\kc\kc_data.js:199)
+values include `.mp3`;
+AUDIO_MAP (c:\nbs\kc\kc_data.js:4)
+values omit `.mp3` (engine appends it). Two parallel dictionaries, opposite conventions.
+**Number key collision:** countdown uses `num_sn_3`; stream uses `num_${char}_snu`; launch (Belle) uses `num_${char}_snu`. Three competing key shapes for the same digit family.
+→ **Add to
+audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
+** as a "Audio Asset Key Contract" section pinning suffix taxonomy, prefix families, the .mp3-inclusion rule per dictionary, and the canonical digit key.
+T2 —
+KC.state.missionParams (c:\nbs\kc\kc_core.js:35)
+Schema Is Unprotected
+Live fields consumed by the engine:
+voice (c:\nbs\kc\mission_launch.js:32)
+, launchMode/
+mode (c:\nbs\kc\kc_core.js:163)
+,
+codeLength (c:\nbs\kc\kc_data.js:166)
+,
+difficulty (c:\nbs\kc\kc_data.js:147)
+,
+lengthMode (c:\nbs\kc\kc_mission_core.js:610)
+,
+regionMode (c:\nbs\kc\kc_data.js:147)
+,
+reflexMode (c:\nbs\kc\mission_stream.js:70)
+,
+region (c:\nbs\kc\mission_stream.js:64)
+. Nothing pins this contract; an AI rewrite of the setup screen will silently drop a field and break a mission.
+→ New spoke `.rules/mission_params.md` OR append a "Mission Param Contract" block to
+async_state.md (/c:/nbs/kc/.rules/async_state.md)
+.
+T3 — Profile /
+localStorage (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44082)
+Schema Drift
+createProfile() (c:\nbs\kc\kc_core.js:90)
+and
+resetProgress() (c:\nbs\kc\kc_core.js:137)
+produce non-isomorphic profile objects (createProfile has
+wallet.consecutive_coins (c:\nbs\kc\kc_core.js:97)
+,
+career.history_buffer (c:\nbs\kc\kc_core.js:98)
+,
+career.zone_stats (c:\nbs\kc\kc_core.js:98)
+,
+settings (c:\nbs\kc\kc_core.js:96)
+; resetProgress has
+inventory.patches (c:\nbs\kc\kc_core.js:143)
+,
+mission_records (c:\nbs\kc\kc_core.js:144)
+, neither has
+settings (c:\nbs\kc\kc_core.js:96)
+).
+loadProfile() (c:\nbs\kc\kc_core.js:108)
+is patching missing keys at runtime — that's drift, not design.
+→ New spoke `.rules/persistence.md` pinning: kbc_roster,
+kbc_profile_<name> (c:\nbs\kc\kc_data.js:906)
+keys; canonical profile shape; rule that
+createProfile (c:\nbs\kc\kc_core.js:90)
+/
+resetProgress (c:\nbs\kc\kc_core.js:137)
+/
+loadProfile (c:\nbs\kc\kc_core.js:108)
+must remain shape-equivalent.
+T4 — Sentinel Numbering Gap
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+defines S1, S3, S4, S6, S7, S8. S2 and S5 are referenced in code/other spokes (
+async_state.md (/c:/nbs/kc/.rules/async_state.md)
+calls the dictationId pattern "Sentinel S2",
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+cites "Sentinel S2/S3" for early-launch handling) but are not defined in
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+.
+→ **Update
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+**: insert S2 (Async Cancellation Tokens) and S5 (placeholder or repurpose). Cross-link to
+async_state.md (/c:/nbs/kc/.rules/async_state.md)
+.
+T5 — Mission-Local Invariants Missing from Hub/Spokes
+The Hub mentions "strict
+dictationId (c:\nbs\kc\mission_launch.js:100)
+token pattern" and "3-round phase system with 4000ms breaks" but never the load-bearing per-mission rules:
+Launch state whitelist: `{WAITING, STARTING, DICTATING, TYPING, DONE, FAILED}`.
+Launch chunking: codeLength==4 uses 2+2 split.
+Recall "Go" cue is
+playSynth(23) (c:\nbs\kc\mission_launch.js:133)
+fired three times for amplitude summing — an AI will "deduplicate" this on sight.
+Recall early-launch handler **must NOT bump
+dictationId (c:\nbs\kc\mission_launch.js:100)
+** (counter-intuitive; the chain has to keep running so the tone fires).
+Stream phase break sets
+isActive=false (c:\nbs\kc\mission_launch.js:13)
+AND clears
+dropTimer (c:\nbs\kc\mission_stream.js:7)
+before the 4000ms
+phaseTimer (c:\nbs\kc\mission_stream.js:8)
+.
+→ **Promote to
+project_brief.md (/c:/nbs/kc/project_brief.md)
+§5 Decisions** as numbered, terse invariants; Spokes are too generic for these.
+T6 — Forensic Dump Spoke Contradicts Implementation
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+asserts PageUp calls
+KC.core.triggerForensicDump() (c:\nbs\kc\kc_core.js:35)
+. Reality:
+mission_launch.handleInput (c:\nbs\kc\mission_launch.js:287)
+calls its own
+this.dumpDiag() (c:\nbs\kc\mission_launch.js:156)
+directly. Other missions don't implement it at all.
+→ **Fix
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+**: either rename to "missions MAY expose
+dumpDiag (c:\nbs\kc\mission_launch.js:156)
+on PageUp" or mandate a real
+KC.core.triggerForensicDump (c:\nbs\kc\kc_core.js:35)
+shim and route all missions through it.
+T7 — Hardcoded DOM IDs List Is Incomplete
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+lists 5 IDs.
+kc_core.init() (c:\nbs\kc\kc_core.js:39)
+also depends on
+#game-header (c:\nbs\kc\kc_core.js:40)
+,
+#game-footer (c:\nbs\kc\kc_core.js:41)
+, #boot-screen,
+#btn-init (c:\nbs\kc\kc_core.js:39)
+. Renaming any of these silently bricks boot.
+→ **Update
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+** DOM ID list.
+T8 — S4 Ghost-Key Filter Has Holes
+PageUp dump branch in
+mission_launch.handleInput (c:\nbs\kc\mission_launch.js:287)
+runs before an
+e.repeat (c:\nbs\kc\mission_launch.js:271)
+check exists for the dump path. Held PageUp will spawn duplicate textareas and shift focus repeatedly. Roadmap #2 (S4 audit) acknowledges this is partial.
+→ **Tighten
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+S4**: clarify the gate must precede all branches including diagnostics, not just typing comparisons.
+T9 — Mouse Listener Exception Undeclared
+kc_core.bootSystem (c:\nbs\kc\kc_core.js:61)
+registers a click handler on
+#btn-init (c:\nbs\kc\kc_core.js:39)
+.
+ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
+says mouse events are banned with no exceptions.
+→ **Update
+ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
+**: explicitly carve out the boot-gesture click as the ONLY permitted mouse listener (browser autoplay policy requires user gesture for
+AudioContext.resume() (c:\nbs\kc\kc_core.js:63)
+).
+T10 — Filename "Typos" Are Load-Bearing
+Real assets: sym_Underscore_am (capital U), sym_semi_colonr_am, sym_colonr_am (trailing r), Raft_ju.mp3 (capital R). These are case-sensitive on the deployed host. An AI "cleanup" will 404 the asset.
+→ **Add to
+audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
+**: "Filenames are case-sensitive and intentionally non-canonical. Do not normalize spelling/casing of audio paths."
+T11 — Module Attachment Inconsistency
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
+attaches as
+KC.handlers.stream (c:\nbs\kc\kc_core.js:35)
+;
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+attaches as
+KC.mission_launch (c:\nbs\kc\kc_core.js:35)
+.
+KC.handlers (c:\nbs\kc\kc_core.js:35)
+is not even initialized in
+kc_core.js (/c:/nbs/kc/kc_core.js)
+'s
+KC (c:\nbs\kc\kc_core.js:35)
+literal. Any AI doing a "consistency pass" will pick one and break the other.
+→ **Add to
+project_brief.md (/c:/nbs/kc/project_brief.md)
+§4 Invariants** (or new Spoke .rules/namespacing.md): pin both attachment points and document
+KC.handlers (c:\nbs\kc\kc_core.js:35)
+as an implicit, lazily-created namespace.
+T12 — Input Trap Focus Recovery Path Missing
+dumpDiag() (c:\nbs\kc\mission_launch.js:156)
+shifts focus to a &lt;textarea&gt; and sets this.isActive = false, but never restores focus to #input-trap on dismissal — the user is told to refresh the browser. That works, but is undocumented and easily "fixed" wrong by an AI.
+→ **Add to
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+** Input Trap section: dump/diagnostic overlays must require a full reload to dismiss; do not auto-restore focus.
+Summary of Recommended Edits
+File Action
+project_brief.md (/c:/nbs/kc/project_brief.md)
+§4/§5 | Add T5 (mission invariants), T11 (namespacing) |
+|
+audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
+| Add T1 (key contract), T10 (filename immutability) |
+|
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+| Fix T6, T7, T12 |
+|
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+| Fix T4 (define S2/S5), tighten T8 (S4) |
+|
+ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
+| Add T9 (boot click exception) |
+| NEW .rules/mission_params.md | T2 |
+| NEW .rules/persistence.md | T3 |

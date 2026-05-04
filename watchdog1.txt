@@ -1,0 +1,166 @@
+Searched codebase for "System Directive: We are initializing a "Watchdog Engine" to maintain strict architectural context for this project. To build the central "Hub" document, I need you to perform a deep-scan of the current codebase and extract our foundational rules.
+Please review our core files (specifically kc_core.js, kc_mission_core.js, mission_launch.js, and mission_stream.js) and provide a highly concise, bulleted technical summary answering these 4 specific areas:
+The Core Vision & Audience: Based on our heavy use of TTS, audio cues, and specific keyboard routing, what is the apparent primary demographic and goal of this game?
+The Tech Stack Constraints: What are the exact technologies, audio APIs, and scripts we are using? Explicitly confirm if this is a zero-dependency architecture or if we are using external frameworks.
+UX/UI Invariants: What are the hard, unbreakable rules for user input and interface navigation? (e.g., keyboard routing constraints, arrow keys vs. mouse usage).
+Current State & Immediate Roadmap: Briefly summarize the most recently implemented mechanics in Launch Codes and Data Dump, and identify what the code suggests we should tackle next (e.g., any pending technical debt, economy/wallet alignment, or beta polish).
+Keep your output strictly to the facts found in the code.", 19 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\rules.md
+Thinking: I need to look through the codebase to understand what's happening and pull out the key technical details for the summary.
+Read rules.md
+Read README.md
+Thinking: I've got what I need from the rules documentation, so now I'm checking the launch and stream missions to see what mechanics have been recently implemented and what the current version is.
+Read mission_launch.js, lines 1 to 5
+Read audio_bank_update.txt
+Read mission_stream.js, lines 1 to 5
+Read kc_core.js, lines 1 to 5
+Read kc_mission_core.js, lines 1 to 5
+Based on the deep-scan of
+rules.md (/c:/nbs/kc/rules.md)
+, the four core JS files, and supporting workspace state, here is the strict-facts summary for the Watchdog Hub:
+1. Core Vision & Audience
+**Genre:** Audio-first Typing RPG / Rhythm Game (per
+rules.md#L34 (/c:/nbs/kc/rules.md:34)
+§1).
+**Primary demographic:** Blind / low-vision users running screen readers (NVDA, JAWS) — confirmed by `role="application"` latch in
+kc_core.js init() (c:\nbs\kc\kc_core.js:39)
+, central
+KC.core.announce() (c:\nbs\kc\kc_core.js:161)
+→
+#live-region (c:\nbs\kc\kc_mission_core.js:67)
+ARIA pipeline, and explicit ban on browser modals.
+**Goal:** Build muscle memory for real-world screen reader navigation; latency target < 20ms instant audio feedback ([rules.md L34](rules.md#L34)).
+**Curriculum vehicle:** 9-Quadrant progression (Alpha 1–4, Data 5–8, Control 9) — system-modifier keys (`Esc`, `Tab`, `CapsLock`, `Shift`, `Ctrl`, `Alt`, `Meta`) permanently banned as targets.
+2. Tech Stack Constraints
+**Zero-dependency / zero-framework.** Confirmed: Headless HTML5 + CSS3 + Vanilla JS, single
+style.css (/c:/nbs/kc/style.css)
+, top-level JS files only (rules.md §1).
+**Audio APIs (hybridized):**
+- Native `AudioContext` synth (`playTone`, `playSequence`,
+playSynth (c:\nbs\kc\kc_mission_core.js:352)
+) for instant system feedback (clicks, beeps, hit markers).
+HTML5
+Audio (/c:/nbs/kc/Audio)
+objects for ambient tracks + voiceovers (avoids screen reader TTS ducking).
+**Core scripts:**
+kc_core.js (/c:/nbs/kc/kc_core.js)
+v3.37.0,
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+v3.43.1,
+kc_audio.js (/c:/nbs/kc/kc_audio.js)
+,
+kc_bgm.js (/c:/nbs/kc/kc_bgm.js)
+,
+kc_data.js (/c:/nbs/kc/kc_data.js)
+,
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+,
+kc_input.js (/c:/nbs/kc/kc_input.js)
+,
+kc_tutorial.js (/c:/nbs/kc/kc_tutorial.js)
+, plus mission files (
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+v3.43.2,
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
+v3.45.1, race/reflex/echoc/succession).
+**Persistence:**
+localStorage (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44082)
+only — Master Roster kbc_roster + isolated kbc_profile_[Name] keys.
+**Namespace:** Single global
+KC.* (c:\nbs\kc\kc_core.js:35)
+; missions self-register on
+window.KC (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:43648)
+.
+3. UX/UI Invariants (Hard Rules)
+**No browser modals, ever** — `alert`/`confirm`/`prompt` forbidden (Sentinel S7).
+**Always-focused `#input-trap`** is the only keyboard intake; aggressive
+KC.input.flush() (c:\nbs\kc\kc_core.js:35)
+between events.
+**Keyboard-only navigation; no mouse paths in gameplay.**
+- Up/Down = vertical select; Left/Right = category/tab switch + value adjust (2D menu system).
+- `Enter` = Advance/Confirm/Boot; `Escape` = Abort/Exit/Step Back.
+- First-letter jump required on rosters/inventories.
+- 2D Archive grids: Y = entries, X = metrics, with "Entry N of M" announcements.
+**`if (e.repeat) return;`** must be the first line of every mission
+handleInput (c:\nbs\kc\kc_mission_core.js:646)
+(Sentinel S4 — currently missing across all missions; flagged debt).
+**Whitelist state guards only** (Sentinel S1) — never blacklist `||` chains.
+**No Hub quick-starts** — `Enter` at Hub root opens Game Menu only; never auto-launch a mission.
+**Tilde/backtick reserved for Punctuation quadrant** — cannot be dev hotkeys.
+**Hard reset =
+location.reload() (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:23439)
+** (required to tear down AudioContext).
+**Hub-transition killswitch order (Sentinel S6):** `stopIntro()` →
+stopActiveAudio() (c:\nbs\kc\kc_mission_core.js:715)
+→
+KC.input.flush() (c:\nbs\kc\kc_core.js:35)
+→
+KC.hub.enterHub() (c:\nbs\kc\kc_core.js:35)
+.
+4. Current State & Immediate Roadmap
+**Recently implemented:**
+- **Launch Codes (
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+v3.43.2):** Full async-token (
+dictationId (c:\nbs\kc\mission_launch.js:100)
+) pattern is the only complete implementation in the codebase; supports type-along/shadow typing during DICTATING; +300ms pre-broadcast buffer + +100ms intra-char delay for 6+ digit sequences; verbose "Expected X, received Y" diagnostics; mutation-toggle announcements (Code accepted ↔ Code verified); PageUp forensic dump pattern.
+**Data Dump (Stream —
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
+v3.45.1):** Registered under
+KC.handlers.stream (c:\nbs\kc\kc_core.js:35)
+; integrated with BGM
+switchToStyle('data') (c:\nbs\kc\kc_mission_core.js:137)
+style swaps.
+New phase voiceover assets staged in
+audio_bank_update.txt (/c:/nbs/kc/audio_bank_update.txt)
+(phase_1_snu, phase_2_snu, phase_3_snu, phase_ju) — pending paste into
+kc_data.js (/c:/nbs/kc/kc_data.js)
+audio_bank.
+**Immediate roadmap / pending technical debt (explicit in
+rules.md (/c:/nbs/kc/rules.md)
+):**
+**Wallet alignment (Sentinel S5):** `mission_stream` and
+mission_launch (c:\nbs\kc\mission_launch.js:4)
+award only
+data_blocks (c:\nbs\kc\kc_core.js:97)
+; mission_race skips
+sync_sparks (c:\nbs\kc\kc_core.js:97)
++
+consecutive_coins (c:\nbs\kc\kc_core.js:97)
+. Must replicate full 5-tier (
+data_blocks (c:\nbs\kc\kc_core.js:97)
+,
+logic_shards (c:\nbs\kc\kc_core.js:97)
+,
+sync_sparks (c:\nbs\kc\kc_core.js:97)
+,
+consecutive_coins (c:\nbs\kc\kc_core.js:97)
+,
+glitch (c:\nbs\kc\kc_core.js:97)
+) or delegate to
+kc_mission_core.completeLesson() (c:\nbs\kc\kc_mission_core.js:742)
+.
+  2. **
+e.repeat (c:\nbs\kc\kc_mission_core.js:646)
+filter (Sentinel S4):** Add to every mission
+handleInput (c:\nbs\kc\kc_mission_core.js:646)
+on next touch.
+  3. Audio killswitch gap (Sentinel S6):
+kc_input.js (/c:/nbs/kc/kc_input.js)
+MISSION_START Escape branch calls stopIntro() but skips
+stopActiveAudio() (c:\nbs\kc\kc_mission_core.js:715)
+.
+  4. Async token propagation (§4.2): Generalize the
+dictationId (c:\nbs\kc\mission_launch.js:100)
+pattern from
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+to
+mission_race.js (/c:/nbs/kc/mission_race.js)
+(current spellTimers[] leaks on mid-mission abort) and any new audio-chain mission.
+  5. Audio bank merge: Commit phase announcement entries from
+audio_bank_update.txt (/c:/nbs/kc/audio_bank_update.txt)
+into
+kc_data.js (/c:/nbs/kc/kc_data.js)
+.
+  6. Beta polish: Tutorial path (
+kc_tutorial.js (/c:/nbs/kc/kc_tutorial.js)
+) and Dev Console gating (BRIAN / *bot*) are present but not flagged as feature-complete in rules.
