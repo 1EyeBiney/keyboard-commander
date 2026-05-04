@@ -1,26 +1,18 @@
-\# Watchdog Spoke: Audio Architecture
+# Watchdog Spoke: Audio Architecture
 
+## The Hybrid Stack
+* **Web Audio API (`KC.audio.ctx`):** Used strictly for instant, synthesized sound effects (beeps, hazards, UI clicks). Zero latency.
+* **HTML5 `<audio>` Elements:** Used for background music (BGM) and Voiceover (VO).
 
+## Screen Reader Ducking Prevention
+* **Rule:** Do NOT use the Web Audio API for Voiceover. 
+* **Why:** Screen readers will "duck" (lower the volume of) standard HTML5 audio, allowing the TTS to be heard. They do not duck Web Audio API oscillators, which will drown out the screen reader.
 
-\## The Hybrid Stack
+## Music Transitions
+* **Rule:** Use `KC.audio.switchToStyle(styleName)`. 
+* **Execution:** This function handles the crossfading. Never manually manipulate HTML5 audio volume or source paths directly inside mission files.
 
-\* \*\*Web Audio API (`KC.audio.ctx`):\*\* Used strictly for instant, synthesized sound effects (beeps, hazards, UI clicks). Zero latency.
-
-\* \*\*HTML5 `<audio>` Elements:\*\* Used for background music (BGM) and Voiceover (VO).
-
-
-
-\## Screen Reader Ducking Prevention
-
-\* \*\*Rule:\*\* Do NOT use the Web Audio API for Voiceover. 
-
-\* \*\*Why:\*\* Screen readers will "duck" (lower the volume of) standard HTML5 audio, allowing the TTS to be heard. They do not duck Web Audio API oscillators, which will drown out the screen reader.
-
-
-
-\## Music Transitions
-
-\* \*\*Rule:\*\* Use `KC.audio.switchToStyle(styleName)`. 
-
-\* \*\*Execution:\*\* This function handles the crossfading. Never manually manipulate HTML5 audio volume or source paths directly inside mission files.
-
+## Audio Asset Key Contract
+* **Rule:** Filenames are case-sensitive and intentionally non-canonical. 
+* **Convention:** Keys often end in specific suffixes (e.g., `_am`, `_snu`, `_ju`, `ck_char_`). 
+* **Strict Constraint:** Never "fix" spelling or casing in `audio_bank` or filenames. If a key is `sym_Underscore_am` (capital U), it MUST remain `sym_Underscore_am`. Normalizing these will break the 404-routing.
