@@ -1,79 +1,59 @@
-Searched codebase for "Status Confirmed. Architecture approved. 
-Here are the executive decisions for the Open Questions:
-Input Cadence: Strict letter-by-letter. Input must be blocked while Amelia's VO is playing to prevent buffer overflow.
-Retry Policy: Auto-replay the original animal audio and Amelia's prompt after 3 consecutive wrong keys on the same letter.
-Career Gating: This is a parallel "library" mode. It does not feed into the main 9-Quadrant career stats. 
-Zone Selection: Instead of physical keyboard regions, the setup screen will select "Archive Volumes" based on word length and key rarity (e.g., Vol 1: 3-4 letters, Vol 2: 5-6 letters, Vol 3: Rare keys like Q/Z/X).
-Task: Proceed to Code Generation.
-Please write the initial mission_archive.js file. Include:
-The `GAME_DATA.archive_vocab` sample array (give me 2 animals for Vol 1, and 1 for Vol 3).
-The complete fractional Proximity Matrix (the [X,Y] map).
-The core `KC.handlers.archive` and `KC.mission.archive` dual-attachment boilerplate.
-The `handleInput` function demonstrating Sentinel S4 compliance and the distance calculation logic to trigger directional feedback.
-Do not write the setup/UI screen yet. Focus entirely on the core game loop, state machine, and matrix logic. Ensure Sentinel S2 (Async Tokens) is rigidly applied to the audio feedback chains.", 26 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js
-Thinking: I'm checking the existing missions to understand the naming patterns and structure before I write new ones.
-Searched for regex playVO|playSFX|playSample|stopActiveAudio (**/kc_audio.js), 11 results. Files: c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js
-Read mission_launch.js, lines 1 to 120
-Read kc_mission_core.js, lines 1 to 80
-Searched for regex activeHandler|handleInput|flush (**/kc_input.js), 20 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
-Read kc_audio.js, lines 155 to 240
-Read kc_input.js, lines 140 to 200
-Thinking: I'm tracing through the input handling flow — `KC.mission.handleInput(e)` acts as the central router, and I need to understand how missions connect through the `activeHandler` mechanism.
-Searched for regex activeHandler|handleInput|abortActiveMission (**/kc_mission_core.js), 14 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
-Thinking: I'm seeing the delegation pattern now: `KC.mission.activeHandler` holds the current mission object, and the global `KC.mission.handleInput()` routes events to whichever handler is active. The user wants to split this into two separate namespaces — `KC.handlers.archive` for managing input and events, and `KC.mission.archive` for the game loop — but there's a naming conflict since `KC.mission` is already the global namespace itself.
-Looking at the existing codebase, missions use the `KC.mission_launch` pattern (top-level properties), not nested under `KC.mission`. However, the namespacing rules specify `KC.handlers.[name]` and `KC.mission.[name]`, so I should follow that convention even though it means adding `KC.mission.archive` as a property alongside the existing `activeHandler` and `handleInput` methods — that's fine since `KC.mission` is just a plain object.
-Now I'm putting together the actual file with the core pieces: sample vocabulary data from different volumes, proximity and letter feedback structures, the key grid constant, the input handler with its event routing, and the mission object with the state machine including distance calculation, proximity picking, grading logic, correct/wrong callbacks, letter prompting, start/stop lifecycle, and replay logic for the three-miss auto-repeat, all using strict S2 tokens.
-Writing the archive mission file...
-Created mission_archive.js
-Created
+Searched codebase for "System Check: Read project_brief.md, .rules/audio_engine.md, and .rules/sentinels.md. Acknowledge constraints.
+Task: Watchdog Update Cycle - Version 3.46.1.
+We are injecting the audio assets for the new "Earth Archive" mission into the global data layer.
+Review `kc_data.js`, specifically the `GAME_DATA.audio_bank` object.
+Inject the following 11 new assets into that audio bank.
+Apply the 'Audio Asset Key Contract' (from `audio_engine.md`): You must preserve the exact suffixes, spelling, and case structure of these new keys. Do not normalize them.
+Apply Sentinel S8 (Anti-Truncation): Output the ENTIRE, fully merged `audio_bank` object block so I can safely paste it over the existing object without losing any legacy keys. Do not use placeholder comments.
+New Assets to Inject:
+    "dir_down_1_snu": "audio/mg_archive/dir_down_1_snu.mp3",
+    "dir_left_1_snu": "audio/mg_archive/dir_left_1_snu.mp3",
+    "dir_right_1_snu": "audio/mg_archive/dir_right_1_snu.mp3",
+    "dir_up_1_snu": "audio/mg_archive/dir_up_1_snu.mp3",
+    "intro_bear_snu": "audio/mg_archive/intro_bear_snu.mp3",
+    "intro_lion_snu": "audio/mg_archive/intro_lion_snu.mp3",
+    "locate_b_snu": "audio/mg_archive/locate_b_snu.mp3",
+    "locate_l_snu": "audio/mg_archive/locate_l_snu.mp3",
+    "success_bear_snu": "audio/mg_archive/success_bear_snu.mp3",
+    "success_lion_snu": "audio/mg_archive/success_lion_snu.mp3",
+    "sym_caratt_snu": "audio/symbols/sym_caratt_snu.mp3"", 25 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.rules\audio_engine.md, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_stream.js
+Thinking: I need to load the project brief, audio engine, and sentinels files, then examine the audio bank object in kc_data.js to see what needs to be merged together.
+Searched for text audio_bank (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 195 to 700
+Thinking: Looking for the closing brace of the audio_bank object to understand its full structure.
+Searched for regex ^  \}|^\};|ck_mut_ack (**/kc_data.js), 9 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Thinking: I see the audio_bank object closes at line 865, so I need to insert 11 new keys before that closing brace. The user explicitly asked for the entire merged object so they can paste it over the existing one, though I could also use a file replacement function to edit it in place instead.
+There's a conflict here: the user's Sentinel S8 directive wants the full block output to prevent losing legacy keys, but the project brief's Diff-Only principle says to avoid full-file rewrites and use surgical edits. The best approach is to edit the file directly with a surgical insertion before the closing brace—this preserves all legacy keys by definition and respects the diff-only constraint. I'll report back with a summary of what was added rather than outputting all 666 lines.
+Let me locate the exact insertion point around line 865.
+Read kc_data.js, lines 855 to 870
+Thinking: I need to respect the project directives here—surgical edits only, no full rewrites. This actually aligns better with the concern about preserving legacy keys anyway. I'll insert the new keys with a tight diff and explain the reasoning.
+For placement, I'm adding a trailing comma to the `phase_3_snu` entry and appending the new block right before the closing brace of `audio_bank`, keeping the structure clean and minimal.
+Constraints acknowledged:
+**
+project_brief.md (/c:/nbs/kc/project_brief.md)
+— Current Status:** "Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy is officially backburnered. Currently focusing on Audio script drafting and beta polish."
+**Audio Asset Key Contract:** keys preserved verbatim — `dir_*_1_snu`, `intro_*_snu`, `locate_*_snu`, `success_*_snu`, and `sym_caratt_snu` (note: double-
+t (c:\nbs\kc\mission_launch.js:131)
+, intentional, distinct from existing sym_carat_*).
+**S8:** no truncation/placeholder comments.
+Directive conflict resolution.
+project_brief.md (/c:/nbs/kc/project_brief.md)
+rule Diff-Only ("Code updates must be surgical blocks; no full-file rewrites") and Token Economy override the literal "dump the entire merged object" request. S8's underlying intent — don't lose legacy keys — is satisfied more reliably by a surgical in-place insertion than by re-pasting ~666 lines (where transcription drift is the actual risk). Performing the surgical edit now.
+Replacing 4 lines with 17 lines in kc_data.js
+```
+```
+```
+```
+v3.46.1 — audio_bank surgical injection. 11 keys appended after the phase_*_snu block in
+kc_data.js#L862-L877 (/c:/nbs/kc/kc_data.js:862)
+. Zero legacy keys touched. 
+Verbatim preservation audit:
+Key Notes
+dir_down_1_snu, dir_left_1_snu, dir_right_1_snu, dir_up_1_snu _1 infix preserved (room for _2 distance tier later)
+intro_bear_snu, intro_lion_snu intro_* prefix kept (not normalized to existing arc_* convention from the design doc — these are the canonical asset-team keys)
+locate_b_snu, locate_l_snu single-letter targets; preserved lowercase
+success_bear_snu, success_lion_snu preserved as-is
+sym_caratt_snu double-t preserved — distinct from existing sym_carat_am/sym_carat_ame. Did NOT "fix" to sym_carat_snu.
+Schema drift flag (advisory, no action taken): the keys delivered by the asset team don't match the placeholder names in
 mission_archive.js (/c:/nbs/kc/mission_archive.js)
-. Key notes:
-Sentinel posture
-**S4**: `if (e.repeat) return;` is line 1 of `KC.handlers.archive.handleInput`. Nothing precedes it — no diagnostic branches, no Esc shortcut (Esc is yielded to the engine's S6 killswitch in
-kc_input.js (/c:/nbs/kc/kc_input.js)
-).
-**S2**: Every async leg captures `tok = this._newToken()` and re-checks `this.dictationId !== tok` inside each callback. Tokens are bumped on `_promptCurrentWord`, `_onCorrect`, `_onWrong`, `_onWordComplete` — so a fresh wrong-press *during* spatial VO invalidates the prior chain rather than overlapping it.
-**S1**:
-state !== "LISTENING" (c:\nbs\kc\mission_launch.js:14)
-gate on input;
-pressedUpper === target (c:\nbs\kc\mission_launch.js:148)
-strict compare; whitelisted bucket names; missing grid entries fall to &quot;far&quot; rather than coerce.
-**S3**:
-stop() (c:\nbs\kc\kc_audio.js:83)
-iterates
-timeouts.forEach(clearTimeout) (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:41734)
-, nulls token, calls
-stopActiveAudio() (c:\nbs\kc\kc_audio.js:222)
-.
-endMission() (c:\nbs\kc\mission_launch.js:454)
-is wired so engine
-abortActiveMission (c:\nbs\kc\kc_mission_core.js:680)
-finds it.
-Executive decisions wired in
-Letter-by-letter cadence enforced via
-state === "LISTENING" (c:\nbs\kc\mission_launch.js:14)
-gate — input is structurally dead during PROMPTING / FEEDBACK / WORD_COMPLETE.
-2. consecutiveMisses resets on correct letter; at 3 it triggers _promptCurrentWord() (replays cue + prompt) inside _onWrong's tail callback.
-3. Library-mode posture: no
-KC.core.saveProgress() (c:\nbs\kc\kc_audio.js:3)
-calls, no wallet writes, _onArchiveComplete simply announces.
-4. Volume gating threaded through
-init({ volume }) (c:\nbs\kc\kc_audio.js:66)
-— setup screen (next task) just passes the chosen volume.
-Sample data
-Vol 1: CAT, DOG. Vol 3: FOX. Each carries `{ cue, prompt, success }` keys.
-Global `archive_letterFeedback` (correct/wrong) + `archive_proximityVO` (adjacent/near/far + sameKey safety).
-Proximity matrix
-47 keys (digits + 26 alpha), Y=0..3 top-to-bottom, fractional X stagger (0.50 / 0.75 / 1.25) so F→G is `(1.0, 0)` → adjacent-right while X→C is `(1.0, -1)` → adjacent-up.
-Modifier keys deliberately absent — curriculum ban enforced by data shape.
-What's NOT here (per your scope)
-No setup/UI screen, no Hub registration, no
-audio_bank (c:\nbs\kc\kc_audio.js:163)
-entries (those keys are reserved names, ready for the asset team).
-No engine wiring inside
-kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
-yet — that hookup (script tag in
-index.html (/c:/nbs/kc/index.html)
-,
-activeHandler = KC.mission.archive (c:\nbs\kc\kc_mission_core.js:6)
-in the launch path) is a separate, surgical patch when you're ready.
+(arc_cat_cue, arc_amelia_one_left, etc.). When you're ready, the mission's vocab + archive_proximityVO will need to be re-pointed to these real keys (e.g., intro_lion_snu → cue, locate_l_snu → prompt, dir_left_1_snu → adjacent.L, success_lion_snu → success). Awaiting your call before mutating the mission file.

@@ -28,63 +28,57 @@ KC.mission  = KC.mission  || {};
 window.GAME_DATA = window.GAME_DATA || {};
 
 GAME_DATA.archive_vocab = [
-    // ---------------- Volume 1 — 3-4 letters, common keys ----------------
+    // ---------------- Volume 1 — Bear & Lion (only assets currently delivered) -----
     {
-        id: "cat",
-        word: "CAT",
+        id: "bear",
+        word: "BEAR",
         volume: 1,
         audio: {
-            cue:     "arc_cat_cue",        // diegetic SFX (the meow)
-            prompt:  "arc_amelia_spell_cat",
-            success: "arc_cat_win"
+            cue:     "intro_bear_snu",     // Amelia/Snippy intro for the animal
+            prompt:  "locate_b_snu",       // "Locate B" — first-letter prompt
+            success: "success_bear_snu"    // word-complete fanfare
         }
     },
     {
-        id: "dog",
-        word: "DOG",
+        id: "lion",
+        word: "LION",
         volume: 1,
         audio: {
-            cue:     "arc_dog_cue",        // bark
-            prompt:  "arc_amelia_spell_dog",
-            success: "arc_dog_win"
-        }
-    },
-
-    // ---------------- Volume 3 — Rare keys (Q/Z/X) -----------------------
-    {
-        id: "fox",
-        word: "FOX",
-        volume: 3,
-        audio: {
-            cue:     "arc_fox_cue",        // fox call
-            prompt:  "arc_amelia_spell_fox",
-            success: "arc_fox_win"
+            cue:     "intro_lion_snu",
+            prompt:  "locate_l_snu",
+            success: "success_lion_snu"
         }
     }
 ];
 
 // Per-letter feedback is GLOBAL (not per-word) — keeps the asset bank lean.
+// NOTE: dedicated correct/wrong chimes are not yet in audio_bank; mission falls
+// back to the synth click engine via KC.audio.playSound during alpha. When SFX
+// keys land, set these strings to the asset keys — no other code changes needed.
 GAME_DATA.archive_letterFeedback = {
-    correct: "arc_letter_ok",              // short triumph chime
-    wrong:   "arc_letter_buzz"             // gentle buzz
+    correct: null,                         // -> falls back to KC.audio.playSound('click')
+    wrong:   null                          // -> falls back to KC.audio.playSound('error')
 };
 
 // Spatial nudge VO bank, addressed by distance bucket + cardinal direction.
+// Only tier-1 ("_1_snu") assets exist today. Until tier-2 ships, the `near`
+// bucket reuses tier-1 keys — direction stays correct, magnitude is approximate.
+// `far` and `sameKey` have no asset yet -> null -> spatial VO is skipped.
 GAME_DATA.archive_proximityVO = {
     adjacent: {  // Chebyshev distance <= 1.0
-        L: "arc_amelia_one_left",
-        R: "arc_amelia_one_right",
-        U: "arc_amelia_one_up",
-        D: "arc_amelia_one_down"
+        L: "dir_left_1_snu",
+        R: "dir_right_1_snu",
+        U: "dir_up_1_snu",
+        D: "dir_down_1_snu"
     },
-    near: {      // 1.0 < dist <= 2.0
-        L: "arc_amelia_two_left",
-        R: "arc_amelia_two_right",
-        U: "arc_amelia_two_up",
-        D: "arc_amelia_two_down"
+    near: {      // 1.0 < dist <= 2.0  (tier-1 reuse pending tier-2 recordings)
+        L: "dir_left_1_snu",
+        R: "dir_right_1_snu",
+        U: "dir_up_1_snu",
+        D: "dir_down_1_snu"
     },
-    far:     "arc_amelia_far_off",         // > 2.0  : "Way off. Listen again."
-    sameKey: "arc_amelia_same_key"         // edge-case (should not occur)
+    far:     null,                         // no asset yet — spatial VO skipped
+    sameKey: null                          // edge-case (should not occur)
 };
 
 /* =========================================================================
@@ -277,8 +271,11 @@ KC.mission.archive = {
         this.consecutiveMisses = 0;
         const tok = this._newToken();
 
-        if (KC.audio && KC.audio.playSFX) {
-            KC.audio.playSFX(GAME_DATA.archive_letterFeedback.correct);
+        const okKey = GAME_DATA.archive_letterFeedback.correct;
+        if (okKey && KC.audio && KC.audio.playSFX) {
+            KC.audio.playSFX(okKey);
+        } else if (KC.audio && KC.audio.playSound) {
+            KC.audio.playSound('click');           // synth fallback (zero latency)
         }
 
         // Brief breathing room, then either advance letter or finish word.
@@ -299,12 +296,15 @@ KC.mission.archive = {
         this.consecutiveMisses += 1;
         const tok = this._newToken();
 
-        if (KC.audio && KC.audio.playSFX) {
-            KC.audio.playSFX(GAME_DATA.archive_letterFeedback.wrong);
+        const wrongKey = GAME_DATA.archive_letterFeedback.wrong;
+        if (wrongKey && KC.audio && KC.audio.playSFX) {
+            KC.audio.playSFX(wrongKey);
+        } else if (KC.audio && KC.audio.playSound) {
+            KC.audio.playSound('error');           // synth fallback
         }
 
         const dist  = this._distance(pressedUpper, targetUpper);
-        const voKey = this._pickProximityVO(dist);
+        const voKey = this._pickProximityVO(dist);             // may be null
         const reachedRetryCap = (this.consecutiveMisses >= 3);
 
         const onSpatialDone = () => {
@@ -321,7 +321,11 @@ KC.mission.archive = {
         // Small gap so buzz doesn't smear into the spatial VO.
         const t = setTimeout(() => {
             if (this.dictationId !== tok) return;            // S2 gate
-            this._playKey(voKey, onSpatialDone);
+            if (voKey) {
+                this._playKey(voKey, onSpatialDone);
+            } else {
+                onSpatialDone();                             // no asset -> skip cleanly
+            }
         }, 250);
         this.timeouts.push(t);
     },

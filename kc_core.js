@@ -69,6 +69,23 @@ KC.core = {
         KC.els.footer.hidden = false;
         
         KC.els.inputTrap.focus();
+
+        // --- v3.46.1 TEMP: Earth Archive bench-test bypass -------------------
+        // Hijacks the Hub render so first-letter-press wakes us inside the
+        // Archive proximity-matrix loop. REMOVE before merging to main.
+        if (KC.mission && KC.mission.archive && KC.handlers && KC.handlers.archive) {
+            KC.mission.activeHandler = KC.handlers.archive;     // input router target
+            KC.state.status = "ACTIVE_TYPING";                  // unlocks handleInput in kc_input.js
+            if (KC.els && KC.els.displayText) {
+                KC.els.displayText.textContent =
+                    "EARTH ARCHIVE — BENCH TEST\nVolume 1 (Bear, Lion). Press Esc to abort.";
+            }
+            KC.mission.archive.init({ volume: 1 });
+            KC.mission.archive.start();
+            return;
+        }
+        // ---------------------------------------------------------------------
+
         KC.hub.renderMenu();
     },
 
