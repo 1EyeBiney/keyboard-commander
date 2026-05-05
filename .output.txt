@@ -1,59 +1,230 @@
 Searched codebase for "System Check: Read project_brief.md. Recite the 'Current Status' line exactly as written to confirm uplink.
-Once confirmed, read .rules/audio_engine.md and .rules/accessibility.md to load the audio and UX constraints into your active memory.
-Task: We are executing Active Roadmap Item 1. Review mission_launch.js and generate the final ElevenLabs VO tutorial script for the Launch Codes mission. 
-Target Audience: Non-gamers and visually impaired users relying on screen readers.
-Requirements: You must explicitly explain the physical keyboard actions (e.g., Arrow keys to navigate, Enter to select, etc.) and clearly differentiate the rules for 'Shadow Mode' (type immediately) vs. 'Recall Mode' (wait for the tone). Keep the tone military, urgent, and highly explicit.", 23 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_tutorial.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\rules.md, c:\nbs\kc\rules.md, c:\nbs\kc\rules.md
-Thinking: I'm starting by reading through the required files.
-Searched for files matching **/.rules/**, 5 matches. Files: c:\nbs\kc\.rules\ux_ui.md, c:\nbs\kc\.rules\sentinels.md, c:\nbs\kc\.rules\audio_engine.md, c:\nbs\kc\.rules\async_state.md, c:\nbs\kc\.rules\accessibility.md
+Once confirmed, read .rules/audio_engine.md, .rules/sentinels.md, and .rules/namespacing.md to load our architectural constraints into your active memory.
+Task: Systems Architecture Review for a New Mission
+We are designing a new mission module tentatively called "The Earth Archive" (mission_archive.js). 
+Target Audience: Visually impaired users, ESL learners, and absolute beginners who do not know the geography of the keyboard.
+Pacing: Zero time pressure. Purely educational and exploratory.
+Lore: Snippy is defragmenting "Ancient Earth Archives." Amelia asks the Cadet to type simple animal names based on audio cues.
+The Core Mechanics (The Procedural Tutor):
+The engine plays an animal sound (e.g., a cat meow) and Amelia says "Spell Cat."
+The user attempts to type the first letter ('C'). 
+If they press 'C', a "Success/Triumph" sound plays, and they move to the next letter.
+If they press the wrong key (e.g., 'X'), a gentle "Buzz/Wrong" sound plays. 
+Crucially, we need an Acoustic Spatial Mapping system. If they press 'F' instead of 'G', the engine calculates the physical distance on the keyboard and triggers a directional audio file (e.g., "Close. Move one key left.").
+Your objective is NOT to write the mission code yet. Act as our Senior Systems Architect. Please provide a technical design document addressing:
+Data Structure: How should we structure the Vocabulary Array in `GAME_DATA` to support the Intro, Success, and Wrong audio files?
+The Proximity Matrix: How should we structure the 2D [X, Y] coordinate dictionary in JS to map the physical keyboard for distance calculations?
+State Machine: What are the critical states needed in `this.state` to handle the flow of playing audio -> listening for input -> calculating distance -> playing feedback?
+Sentinel Compliance: How do we ensure this highly interactive, slow-paced mission strictly adheres to Sentinel S2 (Async Tokens) and S4 (Ghost-Key Filter)?", 21 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\project_brief.md, c:\nbs\kc\project_brief.md
+Thinking: I need to start by reading the project_brief.md file to understand the context, then look for any .rules files that might be relevant.
+Searching for files matching **/.rules/**
 Read project_brief.md
-Read mission_launch.js
+Thinking: I should verify whether the .rules folder actually exists before proceeding.
+Read kc
+Read .rules
 Read audio_engine.md
-Read accessibility.md
-Uplink Confirmed.
-Current Status: Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy is officially backburnered. Currently focusing on Audio script drafting and beta polish.
-Audio engine + accessibility constraints loaded. Proceeding with Roadmap Item 1.
-ElevenLabs VO Script — Mission: Launch Codes (v3.43.2)
-Voice Direction: Military command instructor. Clipped, urgent, authoritative. No warmth, no apology. Pause where marked [BEAT] (≈400ms) and [HOLD] (≈800ms). Every line is a discrete .mp3 so the engine can sequence them. File naming convention:
-audio/intros/launch_NN_<slug>.mp3 (c:\nbs\kc\mission_launch.js:115)
-.
-SECTION 1 — MISSION BRIEFING (Plays on mission entry, both modes)
-launch_01_briefing.mp3
-Operative. This is Launch Codes. [BEAT] Your task: intercept encrypted launch sequences, transcribe them keystroke for keystroke, and clear the channel before the timer expires. [HOLD] One wrong key rejects the entire code. Hesitation costs seconds. Seconds cost lives.
-launch_02_controls_core.mp3
-Listen carefully. Your keyboard is your console. [BEAT] To begin dictation of the first code, press the SPACE BAR — that is the long bar at the bottom of your keyboard, operated with either thumb. [BEAT] To repeat a code you missed, press the DOWN ARROW key. Be advised: repeating a code costs you ten seconds off the clock. [BEAT] To dump the diagnostic log for review, press PAGE UP. [BEAT] To abort the mission and return to the hub, press ESCAPE — top-left corner of your keyboard.
-launch_03_controls_typing.mp3
-When a code is dictated, you will type the characters you hear, in order, using the standard keys: number row, letter keys, or the symbol keys reached with SHIFT. [BEAT] If your assigned zone is Numpad, only the numeric keypad on the right side of your keyboard will register. Other keys will buzz and be ignored. [BEAT] After a code is accepted or rejected, press SPACE BAR to request the next code.
-SECTION 2 — SHADOW MODE BRIEFING
-launch_04_shadow_intro.mp3
-Mode selected: SHADOW. [BEAT] In Shadow Mode, you type along with the dictation in real time. [HOLD] As each character is spoken, you mirror it on the keyboard immediately. Do not wait. Do not pause. Match the cadence of the transmission. [BEAT] If you out-pace the dictation, the remaining characters are skipped — code accepted, channel cleared. Speed is rewarded.
-launch_05_shadow_rules.mp3
-Shadow Mode rules of engagement: [BEAT] One. Listen and type simultaneously. [BEAT] Two. The first wrong character rejects the entire code. [BEAT] Three. There is no "go" tone in Shadow Mode. The first character you hear is your cue to fire. [HOLD] Stand by for transmission.
-SECTION 3 — RECALL MODE BRIEFING
-launch_06_recall_intro.mp3
-Mode selected: RECALL. [BEAT] In Recall Mode, you do NOT type during dictation. [HOLD] You will listen to the entire code in silence, commit it to memory, and wait for the launch tone before typing a single key.
-launch_07_recall_tone.mp3
-The launch tone is a sharp, three-pulse synthetic chirp. It fires the instant dictation ends. That tone — and only that tone — is your authorization to type.
-launch_08_recall_penalty.mp3
-Warning. Any key pressed before the launch tone is an EARLY LAUNCH. [BEAT] Penalty: minus ten seconds. Your input buffer is wiped. The dictation continues, the tone still fires, and you must transcribe the code from the first character. [HOLD] Discipline, operative. Wait. For. The. Tone.
-launch_09_recall_rules.mp3
-Recall Mode rules of engagement: [BEAT] One. Listen in full silence. Hands off the keys. [BEAT] Two. Wait for the three-pulse tone. [BEAT] Three. Type the entire code from memory. [BEAT] Four. One wrong character rejects the code. [HOLD] Stand by for transmission.
-SECTION 4 — IN-MISSION CALLOUTS (already wired via
-KC.core.announce (c:\nbs\kc\mission_launch.js:4)
-; provide as VO overrides if desired)
-Trigger File Line
-start() (c:\nbs\kc\mission_launch.js:113)
-| launch_10_standby.mp3 | "Intercepting launch codes. Stand by." |
-| Code accepted (A) | launch_11_accept_a.mp3 | "Code accepted. Press space for next code." |
-| Code accepted (B) | launch_11_accept_b.mp3 | "Code verified. Press space for next code." |
-| Code rejected | launch_12_reject.mp3 | "Code rejected. Press space for next code." |
-| ArrowDown repeat | launch_13_repeat.mp3 | "Time penalty. Repeating code." |
-| Early launch (Recall) | launch_14_early.mp3 | "Early launch. Ten second penalty. Wait for the tone." |
-| Time expired | launch_15_expired.mp3 | "Time expired. Mission complete." |
-SECTION 5 — TUTORIAL FIRST-RUN COACH (plays once, before SECTION 1, on first mission entry)
-launch_00_first_run.mp3
-First run detected. Orientation follows. [BEAT] Your hands rest on the keyboard. The SPACE BAR is the long bar at the bottom — your "transmit" key. The ARROW KEYS sit at the lower right; the DOWN ARROW points downward and is your "repeat" key. The ESCAPE key sits alone at the top-left and aborts the mission. [HOLD] Throughout this mission, focus is locked to a hidden input field. You do not need to click anything. You do not need to find a cursor. Every keystroke is captured. [HOLD] Briefing begins now.
-Sequencing note for engineering: Mission entry should chain 00 → 01 → 02 → 03 → (04+05 | 06+07+08+09) based on
-KC.state.missionParams.mode (c:\nbs\kc\mission_launch.js:17)
-, then yield to the existing
-init() (c:\nbs\kc\mission_launch.js:75)
-prompt ("Press Space to dictate the first code"). Each file is independent so stopActiveAudio() (Sentinel S6) can cleanly kill the chain on Escape.
+Read sentinels.md
+Read namespacing.md
+Thinking: I'm pulling up async_state.md to check the S2 details and understand how the state machines and dictationId patterns work in practice.
+Read async_state.md
+Uplink confirmed.
+**Current Status:** Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy is officially backburnered. Currently focusing on Audio script drafting and beta polish.
+Architectural rulesets loaded:
+audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
+,
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+,
+namespacing.md (/c:/nbs/kc/.rules/namespacing.md)
+, plus
+async_state.md (/c:/nbs/kc/.rules/async_state.md)
+(referenced by S2).
+Technical Design Doc — mission_archive.js ("The Earth Archive")
+1. Data Structure — Vocabulary Array in GAME_DATA
+Recommend a flat array of word records under KC.data.archive.vocab. Each record carries its own audio key bundle so mission code stays asset-agnostic (no string-building inside the loop — keys are looked up, never synthesized, per the Audio Asset Key Contract).
+```
+// kc_data.js  (additive only; do not refactor existing GAME_DATA)
+KC.data.archive = {
+  vocab: [
+    {
+      id: 'cat',
+      word: 'CAT',                  // canonical UPPERCASE; per-letter targets
+      tier: 1,                      // 1=3-letter, 2=4, 3=5 (gated progression)
+      audio: {
+        cue:    'arc_cat_cue',      // diegetic SFX (the meow)
+        prompt: 'amelia_spell_cat', // VO: "Spell Cat."
+        intro:  'amelia_arc_cat_in',// optional flavor lead-in
+        success:'arc_cat_win',      // word-complete fanfare
+      }
+    },
+    // ...
+  ],
+  // Per-letter feedback is GLOBAL, not per-word — keeps the bank lean.
+  letterFeedback: {
+    correct: 'arc_letter_ok',       // short triumph chime (Web Audio synth ok)
+    wrong:   'arc_letter_buzz',     // gentle buzz (Web Audio synth ok)
+  },
+  // Spatial nudge VO bank — see §2 for how these are selected.
+  proximityVO: {
+    // distance buckets
+    adjacent: { L:'amelia_one_left',  R:'amelia_one_right',
+                U:'amelia_one_up',    D:'amelia_one_down' },
+    near:     { L:'amelia_two_left',  R:'amelia_two_right',
+                U:'amelia_two_up',    D:'amelia_two_down' },
+    far:      'amelia_far_off',     // > 3 units: "Way off. Listen again."
+    sameRow:  'amelia_same_row',    // tie-breaker hint
+  }
+};
+```
+Why this shape:
+VO files (`prompt`, `intro`, success-fanfare) route through HTML5 `
+audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
+).
+`letterFeedback.correct`/`wrong` are tiny, latency-critical → Web Audio synth or pre-decoded buffers.
+Keys are stored verbatim — never normalized, never lowercased on the fly.
+2. The Proximity Matrix — 2D Coordinate Dictionary
+A static lookup, defined once. Y increases downward (matches physical row layout). X is fractional to model the half-key row stagger (this is what makes "F is one left of G" feel right while "X→C" reads as diagonal).
+```
+// kc_data.js
+KC.data.archive.keyGrid = {
+  // Row 1 (numbers) y=0
+  '1':[0.0,0], '2':[1.0,0], '3':[2.0,0], '4':[3.0,0], '5':[4.0,0],
+  '6':[5.0,0], '7':[6.0,0], '8':[7.0,0], '9':[8.0,0], '0':[9.0,0],
+  // Row 2 (QWERTY) y=1, +0.5 stagger
+  Q:[0.5,1], W:[1.5,1], E:[2.5,1], R:[3.5,1], T:[4.5,1],
+  Y:[5.5,1], U:[6.5,1], I:[7.5,1], O:[8.5,1], P:[9.5,1],
+  // Row 3 (Home) y=2, +0.75
+  A:[0.75,2], S:[1.75,2], D:[2.75,2], F:[3.75,2], G:[4.75,2],
+  H:[5.75,2], J:[6.75,2], K:[7.75,2], L:[8.75,2],
+  // Row 4 (Bottom) y=3, +1.25
+  Z:[1.25,3], X:[2.25,3], C:[3.25,3], V:[4.25,3],
+  B:[5.25,3], N:[6.25,3], M:[7.25,3],
+};
+// Pure helper — lives on the mission, not the global namespace.
+KC.mission.archive._distance = function(pressed, target) {
+  const a = KC.data.archive.keyGrid[pressed];
+  const b = KC.data.archive.keyGrid[target];
+  if (!a || !b) return { bucket:'far', dx:0, dy:0 }; // S1: strict, no coercion
+  const dx = b[0] - a[0];   // +x means target is to the RIGHT of pressed
+  const dy = b[1] - a[1];   // +y means target is DOWN from pressed
+  const cheb = Math.max(Math.abs(dx), Math.abs(dy));
+  let bucket = 'far';
+  if (cheb <= 1.0)      bucket = 'adjacent';
+  else if (cheb <= 2.0) bucket = 'near';
+  return { bucket, dx, dy };
+};
+```
+Direction selection rule (deterministic, whitelist-friendly per S1):
+If `|dy| > |dx|` → vertical: `dy>0 ? 'D' : 'U'`
+Else → horizontal: `dx>0 ? 'R' : 'L'`
+`bucket==='far'` short-circuits to `proximityVO.far` regardless of vector.
+System-modifier keys are never in keyGrid, which structurally enforces the curriculum ban (no Shift/Ctrl/Alt entries to map against).
+3. State Machine — this.state Critical States
+A single string-valued this.state (S1-friendly: switch on ===). Slow-paced, so we need explicit listening gates — no implicit "always-on" input.
+State Meaning Input accepted?
+IDLE Pre-start / between words No
+PROMPTING Playing cue → prompt → "go" tone No (S4 still gates e.repeat)
+LISTENING Awaiting next letter of current word Yes (target letter only matters for grading)
+FEEDBACK_OK Playing correct chime, advancing pointer No
+FEEDBACK_WRONG Playing buzz + spatial VO No
+WORD_COMPLETE Success fanfare, pre-roll next word No
+EXITING S6 killswitch in flight No
+Companion fields on the mission instance:
+```
+this.state         = 'IDLE';
+this.dictationId   = null;          // S2 token
+this.timeouts      = [];            // cleared per async_state.md
+this.wordIndex     = 0;             // pointer into vocab[]
+this.letterIndex   = 0;             // pointer into vocab[wordIndex].word
+this.currentWord   = null;          // cached vocab record
+```
+Flow:
+```
+start() → state=PROMPTING → playCue → playPrompt → state=LISTENING
+   ↑                                                       │
+   │                                                       ▼
+WORD_COMPLETE ← (letterIndex===word.length) ← FEEDBACK_OK ←┤ (correct key)
+                                                           │
+                              FEEDBACK_WRONG ──────────────┘ (wrong key)
+                                     │
+                                     ▼
+                              state=LISTENING (re-arm; same letterIndex)
+```
+The wrong-key branch does not advance letterIndex — pacing is zero-pressure, the user retries until correct. Re-arming back to LISTENING happens inside the chained-VO completion callback, gated by the dictation token.
+4. Sentinel Compliance — S2 (Async Tokens) & S4 (Ghost-Key Filter)
+S4 — Ghost-Key Filter (the easy one, but easy to get wrong)
+```
+KC.handlers.archive = {
+  handleInput(e) {
+    if (e.repeat) return;                          // S4: ABSOLUTE first gate
+    if (KC.mission.archive.state !== 'LISTENING')  // S1: strict equality
+        return;
+    KC.mission.archive._grade(e.key);
+  }
+};
+```
+Critical points:
+Diagnostic keys (PageUp etc.) live **after** the `e.repeat` gate — no exceptions.
+Esc-to-exit is also gated by the state machine; it triggers the S6 killswitch, not a direct hub jump.
+The state guard means held arrow keys, screen-reader review-cursor chatter, and modifier latches all silently drop while VO is playing.
+S2 — Async Token (dictationId) for the chained VO + retry loop
+The danger here is real: a slow user may press a wrong key while the prompt VO is still finishing, or press a correct key during the wrong-key spatial-feedback VO. Without tokens, two callback chains race and Amelia talks over herself.
+```
+_speakAndArm(currentDictation) {
+  if (this.dictationId !== currentDictation) return;     // S2 gate #1
+  KC.audio.playVO(this.currentWord.audio.cue, () => {
+    if (this.dictationId !== currentDictation) return;   // S2 gate #2
+    KC.audio.playVO(this.currentWord.audio.prompt, () => {
+      if (this.dictationId !== currentDictation) return; // S2 gate #3
+      this.state = 'LISTENING';
+    });
+  });
+},
+_grade(key) {
+  const target = this.currentWord.word[this.letterIndex];
+  if (key.toUpperCase() === target) {                    // S1: explicit ===
+    this._onCorrect();
+  } else {
+    this._onWrong(key.toUpperCase(), target);
+  }
+},
+_onWrong(pressed, target) {
+  this.state = 'FEEDBACK_WRONG';
+  const tok = ++this.dictationId === null ? Date.now() : Date.now();
+  this.dictationId = tok;                                // invalidates prior chain
+  KC.audio.playSFX(KC.data.archive.letterFeedback.wrong);
+  const { bucket, dx, dy } = KC.mission.archive._distance(pressed, target);
+  const voKey = this._pickProximityVO(bucket, dx, dy);
+  const t = setTimeout(() => {
+    if (this.dictationId !== tok) return;                // S2 gate
+    KC.audio.playVO(voKey, () => {
+      if (this.dictationId !== tok) return;              // S2 gate
+      this.state = 'LISTENING';                          // re-arm
+    });
+  }, 250);
+  this.timeouts.push(t);
+},
+```
+Why a fresh token on every wrong-press: if the user mashes two wrong keys quickly, the second press invalidates the first VO chain mid-flight, so we never get "Move one key left" overlapping with "Move two keys right." The same token-bump is used on _onCorrect and on word advance.
+stop() (S3 + token clearing per
+async_state.md (/c:/nbs/kc/.rules/async_state.md)
+)
+```
+stop() {
+  this.state = 'EXITING';
+  this.dictationId = null;                  // invalidates every in-flight callback
+  this.timeouts.forEach(clearTimeout);      // explicit iterate (not = [])
+  this.timeouts = [];
+  KC.audio.stopActiveAudio?.();
+  this.state = 'IDLE';
+}
+```
+Killswitch on exit (S6)
+Esc handler must fire in this exact order: stopIntro() → stopActiveAudio() → KC.input.flush() → KC.hub.enterHub(). The mission's own stop() is invoked as part of the second step's chain (or just before flush()), depending on existing convention — match
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+for parity.
+Open Questions Before Coding
+**Letter-by-letter vs. typeahead buffer?** Recommend strict letter-by-letter (zero pressure, blocks input during VO) — confirm.
+**Retry policy on wrong key:** infinite retries, or after N misses auto-play the cue again? Suggest auto-replay cue after 3 consecutive misses on the same letter (no penalty).
+**Word-tier gating:** does Archive feed the 9-Quadrant curriculum, or is it a parallel "library" mode? Affects whether progress writes to `kbc_profile_*`.
+**Wallet writes:** with the 5-Tier economy backburnered, do completions still call `KC.core.saveProgress()` for a no-op stub, or skip entirely?
+Awaiting your call on these before drafting mission_archive.js.
