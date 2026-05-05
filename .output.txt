@@ -1,99 +1,119 @@
-Searched codebase for "System Check: Read project_brief.md, .rules/sentinels.md, and .rules/accessibility.md. Acknowledge constraints.
-Task: Watchdog Update Cycle - Version 3.47.1 (Setup Polish & Hardening).
-We need to harden the Archive Setup screen you built in v3.47.0 to ensure strict Sentinel compliance.
-Review `kc_input.js` (or where the `ARCHIVE_SETUP` input routing lives).
- * Apply Sentinel S4: Ensure `if (e.repeat) return;` is the absolute first gate in the setup menu input handler to prevent scrolling overflow if a user holds the Arrow keys.
- * Apply Sentinel S6: If the user presses `Escape` during Archive Setup, it must execute the strict Killswitch Order (stop audio, flush inputs, enter Hub) to prevent state bleeding.
+Searched codebase for "System Check: Read project_brief.md and .rules/accessibility.md. Acknowledge constraints.
+Task: Watchdog Update Cycle - Version 3.47.2 (Visual DOM Sync).
+The Earth Archive mission logic and audio are flawless, but it currently has no visual UI. Sighted users need to see the word they are spelling.
 Review `mission_archive.js`.
- * Look at the Volume 3 graceful exit logic (when the vocab is empty). Ensure the "Archive empty. Returning to Hub." text is specifically routed through `KC.core.announce()` to satisfy the Accessibility Spoke, followed by a brief timeout before firing `KC.hub.enterHub()`.
-Output the surgical diffs to apply these hardening patches. Maintain strict adherence to all existing spokes.", 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.rules\sentinels.md, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\project_brief.md, c:\nbs\kc\rules.md
-Thinking: I'm quickly reviewing the rules and checking the current state of the input file.
-Searched for text ARCHIVE_SETUP (**/kc_input.js), 2 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
-Read accessibility.md
-Constraints acknowledged.
-**
-project_brief.md (/c:/nbs/kc/project_brief.md)
-Current Status:** Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy backburnered. Audio script drafting + beta polish.
-**S4** ghost-key gate first; **S6** ordered killswitch on exit; **
-accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
-** screen-reader text via
-KC.core.announce (c:\nbs\kc\kc_core.js:161)
-.
-Critical constraint conflict to surface before patching:
-handleGlobalKeys (c:\nbs\kc\kc_input.js:17)
-already runs many global gates before state-routing (Dev Console, Shift/Ctrl/Alt silent drop, F-key whitelist, hard-reset combo, Shift+V/M audio toggles). Adding if (e.repeat) return; at the top of the state block is fine and exactly what S4 demands at the local routing level — but a strict reading of S4 ("absolute first gate in any
-handleInput(e) (c:\nbs\kc\kc_mission_core.js:646)
-") would require it at the very top of
-handleGlobalKeys (c:\nbs\kc\kc_input.js:17)
-, ahead of those intercepts. Doing that globally is out of scope for this task and would suppress repeat-fire on legitimate global hotkeys (Dev Console nav, audio cycling). Scoping the gate to the ARCHIVE_SETUP block per your instructions — same pattern Launch Codes and other state branches already use.
-Patch 1 —
-kc_input.js (/c:/nbs/kc/kc_input.js)
-: S4 + explicit S6 killswitch on Esc
-Replacing 11 lines with 22 lines in kc_input.js
+Implement a visual rendering step that updates the `#display-text` DOM element. 
+ * When a word begins, it should display the masked word (e.g., if the word is LION and they haven't typed anything, show `_ _ _ _`).
+ * As they type correct letters, reveal them (e.g., `L _ _ _`, then `L I _ _`).
+ * Update the `#status-bar` to display the active Volume (e.g., "The Earth Archive - Volume 1").
+Apply the Accessibility Spoke Contract: You MUST use `element.textContent` or `element.innerHTML` for these updates. Do NOT use `KC.core.announce()`. Belle's audio is already handling the auditory feedback; if you trigger the ARIA live-region here, the screen reader will talk over the voiceover.
+Output the surgical diffs to patch mission_archive.js with this rendering logic.", 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.rules\accessibility.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\project_brief.md
+Thinking: I'm checking the current structure of mission_archive.js and how KC.els references are being used throughout the file.
+Searched for regex els\s*=|displayText|statusBar (**/kc_core.js), 8 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
+Thinking: I've identified the DOM targets—KC.els.displayText and KC.els.statusBar—and now I'm pinpointing where to inject the updates in mission_archive.js. I'll hook into _beginWord (after setting currentWord), _onCorrect (after incrementing letterIndex), and the init function for the status bar since that's when the volume becomes available. I'm planning to create a _render() helper that gets called from both _beginWord and _onCorrect to keep the display in sync.
+Read mission_archive.js, lines 155 to 200
+Searched for regex _beginWord:|letterIndex \+= 1 (**/mission_archive.js), 2 results. Files: c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js
+Read mission_archive.js, lines 228 to 245
+Thinking: Adding helper methods for rendering...
+I'm keeping the announce call in the start() method since that's a transition message, not part of the active gameplay state. For word completion, the fully-revealed word stays visible on screen while we transition to the next word, which gives good visual feedback to sighted users.
+Replacing 42 lines with 50 lines in mission_archive.js
 ```
 ```
 ```
 ```
-Patch 2 —
-mission_archive.js (/c:/nbs/kc/mission_archive.js)
-: empty-vocab graceful exit
-Replacing 8 lines with 18 lines in mission_archive.js
+Now append the two render helpers near the other internal helpers (next to
+_newToken (c:\nbs\kc\mission_archive.js:419)
+/
+_playKey (c:\nbs\kc\mission_archive.js:428)
+):
+Replacing 5 lines with 30 lines in mission_archive.js
 ```
 ```
 ```
 ```
-v3.47.1 — Setup Polish & Hardening (summary)
+v3.47.2 — Visual DOM Sync (summary)
 File Change
-kc_input.js (/c:/nbs/kc/kc_input.js)
-| ARCHIVE_SETUP state block: if (e.repeat) return; is now line 1 (S4). Esc branch executes ordered killswitch:
-stopIntro (c:\nbs\kc\kc_audio.js:53)
-→
-stopActiveAudio (c:\nbs\kc\kc_audio.js:222)
-→
-flush (c:\nbs\kc\kc_input.js:11)
-→
-enterHub (c:\nbs\kc\kc_hub.js:111)
-(S6). |
-|
 mission_archive.js (/c:/nbs/kc/mission_archive.js)
-|
-start() (c:\nbs\kc\mission_launch.js:113)
-empty-vocab branch routes copy through
-KC.core.announce (c:\nbs\kc\kc_audio.js:3)
-(accessibility), then 1800 ms
-setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)
+| Added
+activeVolume (c:\nbs\kc\mission_archive.js:155)
+field,
+_renderWord() (c:\nbs\kc\mission_archive.js:421)
+,
+_renderStatusBar() (c:\nbs\kc\mission_archive.js:436)
+. Wired calls:
+init() (c:\nbs\kc\kc_core.js:39)
 →
-KC.hub.enterHub() (c:\nbs\kc\kc_audio.js:3)
-. Timeout pushed to this.timeouts so S3
-stop() (c:\nbs\kc\kc_audio.js:83)
-cancels it cleanly if user backs out faster. |
-Sentinel audit
-Sentinel Status Note
-S1 ✅ Whitelisted === branches preserved; no new fall-throughs.
-S3 ✅ New
-setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)
-registered in this.timeouts —
-stop() (c:\nbs\kc\kc_audio.js:83)
-will iterate-clear it. |
-| S4 | ✅ |
-e.repeat (c:\nbs\kc\kc_audio.js:39)
-gate is the absolute first statement of the ARCHIVE_SETUP block, ahead of
-e.preventDefault() (c:\nbs\kc\kc_audio.js:39)
-. |
-| S6 | ✅ | Esc now mirrors the canonical 4-step order used by
-mission_launch.js (/c:/nbs/kc/mission_launch.js)
-exit path. |
-| S7 | ✅ | No modals introduced. Empty-vocab message is announce-only. |
-| Accessibility | ✅ | Empty-vocab text reaches
+_renderStatusBar() (c:\nbs\kc\mission_archive.js:436)
+;
+_beginWord() (c:\nbs\kc\mission_archive.js:236)
+→
+_renderWord() (c:\nbs\kc\mission_archive.js:421)
+(paints fresh mask, e.g.
+_  _  _  _ (c:\nbs\kc\mission_launch.js:153)
+);
+_onCorrect (c:\nbs\kc\mission_archive.js:286)
+post-token-check →
+_renderWord() (c:\nbs\kc\mission_archive.js:421)
+(reveals next slot, e.g.
+L  _  _  _ (c:\nbs\kc\mission_archive.js:69)
+→
+L  I  _  _ (c:\nbs\kc\mission_archive.js:69)
+). |
+Render contract
+Element Method Content
+#display-text (c:\nbs\kc\kc_core.js:161)
+|
+textContent (c:\nbs\kc\kc_core.js:157)
+| Word mask
+L  I  _  _ (c:\nbs\kc\mission_archive.js:69)
+(two-space slot separator, monospace-aligned). |
+| #status-bar |
+textContent (c:\nbs\kc\kc_core.js:157)
+| The Earth Archive — Volume 1 |
+|
 #live-region (c:\nbs\kc\kc_mission_core.js:67)
-via
+| untouched during gameplay | No
 KC.core.announce (c:\nbs\kc\kc_audio.js:3)
-; 1.8s buffer prevents announcement truncation when Hub render rewrites
-#display-text (c:\nbs\kc\kc_audio.js:312)
-. |
-Edge case handled silently
-If a user holds Esc in the setup screen, the S4 gate now blocks the repeat fire — without it, holding Esc would re-enter
-enterHub() (c:\nbs\kc\kc_hub.js:111)
-mid-render and could double-bind
-KC.state.status (c:\nbs\kc\kc_audio.js:3)
-. Fixed by virtue of the gate position, not extra logic.
+calls added — Belle's VO is the sole auditory channel. |
+Accessibility audit
+Item Status Note
+No double-talk ✅ Render helpers exclusively use
+element.textContent (c:\nbs\kc\kc_audio.js:219)
+. Zero
+KC.core.announce (c:\nbs\kc\kc_audio.js:3)
+calls in either function. |
+| Input trap focus | ✅ | No focusable elements introduced; only text writes. |
+| DOM IDs | ✅ | Reuses existing
+#display-text (c:\nbs\kc\kc_core.js:161)
+and #status-bar via
+KC.els.* (c:\nbs\kc\kc_audio.js:3)
+cache. |
+| Defensive guards | ✅ | Both helpers no-op if
+KC.els (c:\nbs\kc\kc_audio.js:3)
+/ target element is missing — safe under teardown. |
+State coverage
+Mission state Visual after patch
+Just-after
+init() (c:\nbs\kc\kc_core.js:39)
+| Status bar painted; display-text whatever Hub last wrote |
+| PROMPTING (cue + prompt VO) | Mask shown immediately on
+_beginWord (c:\nbs\kc\mission_archive.js:236)
+, before VO starts — sighted users see slots while audio plays |
+| LISTENING | Mask with current progress, e.g.
+L  _  _  _ (c:\nbs\kc\mission_archive.js:69)
+|
+| FEEDBACK_OK | Updated mask with newly-revealed letter (300ms before re-arm) |
+| FEEDBACK_WRONG | Mask unchanged — wrong-key path doesn't touch
+letterIndex (c:\nbs\kc\mission_archive.js:152)
+, so render is stable. Correct behavior: visual reflects only confirmed progress. |
+| WORD_COMPLETE | Fully-revealed word stays on screen during success VO until
+_beginWord(next) (c:\nbs\kc\mission_archive.js:236)
+repaints. |
+Edge case noted, not patched
+The empty-vocab branch in
+start() (c:\nbs\kc\mission_archive.js:190)
+still announces "Archive empty. Returning to Hub." via
+KC.core.announce (c:\nbs\kc\kc_audio.js:3)
+(legacy from v3.47.1). It does not paint
+#display-text (c:\nbs\kc\kc_core.js:161)
+— sighted users will see the prior Hub text for 1.8s before the Hub re-renders. If you want a visual analog there, that's a one-liner addition; flagging as advisory rather than touching it without an explicit ask.

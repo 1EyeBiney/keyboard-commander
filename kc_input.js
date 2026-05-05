@@ -339,6 +339,7 @@ KC.input = {
                 else if (selected.type === "engineering") KC.hub.enterEngineering();
                 else if (selected.type === "cache") KC.hub.enterDataCache();
                 else if (selected.type === "archive") KC.hub.enterArchive();
+                else if (selected.type === "archive_mission") KC.hub.enterArchiveSetup();
                 else if (selected.type === "echoc") KC.echoc.init(); 
                 else if (selected.type === "settings") KC.hub.openSettingsMenu();
                 else if (selected.type === "stay_out") {
