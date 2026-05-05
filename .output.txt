@@ -1,119 +1,59 @@
-Searched codebase for "System Check: Read project_brief.md and .rules/accessibility.md. Acknowledge constraints.
-Task: Watchdog Update Cycle - Version 3.47.2 (Visual DOM Sync).
-The Earth Archive mission logic and audio are flawless, but it currently has no visual UI. Sighted users need to see the word they are spelling.
-Review `mission_archive.js`.
-Implement a visual rendering step that updates the `#display-text` DOM element. 
- * When a word begins, it should display the masked word (e.g., if the word is LION and they haven't typed anything, show `_ _ _ _`).
- * As they type correct letters, reveal them (e.g., `L _ _ _`, then `L I _ _`).
- * Update the `#status-bar` to display the active Volume (e.g., "The Earth Archive - Volume 1").
-Apply the Accessibility Spoke Contract: You MUST use `element.textContent` or `element.innerHTML` for these updates. Do NOT use `KC.core.announce()`. Belle's audio is already handling the auditory feedback; if you trigger the ARIA live-region here, the screen reader will talk over the voiceover.
-Output the surgical diffs to patch mission_archive.js with this rendering logic.", 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.rules\accessibility.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js, c:\nbs\kc\mission_stream.js, c:\nbs\kc\project_brief.md
-Thinking: I'm checking the current structure of mission_archive.js and how KC.els references are being used throughout the file.
-Searched for regex els\s*=|displayText|statusBar (**/kc_core.js), 8 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
-Thinking: I've identified the DOM targets—KC.els.displayText and KC.els.statusBar—and now I'm pinpointing where to inject the updates in mission_archive.js. I'll hook into _beginWord (after setting currentWord), _onCorrect (after incrementing letterIndex), and the init function for the status bar since that's when the volume becomes available. I'm planning to create a _render() helper that gets called from both _beginWord and _onCorrect to keep the display in sync.
-Read mission_archive.js, lines 155 to 200
-Searched for regex _beginWord:|letterIndex \+= 1 (**/mission_archive.js), 2 results. Files: c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js
-Read mission_archive.js, lines 228 to 245
-Thinking: Adding helper methods for rendering...
-I'm keeping the announce call in the start() method since that's a transition message, not part of the active gameplay state. For word completion, the fully-revealed word stays visible on screen while we transition to the next word, which gives good visual feedback to sighted users.
-Replacing 42 lines with 50 lines in mission_archive.js
+Searched codebase for "System Check: Read project_brief.md. Acknowledge constraints.
+Task: Watchdog Update Cycle - Version 3.47.3 (Split-Brain Routing Fix).
+In version 3.47.0, you successfully added "The Earth Archive" to the main menu UI in kc_hub.js. However, you missed the split-brain input architecture, meaning the Enter key currently drops the launch command on the floor.
+Review `kc_input.js`. 
+Locate the `MENU_NAV` state block (around line 266) where the `Enter` key intercepts `selected.type` to route to different hub modules.
+You will see hardcoded routes for `mission`, `arcade`, `fabricator`, `archive` (career stats), etc.
+Inject the missing route for our new dispatch token: `else if (selected.type === "archive_mission") KC.hub.enterArchiveSetup();`
+Apply this surgical diff directly to `kc_input.js`.
+Do not modify the other routes. This establishes the architectural precedent that top-level menu additions require updates to both the Hub UI and the Input interceptor.", 18 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\project_brief.md
+Constraints acknowledged. Current Status: Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy backburnered. Audio script drafting + beta polish.
+Good catch —
+kc_hub.activateMenuItem (c:\nbs\kc\kc_hub.js:181)
+was never being reached because MENU_NAV Enter has its own dispatch table. Surgical fix:
+Read kc_input.js, lines 255 to 320
+Read kc_input.js, lines 320 to 380
+Replacing 7 lines with 8 lines in kc_input.js
 ```
 ```
 ```
 ```
-Now append the two render helpers near the other internal helpers (next to
-_newToken (c:\nbs\kc\mission_archive.js:419)
-/
-_playKey (c:\nbs\kc\mission_archive.js:428)
-):
-Replacing 5 lines with 30 lines in mission_archive.js
-```
-```
-```
-```
-v3.47.2 — Visual DOM Sync (summary)
+v3.47.3 — Split-Brain Routing Fix
 File Change
-mission_archive.js (/c:/nbs/kc/mission_archive.js)
-| Added
-activeVolume (c:\nbs\kc\mission_archive.js:155)
-field,
-_renderWord() (c:\nbs\kc\mission_archive.js:421)
-,
-_renderStatusBar() (c:\nbs\kc\mission_archive.js:436)
-. Wired calls:
-init() (c:\nbs\kc\kc_core.js:39)
-→
-_renderStatusBar() (c:\nbs\kc\mission_archive.js:436)
-;
-_beginWord() (c:\nbs\kc\mission_archive.js:236)
-→
-_renderWord() (c:\nbs\kc\mission_archive.js:421)
-(paints fresh mask, e.g.
-_  _  _  _ (c:\nbs\kc\mission_launch.js:153)
-);
-_onCorrect (c:\nbs\kc\mission_archive.js:286)
-post-token-check →
-_renderWord() (c:\nbs\kc\mission_archive.js:421)
-(reveals next slot, e.g.
-L  _  _  _ (c:\nbs\kc\mission_archive.js:69)
-→
-L  I  _  _ (c:\nbs\kc\mission_archive.js:69)
-). |
-Render contract
-Element Method Content
-#display-text (c:\nbs\kc\kc_core.js:161)
-|
-textContent (c:\nbs\kc\kc_core.js:157)
-| Word mask
-L  I  _  _ (c:\nbs\kc\mission_archive.js:69)
-(two-space slot separator, monospace-aligned). |
-| #status-bar |
-textContent (c:\nbs\kc\kc_core.js:157)
-| The Earth Archive — Volume 1 |
-|
-#live-region (c:\nbs\kc\kc_mission_core.js:67)
-| untouched during gameplay | No
-KC.core.announce (c:\nbs\kc\kc_audio.js:3)
-calls added — Belle's VO is the sole auditory channel. |
-Accessibility audit
-Item Status Note
-No double-talk ✅ Render helpers exclusively use
-element.textContent (c:\nbs\kc\kc_audio.js:219)
-. Zero
-KC.core.announce (c:\nbs\kc\kc_audio.js:3)
-calls in either function. |
-| Input trap focus | ✅ | No focusable elements introduced; only text writes. |
-| DOM IDs | ✅ | Reuses existing
-#display-text (c:\nbs\kc\kc_core.js:161)
-and #status-bar via
-KC.els.* (c:\nbs\kc\kc_audio.js:3)
-cache. |
-| Defensive guards | ✅ | Both helpers no-op if
-KC.els (c:\nbs\kc\kc_audio.js:3)
-/ target element is missing — safe under teardown. |
-State coverage
-Mission state Visual after patch
-Just-after
-init() (c:\nbs\kc\kc_core.js:39)
-| Status bar painted; display-text whatever Hub last wrote |
-| PROMPTING (cue + prompt VO) | Mask shown immediately on
-_beginWord (c:\nbs\kc\mission_archive.js:236)
-, before VO starts — sighted users see slots while audio plays |
-| LISTENING | Mask with current progress, e.g.
-L  _  _  _ (c:\nbs\kc\mission_archive.js:69)
-|
-| FEEDBACK_OK | Updated mask with newly-revealed letter (300ms before re-arm) |
-| FEEDBACK_WRONG | Mask unchanged — wrong-key path doesn't touch
-letterIndex (c:\nbs\kc\mission_archive.js:152)
-, so render is stable. Correct behavior: visual reflects only confirmed progress. |
-| WORD_COMPLETE | Fully-revealed word stays on screen during success VO until
-_beginWord(next) (c:\nbs\kc\mission_archive.js:236)
-repaints. |
-Edge case noted, not patched
-The empty-vocab branch in
-start() (c:\nbs\kc\mission_archive.js:190)
-still announces "Archive empty. Returning to Hub." via
-KC.core.announce (c:\nbs\kc\kc_audio.js:3)
-(legacy from v3.47.1). It does not paint
-#display-text (c:\nbs\kc\kc_core.js:161)
-— sighted users will see the prior Hub text for 1.8s before the Hub re-renders. If you want a visual analog there, that's a one-liner addition; flagging as advisory rather than touching it without an explicit ask.
+kc_input.js (/c:/nbs/kc/kc_input.js)
+| MENU_NAV Enter dispatch: inserted
+else if (selected.type === "archive_mission") KC.hub.enterArchiveSetup(); (c:\nbs\kc\kc_hub.js:266)
+between the existing
+archive (c:\nbs\kc\mission_archive.js:112)
+(career stats) and
+echoc (c:\nbs\kc\kc_input.js:151)
+routes. |
+Architectural lesson logged
+Top-level hub menu additions require updates in BOTH locations:
+**UI dispatch** —
+KC.hub.activateMenuItem (c:\nbs\kc\kc_core.js:35)
+in
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+(
+type (c:\nbs\kc\kc_data.js:99)
+→ handler).
+2. Input dispatch — MENU_NAV Enter chain in
+kc_input.js (/c:/nbs/kc/kc_input.js)
+(same
+type (c:\nbs\kc\kc_data.js:99)
+→ handler).
+These two are not consolidated by design (per
+.rules/namespacing.md (/c:/nbs/kc/.rules/namespacing.md)
+:
+KC.handlers (c:\nbs\kc\kc_core.js:35)
+and
+KC.hub (c:\nbs\kc\kc_core.js:29)
+are intentionally distinct namespaces). Future additions must touch both files in the same patch.
+Audit
+**S1 — Whitelists:** ✅ new branch is strict `===`, no `||` fall-through.
+**Audio routing:** ✅ `archive_mission` falls through the existing `else { playSynth(23) }` default at the top of the block — same select-tone as missions/launch, appropriate.
+**Other routes:** ✅ untouched. The career-stats
+archive (c:\nbs\kc\mission_archive.js:112)
+route still binds to
+KC.hub.enterArchive() (c:\nbs\kc\kc_core.js:35)
+; it is matched first by string equality, so no collision.
