@@ -1,104 +1,175 @@
-Searched codebase for "Status Confirmed. Excellent catch on the schema drift, and good call prioritizing the Diff-Only rule for the injection. 
-Task: Sync and Boot. 
-We need to sync the mission logic to the real assets and wire the mission into the router so we can test the Proximity Matrix.
-Review `mission_archive.js`. Update the `archive_vocab` and the directional audio keys to match the actual keys we just injected into the `audio_bank` (e.g., use `intro_lion_snu`, `locate_l_snu`, `dir_left_1_snu`, etc.).
-We only have Bear and Lion right now. Strip out any placeholder animals from the vocab array. 
-Review `kc_mission_core.js` (or whichever file handles Hub routing). We need a temporary bypass. Hijack the main menu or Hub initialization so that booting the game forces `KC.mission.archive.start()` to load immediately for testing.
-Output the surgical diffs to patch `mission_archive.js` and the router.
-Maintain Sentinel S4 (Ghost-Key) and S2 (Async Token) compliance during the asset repointing.", 27 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\asset_mapper.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\project_brief.md
-Thinking: Looking at what audio files are actually available versus what's needed for the game — the user provided direction sounds for adjacent tiles only, intro and success cues for both animals, and location prompts, but I need to verify this covers all the interactions the game requires.
-For the directional feedback, since I only have adjacent-tier sounds, I'll collapse the near and far distance buckets into the same adjacent directional cues, or fall back to replaying the cue if there's no spatial nudge available. The prompt system works well as-is: play the intro cue, then the "Locate B" prompt once at the start, and after the first letter is correct, subsequent letters just need right/wrong feedback without re-prompting.
-I'm setting up the proximity VO map with adjacent directions for L, R, U, D, and mapping near to the same assets pending future tier-2 recordings, while far and sameKey return null to skip spatial feedback entirely. The `_playKey` function needs to handle null gracefully by skipping the spatial VO and moving straight to the callback. Now I need to find where the boot system lands so I can hook in the router hijack.
-Searched for regex bootSystem|enterHub|status\s*=\s*&quot; (**/kc_core.js), 4 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
-Searched for regex enterHub:|ACTIVE_TYPING|activeHandler (**/kc_hub.js), 1 result. Files: c:\nbs\kc\kc_hub.js
-Searched for text mission_ (**/index.html), 7 results. Files: c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html
-Read kc_core.js, lines 55 to 100
-Read kc_hub.js, lines 100 to 160
-Thinking: I need to wire up the mission archive by including its script in the HTML, then hijack the boot system to set the proper state and handler so the input routing chain works correctly—specifically setting `KC.mission.activeHandler` to the archive handler and `KC.state.status` to "ACTIVE_TYPING" so that keyboard input flows through the right path.
-For the profile concern, I'll skip worrying about that and just hook in after the boot system finishes its menu rendering. Now I'm mapping out the audio assets—the intro cues for each animal, the location prompts, success fanfares, and directional cues—and I notice there's only single-tier directional audio, so for distance variations I'll just reuse the adjacent directional assets, and for same-key presses I'll skip the audio entirely since there's no asset for that.
-Updating the mission file now...
-Surgical patches below. Two files touched + one script-tag insertion in
-index.html (/c:/nbs/kc/index.html)
-(the file is currently missing the include — without it, no patch will boot).
+Searched codebase for "System Check: Read project_brief.md, .rules/ux_ui.md, .rules/mission_params.md, and .rules/sentinels.md. Acknowledge constraints.
+Task: Watchdog Update Cycle - Version 3.47.0.
+We are building the production Setup Screen for "The Earth Archive" and wiring it into the main game Hub.
+Review `kc_core.js` (or your boot sequence file) and REMOVE the temporary boot hijack from v3.46.3. Restore standard Hub routing.
+Review `kc_hub.js` (or equivalent Hub UI file). Add "The Earth Archive" to the main mission selection list.
+Build the UI logic for the Archive Setup Screen. 
+ * It must strictly adhere to the `ux_ui.md` Spoke: No mouse events. Arrow keys to navigate, Enter to select.
+ * It must offer Volume selection (e.g., "Volume 1: High Frequency", "Volume 3: Rare Keys").
+ * When the user presses Enter to launch, it MUST update `KC.state.missionParams` with `{ voice: "snu", volume: selectedVolume }` to satisfy the `mission_params.md` contract.
+Once params are set, it should trigger `KC.mission.archive.start()`.
+Output the surgical diffs to patch the Hub UI, remove the boot hijack, and finalize the routing. Ensure Sentinel S7 (No Modals) and S1 (Strict Whitelists) are maintained in the new menu state logic.", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.rules\mission_params.md, c:\nbs\kc\.rules\sentinels.md, c:\nbs\kc\.rules\ux_ui.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\project_brief.md, c:\nbs\kc\rules.md
+Thinking: I'm going to look at the rules files and get a sense of how the hub is organized.
+Read mission_params.md
+Read ux_ui.md
+Read kc_hub.js, lines 1 to 100
+Searched for regex hubs:|menu:\s*\[ (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Read kc_data.js, lines 94 to 170
+Thinking: I need to trace through the menu selection logic to see how mission-type items trigger launches while other menu types get dispatched differently through the game menu or hub navigation system.
+Searched for regex target_id|&quot;mission&quot;|selectGameMenu|item\.type (**/kc_hub.js), 7 results. Files: c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
+Read kc_hub.js, lines 180 to 280
+Thinking: I need to examine how kc_input.js manages the different setup screen states to figure out which STATUS string to apply and where to integrate the arrow key navigation.
+Read kc_input.js, lines 380 to 440
+Read kc_input.js, lines 1 to 100
+Thinking: I'm mapping out the implementation: first I'll remove the temporary boot hijack from the core file, then add a new menu entry for the Earth Archive using a distinct type like `archive_mission` to avoid conflicting with the existing career stats archive, and finally wire up the activation handler.
+Next I need to build out the hub methods to manage the archive setup flow, add input handling for the new state, and configure the mission parameters to use the "snu" voice with the selected volume before transitioning to active typing mode.
+I'm aware that only Volume 1 has actual assets right now, but I'll still display all the volume options as designed—Volume 3 will just be empty for now since the user wants both volumes exposed.
+Constraints acknowledged
+**
+project_brief.md (/c:/nbs/kc/project_brief.md)
+Current Status:** Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy backburnered. Audio script drafting + beta polish.
+**
+ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
+:** keyboard-only; arrows nav, Enter confirm, Esc back. No mouse listeners.
+**
+mission_params.md (/c:/nbs/kc/.rules/mission_params.md)
+:**
+KC.state.missionParams (c:\nbs\kc\kc_core.js:35)
+is a strict contract — additive only, never silently drop fields.
+**
+sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
+:** S1 strict ===, S7 no alert/confirm/prompt, S8 no truncation placeholders.
+Schema-collision flag (advisory): the existing hub menu already uses
+type: "archive" (c:\nbs\kc\kc_data.js:99)
+for the career-stats archive. To avoid breaking that route, the new entry uses
+type: "archive_mission" (c:\nbs\kc\kc_data.js:99)
+(distinct dispatch token). 
 Patch 1 —
-index.html (/c:/nbs/kc/index.html)
-: register the script
-Replacing 2 lines with 3 lines in index.html
+kc_core.js (/c:/nbs/kc/kc_core.js)
+: remove v3.46.x boot hijack
+Replacing 30 lines with 13 lines in kc_core.js
 ```
 ```
 ```
 ```
 Patch 2 —
-mission_archive.js (/c:/nbs/kc/mission_archive.js)
-: repoint to real assets, strip placeholders
-Replacing 59 lines with 53 lines in mission_archive.js
-```
-```
-```
-```
-Now harden the SFX path and the spatial-VO path against null keys (preserves S2 — callbacks still fire under the captured token):
-Replacing 53 lines with 63 lines in mission_archive.js
+kc_data.js (/c:/nbs/kc/kc_data.js)
+: hub menu entry
+Replacing 2 lines with 3 lines in kc_data.js
 ```
 ```
 ```
 ```
 Patch 3 —
-kc_core.js (/c:/nbs/kc/kc_core.js)
-: TEMPORARY boot hijack
-Replacing 13 lines with 30 lines in kc_core.js
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+: dispatch + setup screen
+Replacing 9 lines with 13 lines in kc_hub.js
 ```
 ```
 ```
 ```
-Sentinel re-audit (post-patch)
-Sentinel Status Notes
-S4 — Ghost-Key ✅ unchanged if (e.repeat) return; is still the absolute first line of
-KC.handlers.archive.handleInput (c:\nbs\kc\kc_core.js:35)
-. Boot hijack reuses the existing ACTIVE_TYPING router, which routes through the same gated handler — no new keypress paths added. |
-| S2 — Async Tokens | ✅ hardened | Token captured before SFX/VO; null-asset branches now reach onSpatialDone() synchronously, but still inside the captured-token closure (gate re-checked on entry). Nothing escapes the token. |
-| S1 — Whitelists | ✅ |
-pressedUpper === target (c:\nbs\kc\mission_launch.js:148)
-,
-state !== "LISTENING" (c:\nbs\kc\kc_core.js:4)
-strict checks intact. |
-| S3 — Lifecycle | ✅ |
-stop() (c:\nbs\kc\kc_audio.js:83)
-unchanged; clears timers + nulls token. |
-| S6 — Killswitch | ✅ | Esc still routed through
+Now append the setup-screen module. Insert it just after
+processArcadeSelection (c:\nbs\kc\kc_hub.js:251)
+(clean home next to its sibling):
+Replacing 7 lines with 69 lines in kc_hub.js
+```
+```
+```
+```
+Patch 4 —
 kc_input.js (/c:/nbs/kc/kc_input.js)
-ACTIVE_TYPING branch →
-stopActiveAudio (c:\nbs\kc\kc_audio.js:222)
-→
-flush (c:\nbs\kc\kc_input.js:11)
-→
-abortActiveMission (c:\nbs\kc\kc_mission_core.js:680)
-(which calls our
-endMission (c:\nbs\kc\mission_launch.js:454)
-→
-stop (c:\nbs\kc\kc_audio.js:83)
-). |
-Repointing summary
-Logical role Old placeholder New real key
-BEAR cue arc_bear_cue (never existed) intro_bear_snu
-BEAR prompt — locate_b_snu
-BEAR success — success_bear_snu
-LION cue/prompt/success — intro_lion_snu / locate_l_snu / success_lion_snu
-Adjacent L/R/U/D arc_amelia_one_* dir_left_1_snu / dir_right_1_snu / dir_up_1_snu / dir_down_1_snu
-Near (tier-2) arc_amelia_two_* tier-1 reuse pending recordings
-Far / sameKey placeholder VO null → spatial VO skipped (S2-safe)
-Letter chimes arc_letter_ok/buzz null → fallback to
-KC.audio.playSound('click'/'error') (c:\nbs\kc\kc_audio.js:3)
+: ARCHIVE_SETUP key router
+Replacing 2 lines with 2 lines in kc_input.js
+Thinking: That sanity check didn't actually change anything. Now I need to insert the ARCHIVE_SETUP handler before the ARCADE block to make the real fix.
+Replacing 6 lines with 18 lines in kc_input.js
+```
+```
+```
+```
+v3.47.0 — Earth Archive Hub Wiring (summary)
+File Change
+kc_core.js (/c:/nbs/kc/kc_core.js)
+| Removed v3.46.1 TEMP boot hijack. Standard Hub routing restored. |
 |
-Bench-test caveats
-**Single-letter prompt only.** `locate_b_snu` says "Locate B" — fine for first letter of BEAR. After the first correct keystroke, subsequent letters get no per-letter prompt VO (by design — only cue + buzz + spatial nudge). If you want "now find E", that's a future asset request.
-**CAT/DOG/FOX stripped.** Vocab now contains only BEAR + LION, both volume 1.
-**Boot hijack is marked `v3.46.1 TEMP` with a `REMOVE before merging to main` banner.** It short-circuits before
-KC.hub.renderMenu() (c:\nbs\kc\kc_audio.js:3)
-, so login/profile flow is bypassed entirely — no profile required to test. Revert by deleting the marked block.
-4. **No script-tag for
-mission_archive.js (/c:/nbs/kc/mission_archive.js)
-previously existed in
-index.html (/c:/nbs/kc/index.html)
-** — added between
-mission_stream.js (/c:/nbs/kc/mission_stream.js)
-and the closing of the script list. Without this, all prior patches would have been dead code.
+kc_data.js (/c:/nbs/kc/kc_data.js)
+| Hub menu: inserted
+{ label: "The Earth Archive", type: "archive_mission" } (c:\nbs\kc\kc_data.js:99)
+between Data Dump and Arcade. |
+|
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+|
+activateMenuItem (c:\nbs\kc\kc_hub.js:181)
+dispatches archive_mission →
+enterArchiveSetup() (c:\nbs\kc\kc_hub.js:266)
+. Added
+archiveSetupOptions (c:\nbs\kc\kc_hub.js:260)
+,
+archiveSetupIndex (c:\nbs\kc\kc_hub.js:264)
+,
+enterArchiveSetup (c:\nbs\kc\kc_hub.js:266)
+,
+renderArchiveSetup (c:\nbs\kc\kc_hub.js:273)
+,
+navigateArchiveSetup (c:\nbs\kc\kc_hub.js:292)
+,
+selectArchiveSetup (c:\nbs\kc\kc_hub.js:297)
+. |
+|
+kc_input.js (/c:/nbs/kc/kc_input.js)
+| New ARCHIVE_SETUP state-router block (Up/Down/Enter/Esc), inserted between ARCADE and CACHE. |
+Sentinel & contract audit
+Item Verdict Detail
+S1 — Whitelists ✅ Each input branch is strict ===. Volume options are objects with hard-coded
+id (c:\nbs\kc\kc_core.js:191)
++
+volume (c:\nbs\kc\kc_hub.js:261)
+; no numeric coercion, no \|\| fall-through on selection. New menu type archive_mission is whitelisted in its own else if. |
+| S2 — Async Tokens | ✅ untouched | Mission core unchanged; tokens still bumped on every chain entry. |
+| S4 — Ghost-Key | ✅ untouched | Setup screen lives in its own
+KC.state.status (c:\nbs\kc\kc_core.js:5)
+branch; the ACTIVE_TYPING router and
+KC.handlers.archive.handleInput (c:\nbs\kc\kc_core.js:35)
+are unchanged —
+e.repeat (c:\nbs\kc\kc_input.js:5)
+gate still first line. |
+| S6 — Killswitch | ✅ | Esc from ACTIVE_TYPING already routes through the v3.41 ordered teardown (stopIntro → stopActiveAudio → flush → abortActiveMission). |
+| S7 — No Modals | ✅ | Setup screen renders to
+KC.els.displayText (c:\nbs\kc\kc_core.js:35)
+and announces via
+KC.core.announce (c:\nbs\kc\kc_core.js:161)
+(ARIA live). No alert/confirm/prompt. |
+| S8 — Anti-Truncation | ✅ | All injected blocks are full functional code, no
+// ... existing code ... (c:\nbs\kc\mission_launch.js:350)
+placeholders. |
+| **
+mission_params.md (/c:/nbs/kc/.rules/mission_params.md)
+contract** | ✅ |
+selectArchiveSetup (c:\nbs\kc\kc_hub.js:297)
+uses
+Object.assign({}, prev, {voice:"snu", volume}) (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.es5.d.ts:121)
+— additive, never overwrites or drops other live fields (
+mode (c:\nbs\kc\kc_core.js:163)
+,
+codeLength (c:\nbs\kc\kc_data.js:167)
+,
+difficulty (c:\nbs\kc\kc_data.js:148)
+, etc.). |
+| **
+ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
+keyboard-only** | ✅ | Zero
+addEventListener('click'/...) (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:17867)
+added. Arrows + Enter + Esc only. |
+Caveats
+**Vol 3 is empty** — vocab has only Vol 1 records (BEAR, LION). Selecting Vol 3 will currently announce "Archive empty. Returning to Hub." (already handled in
+mission_archive.start() (c:\nbs\kc\mission_launch.js:113)
+). Label flagged "— pending" so users aren't surprised.
+2. Esc-to-Hub from setup screen plays no audio teardown — that's correct (setup screen plays no VO). If you later add a setup briefing VO, route Esc through
+KC.audio.stopActiveAudio() (c:\nbs\kc\kc_core.js:35)
+first to match S6 spirit.
+3. **
+voice: "snu" (c:\nbs\kc\kc_hub.js:303)
+is now a live value of
+missionParams.voice (c:\nbs\kc\kc_hub.js:302)
+** — existing missions check for &quot;Belle&quot; / &quot;Amelia&quot; via strict equality (e.g.,
+mission_launch.js (/c:/nbs/kc/mission_launch.js)
+line 33). They'll silently fall to default-voice paths for &quot;snu&quot;, which is the desired behavior since this is a parallel library mode. No legacy mission breakage.

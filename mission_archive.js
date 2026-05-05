@@ -184,7 +184,17 @@ KC.mission.archive = {
     start: function() {
         if (!this.isActive) return;
         if (!this.vocab.length) {
-            if (KC.core && KC.core.announce) KC.core.announce("Archive empty. Returning to Hub.");
+            // Accessibility Spoke: route copy through the assertive #live-region
+            // (KC.core.announce), NOT directly into displayText alone. Brief
+            // delay lets the screen reader complete the announcement before
+            // the Hub render swallows focus context.
+            if (KC.core && KC.core.announce) {
+                KC.core.announce("Archive empty. Returning to Hub.");
+            }
+            const t = setTimeout(() => {
+                if (KC.hub && KC.hub.enterHub) KC.hub.enterHub();
+            }, 1800);
+            this.timeouts.push(t);                              // S3: tracked for stop()
             return;
         }
         this._beginWord(0);

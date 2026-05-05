@@ -420,15 +420,26 @@ KC.input = {
             return;
         }
 
-        // --- ARCHIVE_SETUP (v3.47.0) ---
+        // --- ARCHIVE_SETUP (v3.47.0, hardened v3.47.1) ---
         // S1 strict equality on each branch; no `||` fall-throughs.
+        // S4 ghost-key gate is the ABSOLUTE first line of this state block —
+        //    held arrow keys (common with screen-reader review cursors) cannot
+        //    overflow the menu navigation buffer.
+        // S6 Esc executes the canonical killswitch order:
+        //    stopIntro -> stopActiveAudio -> flush -> enterHub.
         // S7 compliance: no native modals — Esc returns via Hub render.
         if (KC.state.status === "ARCHIVE_SETUP") {
+            if (e.repeat) return;                                // S4
             e.preventDefault();
-            if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateArchiveSetup(1); }
-            else if (e.key === "ArrowUp")   { KC.audio.playSound('click'); KC.hub.navigateArchiveSetup(-1); }
-            else if (e.key === "Enter")     { this.flush(); KC.hub.selectArchiveSetup(); }
-            else if (e.key === "Escape")    { this.flush(); KC.hub.enterHub(); }
+            if (e.key === "ArrowDown")    { KC.audio.playSound('click'); KC.hub.navigateArchiveSetup(1); }
+            else if (e.key === "ArrowUp") { KC.audio.playSound('click'); KC.hub.navigateArchiveSetup(-1); }
+            else if (e.key === "Enter")   { this.flush(); KC.hub.selectArchiveSetup(); }
+            else if (e.key === "Escape") {
+                if (KC.audio && KC.audio.stopIntro)        KC.audio.stopIntro();         // S6 step 1
+                if (KC.audio && KC.audio.stopActiveAudio)  KC.audio.stopActiveAudio();   // S6 step 2
+                this.flush();                                                            // S6 step 3
+                KC.hub.enterHub();                                                       // S6 step 4
+            }
             return;
         }
 
