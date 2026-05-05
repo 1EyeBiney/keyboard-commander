@@ -420,6 +420,18 @@ KC.input = {
             return;
         }
 
+        // --- ARCHIVE_SETUP (v3.47.0) ---
+        // S1 strict equality on each branch; no `||` fall-throughs.
+        // S7 compliance: no native modals — Esc returns via Hub render.
+        if (KC.state.status === "ARCHIVE_SETUP") {
+            e.preventDefault();
+            if (e.key === "ArrowDown") { KC.audio.playSound('click'); KC.hub.navigateArchiveSetup(1); }
+            else if (e.key === "ArrowUp")   { KC.audio.playSound('click'); KC.hub.navigateArchiveSetup(-1); }
+            else if (e.key === "Enter")     { this.flush(); KC.hub.selectArchiveSetup(); }
+            else if (e.key === "Escape")    { this.flush(); KC.hub.enterHub(); }
+            return;
+        }
+
         // --- CACHE ---
         if (KC.state.status === "CACHE") {
             e.preventDefault(); 

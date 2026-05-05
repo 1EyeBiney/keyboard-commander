@@ -197,6 +197,10 @@ KC.hub = {
             setTimeout(() => {
                 this.enterArcade();
             }, 600);
+        } else if (selected.type === "archive_mission") {
+            setTimeout(() => {
+                this.enterArchiveSetup();
+            }, 600);
         } else if (selected.type === "engineering") {
              setTimeout(() => {
                  // Engineering Module stub
@@ -248,6 +252,68 @@ KC.hub = {
         const dept = GAME_DATA.arcade[KC.state.arcade.tab];
         const item = dept.items[KC.state.arcade.index];
         KC.mission.loadLesson(item.target_id);
+    },
+
+    // --- EARTH ARCHIVE SETUP (v3.47.0) ---
+    // S1 whitelist: each volume option carries a strict, hard-coded id. No
+    // numeric coercion / no string fall-through. Keyboard-only per ux_ui.md.
+    archiveSetupOptions: [
+        { id: "vol1", label: "Volume 1: High Frequency (Bear, Lion)",   volume: 1 },
+        { id: "vol3", label: "Volume 3: Rare Keys (Q, Z, X) — pending", volume: 3 }
+    ],
+    archiveSetupIndex: 0,
+
+    enterArchiveSetup: function() {
+        KC.state.status = "ARCHIVE_SETUP";
+        if (KC.input && KC.input.flush) KC.input.flush();
+        this.archiveSetupIndex = 0;
+        this.renderArchiveSetup(true);
+    },
+
+    renderArchiveSetup: function(isEntering = false) {
+        const opts = this.archiveSetupOptions;
+        if (this.archiveSetupIndex < 0) this.archiveSetupIndex = opts.length - 1;
+        if (this.archiveSetupIndex >= opts.length) this.archiveSetupIndex = 0;
+
+        let content = "THE EARTH ARCHIVE — DEFRAGMENTATION SETUP\n\n";
+        content += "Snippy is restoring Ancient Earth Archives. Choose a volume:\n\n";
+        opts.forEach((opt, i) => {
+            const cursor = (i === this.archiveSetupIndex) ? "> " : "  ";
+            content += `${cursor}${opt.label}\n`;
+        });
+        content += "\n[Up/Down to select, Enter to begin, Escape to return]";
+        KC.els.displayText.textContent = content;
+
+        const active = opts[this.archiveSetupIndex];
+        const lead = isEntering ? "Earth Archive setup. " : "";
+        KC.core.announce(`${lead}${active.label}.`);
+    },
+
+    navigateArchiveSetup: function(dir) {
+        this.archiveSetupIndex += dir;
+        this.renderArchiveSetup(false);
+    },
+
+    selectArchiveSetup: function() {
+        const active = this.archiveSetupOptions[this.archiveSetupIndex];
+        if (!active) return;                                  // S1: no fallback coercion
+
+        // mission_params.md contract: additive merge, never silently drop fields.
+        KC.state.missionParams = Object.assign({}, KC.state.missionParams || {}, {
+            voice: "snu",
+            volume: active.volume
+        });
+
+        // Hand off to the mission-core router pattern used by Launch Codes.
+        KC.state.status = "ACTIVE_TYPING";
+        KC.mission.activeHandler = KC.handlers.archive;
+        if (KC.input && KC.input.flush) KC.input.flush();
+
+        KC.els.displayText.textContent =
+            `THE EARTH ARCHIVE — VOLUME ${active.volume}\nListen for the cue, then spell the word.\n[Esc to return to Hub]`;
+
+        KC.mission.archive.init({ volume: active.volume });
+        KC.mission.archive.start();
     },
 
     // --- FABRICATOR ---

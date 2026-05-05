@@ -99,6 +99,7 @@ const GAME_DATA = {
         { label: "System Override", type: "mission", target_id: "D00-MISSION-REFLEX", desc: "Help Snippy repair ship systems by quickly typing single letters as they are called out." },
         { label: "Keyboard Commander", type: "mission", target_id: "D00-MISSION-RACE", desc: "Race against your rival, Commander Keyboard, by typing words as fast as you can to win." },
         { label: "Data Dump", type: "mission", target_id: "ARC-STREAM-01", desc: "Survival mode: Type a continuous stream of characters before the system overflows." },
+        { label: "The Earth Archive", type: "archive_mission", desc: "Library mode for new typists. Snippy plays animal sounds; you spell the word. Zero time pressure." },
         { label: "Arcade", type: "arcade", desc: "Access specialized typing drills and alternate missions." },
         { label: "Archive", type: "archive", desc: "Review your career stats, old story logs, and mission briefings." },
         { label: "Data Cache", type: "cache", desc: "Check your digital wallet and currency balances." },

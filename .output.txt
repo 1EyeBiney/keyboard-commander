@@ -1,59 +1,104 @@
-Searched codebase for "System Check: Read project_brief.md, .rules/audio_engine.md, and .rules/sentinels.md. Acknowledge constraints.
-Task: Watchdog Update Cycle - Version 3.46.1.
-We are injecting the audio assets for the new "Earth Archive" mission into the global data layer.
-Review `kc_data.js`, specifically the `GAME_DATA.audio_bank` object.
-Inject the following 11 new assets into that audio bank.
-Apply the 'Audio Asset Key Contract' (from `audio_engine.md`): You must preserve the exact suffixes, spelling, and case structure of these new keys. Do not normalize them.
-Apply Sentinel S8 (Anti-Truncation): Output the ENTIRE, fully merged `audio_bank` object block so I can safely paste it over the existing object without losing any legacy keys. Do not use placeholder comments.
-New Assets to Inject:
-    "dir_down_1_snu": "audio/mg_archive/dir_down_1_snu.mp3",
-    "dir_left_1_snu": "audio/mg_archive/dir_left_1_snu.mp3",
-    "dir_right_1_snu": "audio/mg_archive/dir_right_1_snu.mp3",
-    "dir_up_1_snu": "audio/mg_archive/dir_up_1_snu.mp3",
-    "intro_bear_snu": "audio/mg_archive/intro_bear_snu.mp3",
-    "intro_lion_snu": "audio/mg_archive/intro_lion_snu.mp3",
-    "locate_b_snu": "audio/mg_archive/locate_b_snu.mp3",
-    "locate_l_snu": "audio/mg_archive/locate_l_snu.mp3",
-    "success_bear_snu": "audio/mg_archive/success_bear_snu.mp3",
-    "success_lion_snu": "audio/mg_archive/success_lion_snu.mp3",
-    "sym_caratt_snu": "audio/symbols/sym_caratt_snu.mp3"", 25 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.rules\audio_engine.md, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_stream.js
-Thinking: I need to load the project brief, audio engine, and sentinels files, then examine the audio bank object in kc_data.js to see what needs to be merged together.
-Searched for text audio_bank (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
-Read kc_data.js, lines 195 to 700
-Thinking: Looking for the closing brace of the audio_bank object to understand its full structure.
-Searched for regex ^  \}|^\};|ck_mut_ack (**/kc_data.js), 9 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Thinking: I see the audio_bank object closes at line 865, so I need to insert 11 new keys before that closing brace. The user explicitly asked for the entire merged object so they can paste it over the existing one, though I could also use a file replacement function to edit it in place instead.
-There's a conflict here: the user's Sentinel S8 directive wants the full block output to prevent losing legacy keys, but the project brief's Diff-Only principle says to avoid full-file rewrites and use surgical edits. The best approach is to edit the file directly with a surgical insertion before the closing brace—this preserves all legacy keys by definition and respects the diff-only constraint. I'll report back with a summary of what was added rather than outputting all 666 lines.
-Let me locate the exact insertion point around line 865.
-Read kc_data.js, lines 855 to 870
-Thinking: I need to respect the project directives here—surgical edits only, no full rewrites. This actually aligns better with the concern about preserving legacy keys anyway. I'll insert the new keys with a tight diff and explain the reasoning.
-For placement, I'm adding a trailing comma to the `phase_3_snu` entry and appending the new block right before the closing brace of `audio_bank`, keeping the structure clean and minimal.
-Constraints acknowledged:
-**
-project_brief.md (/c:/nbs/kc/project_brief.md)
-— Current Status:** "Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy is officially backburnered. Currently focusing on Audio script drafting and beta polish."
-**Audio Asset Key Contract:** keys preserved verbatim — `dir_*_1_snu`, `intro_*_snu`, `locate_*_snu`, `success_*_snu`, and `sym_caratt_snu` (note: double-
-t (c:\nbs\kc\mission_launch.js:131)
-, intentional, distinct from existing sym_carat_*).
-**S8:** no truncation/placeholder comments.
-Directive conflict resolution.
-project_brief.md (/c:/nbs/kc/project_brief.md)
-rule Diff-Only ("Code updates must be surgical blocks; no full-file rewrites") and Token Economy override the literal "dump the entire merged object" request. S8's underlying intent — don't lose legacy keys — is satisfied more reliably by a surgical in-place insertion than by re-pasting ~666 lines (where transcription drift is the actual risk). Performing the surgical edit now.
-Replacing 4 lines with 17 lines in kc_data.js
+Searched codebase for "Status Confirmed. Excellent catch on the schema drift, and good call prioritizing the Diff-Only rule for the injection. 
+Task: Sync and Boot. 
+We need to sync the mission logic to the real assets and wire the mission into the router so we can test the Proximity Matrix.
+Review `mission_archive.js`. Update the `archive_vocab` and the directional audio keys to match the actual keys we just injected into the `audio_bank` (e.g., use `intro_lion_snu`, `locate_l_snu`, `dir_left_1_snu`, etc.).
+We only have Bear and Lion right now. Strip out any placeholder animals from the vocab array. 
+Review `kc_mission_core.js` (or whichever file handles Hub routing). We need a temporary bypass. Hijack the main menu or Hub initialization so that booting the game forces `KC.mission.archive.start()` to load immediately for testing.
+Output the surgical diffs to patch `mission_archive.js` and the router.
+Maintain Sentinel S4 (Ghost-Key) and S2 (Async Token) compliance during the asset repointing.", 27 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\asset_mapper.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\project_brief.md
+Thinking: Looking at what audio files are actually available versus what's needed for the game — the user provided direction sounds for adjacent tiles only, intro and success cues for both animals, and location prompts, but I need to verify this covers all the interactions the game requires.
+For the directional feedback, since I only have adjacent-tier sounds, I'll collapse the near and far distance buckets into the same adjacent directional cues, or fall back to replaying the cue if there's no spatial nudge available. The prompt system works well as-is: play the intro cue, then the "Locate B" prompt once at the start, and after the first letter is correct, subsequent letters just need right/wrong feedback without re-prompting.
+I'm setting up the proximity VO map with adjacent directions for L, R, U, D, and mapping near to the same assets pending future tier-2 recordings, while far and sameKey return null to skip spatial feedback entirely. The `_playKey` function needs to handle null gracefully by skipping the spatial VO and moving straight to the callback. Now I need to find where the boot system lands so I can hook in the router hijack.
+Searched for regex bootSystem|enterHub|status\s*=\s*&quot; (**/kc_core.js), 4 results. Files: c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_core.js
+Searched for regex enterHub:|ACTIVE_TYPING|activeHandler (**/kc_hub.js), 1 result. Files: c:\nbs\kc\kc_hub.js
+Searched for text mission_ (**/index.html), 7 results. Files: c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html, c:\nbs\kc\index.html
+Read kc_core.js, lines 55 to 100
+Read kc_hub.js, lines 100 to 160
+Thinking: I need to wire up the mission archive by including its script in the HTML, then hijack the boot system to set the proper state and handler so the input routing chain works correctly—specifically setting `KC.mission.activeHandler` to the archive handler and `KC.state.status` to "ACTIVE_TYPING" so that keyboard input flows through the right path.
+For the profile concern, I'll skip worrying about that and just hook in after the boot system finishes its menu rendering. Now I'm mapping out the audio assets—the intro cues for each animal, the location prompts, success fanfares, and directional cues—and I notice there's only single-tier directional audio, so for distance variations I'll just reuse the adjacent directional assets, and for same-key presses I'll skip the audio entirely since there's no asset for that.
+Updating the mission file now...
+Surgical patches below. Two files touched + one script-tag insertion in
+index.html (/c:/nbs/kc/index.html)
+(the file is currently missing the include — without it, no patch will boot).
+Patch 1 —
+index.html (/c:/nbs/kc/index.html)
+: register the script
+Replacing 2 lines with 3 lines in index.html
 ```
 ```
 ```
 ```
-v3.46.1 — audio_bank surgical injection. 11 keys appended after the phase_*_snu block in
-kc_data.js#L862-L877 (/c:/nbs/kc/kc_data.js:862)
-. Zero legacy keys touched. 
-Verbatim preservation audit:
-Key Notes
-dir_down_1_snu, dir_left_1_snu, dir_right_1_snu, dir_up_1_snu _1 infix preserved (room for _2 distance tier later)
-intro_bear_snu, intro_lion_snu intro_* prefix kept (not normalized to existing arc_* convention from the design doc — these are the canonical asset-team keys)
-locate_b_snu, locate_l_snu single-letter targets; preserved lowercase
-success_bear_snu, success_lion_snu preserved as-is
-sym_caratt_snu double-t preserved — distinct from existing sym_carat_am/sym_carat_ame. Did NOT "fix" to sym_carat_snu.
-Schema drift flag (advisory, no action taken): the keys delivered by the asset team don't match the placeholder names in
+Patch 2 —
 mission_archive.js (/c:/nbs/kc/mission_archive.js)
-(arc_cat_cue, arc_amelia_one_left, etc.). When you're ready, the mission's vocab + archive_proximityVO will need to be re-pointed to these real keys (e.g., intro_lion_snu → cue, locate_l_snu → prompt, dir_left_1_snu → adjacent.L, success_lion_snu → success). Awaiting your call before mutating the mission file.
+: repoint to real assets, strip placeholders
+Replacing 59 lines with 53 lines in mission_archive.js
+```
+```
+```
+```
+Now harden the SFX path and the spatial-VO path against null keys (preserves S2 — callbacks still fire under the captured token):
+Replacing 53 lines with 63 lines in mission_archive.js
+```
+```
+```
+```
+Patch 3 —
+kc_core.js (/c:/nbs/kc/kc_core.js)
+: TEMPORARY boot hijack
+Replacing 13 lines with 30 lines in kc_core.js
+```
+```
+```
+```
+Sentinel re-audit (post-patch)
+Sentinel Status Notes
+S4 — Ghost-Key ✅ unchanged if (e.repeat) return; is still the absolute first line of
+KC.handlers.archive.handleInput (c:\nbs\kc\kc_core.js:35)
+. Boot hijack reuses the existing ACTIVE_TYPING router, which routes through the same gated handler — no new keypress paths added. |
+| S2 — Async Tokens | ✅ hardened | Token captured before SFX/VO; null-asset branches now reach onSpatialDone() synchronously, but still inside the captured-token closure (gate re-checked on entry). Nothing escapes the token. |
+| S1 — Whitelists | ✅ |
+pressedUpper === target (c:\nbs\kc\mission_launch.js:148)
+,
+state !== "LISTENING" (c:\nbs\kc\kc_core.js:4)
+strict checks intact. |
+| S3 — Lifecycle | ✅ |
+stop() (c:\nbs\kc\kc_audio.js:83)
+unchanged; clears timers + nulls token. |
+| S6 — Killswitch | ✅ | Esc still routed through
+kc_input.js (/c:/nbs/kc/kc_input.js)
+ACTIVE_TYPING branch →
+stopActiveAudio (c:\nbs\kc\kc_audio.js:222)
+→
+flush (c:\nbs\kc\kc_input.js:11)
+→
+abortActiveMission (c:\nbs\kc\kc_mission_core.js:680)
+(which calls our
+endMission (c:\nbs\kc\mission_launch.js:454)
+→
+stop (c:\nbs\kc\kc_audio.js:83)
+). |
+Repointing summary
+Logical role Old placeholder New real key
+BEAR cue arc_bear_cue (never existed) intro_bear_snu
+BEAR prompt — locate_b_snu
+BEAR success — success_bear_snu
+LION cue/prompt/success — intro_lion_snu / locate_l_snu / success_lion_snu
+Adjacent L/R/U/D arc_amelia_one_* dir_left_1_snu / dir_right_1_snu / dir_up_1_snu / dir_down_1_snu
+Near (tier-2) arc_amelia_two_* tier-1 reuse pending recordings
+Far / sameKey placeholder VO null → spatial VO skipped (S2-safe)
+Letter chimes arc_letter_ok/buzz null → fallback to
+KC.audio.playSound('click'/'error') (c:\nbs\kc\kc_audio.js:3)
+|
+Bench-test caveats
+**Single-letter prompt only.** `locate_b_snu` says "Locate B" — fine for first letter of BEAR. After the first correct keystroke, subsequent letters get no per-letter prompt VO (by design — only cue + buzz + spatial nudge). If you want "now find E", that's a future asset request.
+**CAT/DOG/FOX stripped.** Vocab now contains only BEAR + LION, both volume 1.
+**Boot hijack is marked `v3.46.1 TEMP` with a `REMOVE before merging to main` banner.** It short-circuits before
+KC.hub.renderMenu() (c:\nbs\kc\kc_audio.js:3)
+, so login/profile flow is bypassed entirely — no profile required to test. Revert by deleting the marked block.
+4. **No script-tag for
+mission_archive.js (/c:/nbs/kc/mission_archive.js)
+previously existed in
+index.html (/c:/nbs/kc/index.html)
+** — added between
+mission_stream.js (/c:/nbs/kc/mission_stream.js)
+and the closing of the script list. Without this, all prior patches would have been dead code.
