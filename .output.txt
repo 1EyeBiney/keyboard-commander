@@ -1,175 +1,99 @@
-Searched codebase for "System Check: Read project_brief.md, .rules/ux_ui.md, .rules/mission_params.md, and .rules/sentinels.md. Acknowledge constraints.
-Task: Watchdog Update Cycle - Version 3.47.0.
-We are building the production Setup Screen for "The Earth Archive" and wiring it into the main game Hub.
-Review `kc_core.js` (or your boot sequence file) and REMOVE the temporary boot hijack from v3.46.3. Restore standard Hub routing.
-Review `kc_hub.js` (or equivalent Hub UI file). Add "The Earth Archive" to the main mission selection list.
-Build the UI logic for the Archive Setup Screen. 
- * It must strictly adhere to the `ux_ui.md` Spoke: No mouse events. Arrow keys to navigate, Enter to select.
- * It must offer Volume selection (e.g., "Volume 1: High Frequency", "Volume 3: Rare Keys").
- * When the user presses Enter to launch, it MUST update `KC.state.missionParams` with `{ voice: "snu", volume: selectedVolume }` to satisfy the `mission_params.md` contract.
-Once params are set, it should trigger `KC.mission.archive.start()`.
-Output the surgical diffs to patch the Hub UI, remove the boot hijack, and finalize the routing. Ensure Sentinel S7 (No Modals) and S1 (Strict Whitelists) are maintained in the new menu state logic.", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.rules\mission_params.md, c:\nbs\kc\.rules\sentinels.md, c:\nbs\kc\.rules\ux_ui.md, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\project_brief.md, c:\nbs\kc\rules.md
-Thinking: I'm going to look at the rules files and get a sense of how the hub is organized.
-Read mission_params.md
-Read ux_ui.md
-Read kc_hub.js, lines 1 to 100
-Searched for regex hubs:|menu:\s*\[ (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Read kc_data.js, lines 94 to 170
-Thinking: I need to trace through the menu selection logic to see how mission-type items trigger launches while other menu types get dispatched differently through the game menu or hub navigation system.
-Searched for regex target_id|&quot;mission&quot;|selectGameMenu|item\.type (**/kc_hub.js), 7 results. Files: c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
-Read kc_hub.js, lines 180 to 280
-Thinking: I need to examine how kc_input.js manages the different setup screen states to figure out which STATUS string to apply and where to integrate the arrow key navigation.
-Read kc_input.js, lines 380 to 440
-Read kc_input.js, lines 1 to 100
-Thinking: I'm mapping out the implementation: first I'll remove the temporary boot hijack from the core file, then add a new menu entry for the Earth Archive using a distinct type like `archive_mission` to avoid conflicting with the existing career stats archive, and finally wire up the activation handler.
-Next I need to build out the hub methods to manage the archive setup flow, add input handling for the new state, and configure the mission parameters to use the "snu" voice with the selected volume before transitioning to active typing mode.
-I'm aware that only Volume 1 has actual assets right now, but I'll still display all the volume options as designed—Volume 3 will just be empty for now since the user wants both volumes exposed.
-Constraints acknowledged
+Searched codebase for "System Check: Read project_brief.md, .rules/sentinels.md, and .rules/accessibility.md. Acknowledge constraints.
+Task: Watchdog Update Cycle - Version 3.47.1 (Setup Polish & Hardening).
+We need to harden the Archive Setup screen you built in v3.47.0 to ensure strict Sentinel compliance.
+Review `kc_input.js` (or where the `ARCHIVE_SETUP` input routing lives).
+ * Apply Sentinel S4: Ensure `if (e.repeat) return;` is the absolute first gate in the setup menu input handler to prevent scrolling overflow if a user holds the Arrow keys.
+ * Apply Sentinel S6: If the user presses `Escape` during Archive Setup, it must execute the strict Killswitch Order (stop audio, flush inputs, enter Hub) to prevent state bleeding.
+Review `mission_archive.js`.
+ * Look at the Volume 3 graceful exit logic (when the vocab is empty). Ensure the "Archive empty. Returning to Hub." text is specifically routed through `KC.core.announce()` to satisfy the Accessibility Spoke, followed by a brief timeout before firing `KC.hub.enterHub()`.
+Output the surgical diffs to apply these hardening patches. Maintain strict adherence to all existing spokes.", 20 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.rules\sentinels.md, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_archive.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\project_brief.md, c:\nbs\kc\rules.md
+Thinking: I'm quickly reviewing the rules and checking the current state of the input file.
+Searched for text ARCHIVE_SETUP (**/kc_input.js), 2 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
+Read accessibility.md
+Constraints acknowledged.
 **
 project_brief.md (/c:/nbs/kc/project_brief.md)
 Current Status:** Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy backburnered. Audio script drafting + beta polish.
-**
-ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
-:** keyboard-only; arrows nav, Enter confirm, Esc back. No mouse listeners.
-**
-mission_params.md (/c:/nbs/kc/.rules/mission_params.md)
-:**
-KC.state.missionParams (c:\nbs\kc\kc_core.js:35)
-is a strict contract — additive only, never silently drop fields.
-**
-sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
-:** S1 strict ===, S7 no alert/confirm/prompt, S8 no truncation placeholders.
-Schema-collision flag (advisory): the existing hub menu already uses
-type: "archive" (c:\nbs\kc\kc_data.js:99)
-for the career-stats archive. To avoid breaking that route, the new entry uses
-type: "archive_mission" (c:\nbs\kc\kc_data.js:99)
-(distinct dispatch token). 
+**S4** ghost-key gate first; **S6** ordered killswitch on exit; **
+accessibility.md (/c:/nbs/kc/.rules/accessibility.md)
+** screen-reader text via
+KC.core.announce (c:\nbs\kc\kc_core.js:161)
+.
+Critical constraint conflict to surface before patching:
+handleGlobalKeys (c:\nbs\kc\kc_input.js:17)
+already runs many global gates before state-routing (Dev Console, Shift/Ctrl/Alt silent drop, F-key whitelist, hard-reset combo, Shift+V/M audio toggles). Adding if (e.repeat) return; at the top of the state block is fine and exactly what S4 demands at the local routing level — but a strict reading of S4 ("absolute first gate in any
+handleInput(e) (c:\nbs\kc\kc_mission_core.js:646)
+") would require it at the very top of
+handleGlobalKeys (c:\nbs\kc\kc_input.js:17)
+, ahead of those intercepts. Doing that globally is out of scope for this task and would suppress repeat-fire on legitimate global hotkeys (Dev Console nav, audio cycling). Scoping the gate to the ARCHIVE_SETUP block per your instructions — same pattern Launch Codes and other state branches already use.
 Patch 1 —
-kc_core.js (/c:/nbs/kc/kc_core.js)
-: remove v3.46.x boot hijack
-Replacing 30 lines with 13 lines in kc_core.js
+kc_input.js (/c:/nbs/kc/kc_input.js)
+: S4 + explicit S6 killswitch on Esc
+Replacing 11 lines with 22 lines in kc_input.js
 ```
 ```
 ```
 ```
 Patch 2 —
-kc_data.js (/c:/nbs/kc/kc_data.js)
-: hub menu entry
-Replacing 2 lines with 3 lines in kc_data.js
+mission_archive.js (/c:/nbs/kc/mission_archive.js)
+: empty-vocab graceful exit
+Replacing 8 lines with 18 lines in mission_archive.js
 ```
 ```
 ```
 ```
-Patch 3 —
-kc_hub.js (/c:/nbs/kc/kc_hub.js)
-: dispatch + setup screen
-Replacing 9 lines with 13 lines in kc_hub.js
-```
-```
-```
-```
-Now append the setup-screen module. Insert it just after
-processArcadeSelection (c:\nbs\kc\kc_hub.js:251)
-(clean home next to its sibling):
-Replacing 7 lines with 69 lines in kc_hub.js
-```
-```
-```
-```
-Patch 4 —
-kc_input.js (/c:/nbs/kc/kc_input.js)
-: ARCHIVE_SETUP key router
-Replacing 2 lines with 2 lines in kc_input.js
-Thinking: That sanity check didn't actually change anything. Now I need to insert the ARCHIVE_SETUP handler before the ARCADE block to make the real fix.
-Replacing 6 lines with 18 lines in kc_input.js
-```
-```
-```
-```
-v3.47.0 — Earth Archive Hub Wiring (summary)
+v3.47.1 — Setup Polish & Hardening (summary)
 File Change
-kc_core.js (/c:/nbs/kc/kc_core.js)
-| Removed v3.46.1 TEMP boot hijack. Standard Hub routing restored. |
-|
-kc_data.js (/c:/nbs/kc/kc_data.js)
-| Hub menu: inserted
-{ label: "The Earth Archive", type: "archive_mission" } (c:\nbs\kc\kc_data.js:99)
-between Data Dump and Arcade. |
-|
-kc_hub.js (/c:/nbs/kc/kc_hub.js)
-|
-activateMenuItem (c:\nbs\kc\kc_hub.js:181)
-dispatches archive_mission →
-enterArchiveSetup() (c:\nbs\kc\kc_hub.js:266)
-. Added
-archiveSetupOptions (c:\nbs\kc\kc_hub.js:260)
-,
-archiveSetupIndex (c:\nbs\kc\kc_hub.js:264)
-,
-enterArchiveSetup (c:\nbs\kc\kc_hub.js:266)
-,
-renderArchiveSetup (c:\nbs\kc\kc_hub.js:273)
-,
-navigateArchiveSetup (c:\nbs\kc\kc_hub.js:292)
-,
-selectArchiveSetup (c:\nbs\kc\kc_hub.js:297)
-. |
-|
 kc_input.js (/c:/nbs/kc/kc_input.js)
-| New ARCHIVE_SETUP state-router block (Up/Down/Enter/Esc), inserted between ARCADE and CACHE. |
-Sentinel & contract audit
-Item Verdict Detail
-S1 — Whitelists ✅ Each input branch is strict ===. Volume options are objects with hard-coded
-id (c:\nbs\kc\kc_core.js:191)
-+
-volume (c:\nbs\kc\kc_hub.js:261)
-; no numeric coercion, no \|\| fall-through on selection. New menu type archive_mission is whitelisted in its own else if. |
-| S2 — Async Tokens | ✅ untouched | Mission core unchanged; tokens still bumped on every chain entry. |
-| S4 — Ghost-Key | ✅ untouched | Setup screen lives in its own
-KC.state.status (c:\nbs\kc\kc_core.js:5)
-branch; the ACTIVE_TYPING router and
-KC.handlers.archive.handleInput (c:\nbs\kc\kc_core.js:35)
-are unchanged —
-e.repeat (c:\nbs\kc\kc_input.js:5)
-gate still first line. |
-| S6 — Killswitch | ✅ | Esc from ACTIVE_TYPING already routes through the v3.41 ordered teardown (stopIntro → stopActiveAudio → flush → abortActiveMission). |
-| S7 — No Modals | ✅ | Setup screen renders to
-KC.els.displayText (c:\nbs\kc\kc_core.js:35)
-and announces via
-KC.core.announce (c:\nbs\kc\kc_core.js:161)
-(ARIA live). No alert/confirm/prompt. |
-| S8 — Anti-Truncation | ✅ | All injected blocks are full functional code, no
-// ... existing code ... (c:\nbs\kc\mission_launch.js:350)
-placeholders. |
-| **
-mission_params.md (/c:/nbs/kc/.rules/mission_params.md)
-contract** | ✅ |
-selectArchiveSetup (c:\nbs\kc\kc_hub.js:297)
-uses
-Object.assign({}, prev, {voice:"snu", volume}) (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.es5.d.ts:121)
-— additive, never overwrites or drops other live fields (
-mode (c:\nbs\kc\kc_core.js:163)
-,
-codeLength (c:\nbs\kc\kc_data.js:167)
-,
-difficulty (c:\nbs\kc\kc_data.js:148)
-, etc.). |
-| **
-ux_ui.md (/c:/nbs/kc/.rules/ux_ui.md)
-keyboard-only** | ✅ | Zero
-addEventListener('click'/...) (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:17867)
-added. Arrows + Enter + Esc only. |
-Caveats
-**Vol 3 is empty** — vocab has only Vol 1 records (BEAR, LION). Selecting Vol 3 will currently announce "Archive empty. Returning to Hub." (already handled in
-mission_archive.start() (c:\nbs\kc\mission_launch.js:113)
-). Label flagged "— pending" so users aren't surprised.
-2. Esc-to-Hub from setup screen plays no audio teardown — that's correct (setup screen plays no VO). If you later add a setup briefing VO, route Esc through
-KC.audio.stopActiveAudio() (c:\nbs\kc\kc_core.js:35)
-first to match S6 spirit.
-3. **
-voice: "snu" (c:\nbs\kc\kc_hub.js:303)
-is now a live value of
-missionParams.voice (c:\nbs\kc\kc_hub.js:302)
-** — existing missions check for &quot;Belle&quot; / &quot;Amelia&quot; via strict equality (e.g.,
+| ARCHIVE_SETUP state block: if (e.repeat) return; is now line 1 (S4). Esc branch executes ordered killswitch:
+stopIntro (c:\nbs\kc\kc_audio.js:53)
+→
+stopActiveAudio (c:\nbs\kc\kc_audio.js:222)
+→
+flush (c:\nbs\kc\kc_input.js:11)
+→
+enterHub (c:\nbs\kc\kc_hub.js:111)
+(S6). |
+|
+mission_archive.js (/c:/nbs/kc/mission_archive.js)
+|
+start() (c:\nbs\kc\mission_launch.js:113)
+empty-vocab branch routes copy through
+KC.core.announce (c:\nbs\kc\kc_audio.js:3)
+(accessibility), then 1800 ms
+setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)
+→
+KC.hub.enterHub() (c:\nbs\kc\kc_audio.js:3)
+. Timeout pushed to this.timeouts so S3
+stop() (c:\nbs\kc\kc_audio.js:83)
+cancels it cleanly if user backs out faster. |
+Sentinel audit
+Sentinel Status Note
+S1 ✅ Whitelisted === branches preserved; no new fall-throughs.
+S3 ✅ New
+setTimeout (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:44123)
+registered in this.timeouts —
+stop() (c:\nbs\kc\kc_audio.js:83)
+will iterate-clear it. |
+| S4 | ✅ |
+e.repeat (c:\nbs\kc\kc_audio.js:39)
+gate is the absolute first statement of the ARCHIVE_SETUP block, ahead of
+e.preventDefault() (c:\nbs\kc\kc_audio.js:39)
+. |
+| S6 | ✅ | Esc now mirrors the canonical 4-step order used by
 mission_launch.js (/c:/nbs/kc/mission_launch.js)
-line 33). They'll silently fall to default-voice paths for &quot;snu&quot;, which is the desired behavior since this is a parallel library mode. No legacy mission breakage.
+exit path. |
+| S7 | ✅ | No modals introduced. Empty-vocab message is announce-only. |
+| Accessibility | ✅ | Empty-vocab text reaches
+#live-region (c:\nbs\kc\kc_mission_core.js:67)
+via
+KC.core.announce (c:\nbs\kc\kc_audio.js:3)
+; 1.8s buffer prevents announcement truncation when Hub render rewrites
+#display-text (c:\nbs\kc\kc_audio.js:312)
+. |
+Edge case handled silently
+If a user holds Esc in the setup screen, the S4 gate now blocks the repeat fire — without it, holding Esc would re-enter
+enterHub() (c:\nbs\kc\kc_hub.js:111)
+mid-render and could double-bind
+KC.state.status (c:\nbs\kc\kc_audio.js:3)
+. Fixed by virtue of the gate position, not extra logic.

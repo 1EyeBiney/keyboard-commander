@@ -152,6 +152,7 @@ KC.mission.archive = {
     letterIndex:     0,
     currentWord:     null,        // cached vocab record
     consecutiveMisses: 0,         // resets on correct letter; triggers cue replay at 3
+    activeVolume:    null,        // captured from init config; drives status bar
 
     /* ====================================================================
      *  Lifecycle
@@ -174,7 +175,12 @@ KC.mission.archive = {
         this.letterIndex       = 0;
         this.currentWord       = null;
         this.consecutiveMisses = 0;
+        this.activeVolume      = volFilter;
         this.state             = "IDLE";
+
+        // v3.47.2: paint status bar at session start. textContent only — no
+        // ARIA route (Belle's VO is the auditory channel; we must not double-talk).
+        this._renderStatusBar();
 
         if (KC.core && KC.core.announce) {
             KC.core.announce("Earth Archive online. Snippy is defragmenting. Listen carefully.");
@@ -236,6 +242,7 @@ KC.mission.archive = {
         this.letterIndex       = 0;
         this.currentWord       = this.vocab[idx];
         this.consecutiveMisses = 0;
+        this._renderWord();                       // v3.47.2: visual-only repaint
         this._promptCurrentWord();
     },
 
@@ -292,6 +299,7 @@ KC.mission.archive = {
         const t = setTimeout(() => {
             if (this.dictationId !== tok) return;            // S2 gate
             this.letterIndex += 1;
+            this._renderWord();                              // v3.47.2: reveal next letter
             if (this.letterIndex >= this.currentWord.word.length) {
                 this._onWordComplete();
             } else {
@@ -406,6 +414,31 @@ KC.mission.archive = {
     /* ====================================================================
      *  Internal helpers
      * ==================================================================== */
+
+    // Paints the masked word into #display-text. Visual-only per Accessibility
+    // Spoke (v3.47.2): textContent route, NEVER KC.core.announce — Belle's VO
+    // owns the auditory channel and we must not double-speak.
+    _renderWord: function() {
+        if (!KC.els || !KC.els.displayText) return;
+        const word = this.currentWord;
+        if (!word) return;
+        const w = word.word;
+        const idx = this.letterIndex;
+        const parts = [];
+        for (let i = 0; i < w.length; i++) {
+            parts.push(i < idx ? w.charAt(i) : "_");
+        }
+        // Two-space separator reads as discrete slots in monospace terminal.
+        KC.els.displayText.textContent = parts.join("  ");
+    },
+
+    // Paints #status-bar with the active volume. Visual-only.
+    _renderStatusBar: function() {
+        if (!KC.els || !KC.els.statusBar) return;
+        const v = this.activeVolume;
+        const tag = (typeof v === "number") ? `Volume ${v}` : "Library";
+        KC.els.statusBar.textContent = `The Earth Archive — ${tag}`;
+    },
 
     // Mints a fresh S2 token. Bumping invalidates every prior in-flight chain.
     _newToken: function() {
