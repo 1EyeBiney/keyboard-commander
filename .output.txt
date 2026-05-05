@@ -1,230 +1,79 @@
-Searched codebase for "System Check: Read project_brief.md. Recite the 'Current Status' line exactly as written to confirm uplink.
-Once confirmed, read .rules/audio_engine.md, .rules/sentinels.md, and .rules/namespacing.md to load our architectural constraints into your active memory.
-Task: Systems Architecture Review for a New Mission
-We are designing a new mission module tentatively called "The Earth Archive" (mission_archive.js). 
-Target Audience: Visually impaired users, ESL learners, and absolute beginners who do not know the geography of the keyboard.
-Pacing: Zero time pressure. Purely educational and exploratory.
-Lore: Snippy is defragmenting "Ancient Earth Archives." Amelia asks the Cadet to type simple animal names based on audio cues.
-The Core Mechanics (The Procedural Tutor):
-The engine plays an animal sound (e.g., a cat meow) and Amelia says "Spell Cat."
-The user attempts to type the first letter ('C'). 
-If they press 'C', a "Success/Triumph" sound plays, and they move to the next letter.
-If they press the wrong key (e.g., 'X'), a gentle "Buzz/Wrong" sound plays. 
-Crucially, we need an Acoustic Spatial Mapping system. If they press 'F' instead of 'G', the engine calculates the physical distance on the keyboard and triggers a directional audio file (e.g., "Close. Move one key left.").
-Your objective is NOT to write the mission code yet. Act as our Senior Systems Architect. Please provide a technical design document addressing:
-Data Structure: How should we structure the Vocabulary Array in `GAME_DATA` to support the Intro, Success, and Wrong audio files?
-The Proximity Matrix: How should we structure the 2D [X, Y] coordinate dictionary in JS to map the physical keyboard for distance calculations?
-State Machine: What are the critical states needed in `this.state` to handle the flow of playing audio -> listening for input -> calculating distance -> playing feedback?
-Sentinel Compliance: How do we ensure this highly interactive, slow-paced mission strictly adheres to Sentinel S2 (Async Tokens) and S4 (Ghost-Key Filter)?", 21 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\project_brief.md, c:\nbs\kc\project_brief.md
-Thinking: I need to start by reading the project_brief.md file to understand the context, then look for any .rules files that might be relevant.
-Searching for files matching **/.rules/**
-Read project_brief.md
-Thinking: I should verify whether the .rules folder actually exists before proceeding.
-Read kc
-Read .rules
-Read audio_engine.md
-Read sentinels.md
-Read namespacing.md
-Thinking: I'm pulling up async_state.md to check the S2 details and understand how the state machines and dictationId patterns work in practice.
-Read async_state.md
-Uplink confirmed.
-**Current Status:** Hub initialized. Data Dump (v3.45.2) and Launch Codes (v3.43.2) stabilized. 5-Tier Economy is officially backburnered. Currently focusing on Audio script drafting and beta polish.
-Architectural rulesets loaded:
-audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
-,
-sentinels.md (/c:/nbs/kc/.rules/sentinels.md)
-,
-namespacing.md (/c:/nbs/kc/.rules/namespacing.md)
-, plus
-async_state.md (/c:/nbs/kc/.rules/async_state.md)
-(referenced by S2).
-Technical Design Doc — mission_archive.js ("The Earth Archive")
-1. Data Structure — Vocabulary Array in GAME_DATA
-Recommend a flat array of word records under KC.data.archive.vocab. Each record carries its own audio key bundle so mission code stays asset-agnostic (no string-building inside the loop — keys are looked up, never synthesized, per the Audio Asset Key Contract).
-```
-// kc_data.js  (additive only; do not refactor existing GAME_DATA)
-KC.data.archive = {
-  vocab: [
-    {
-      id: 'cat',
-      word: 'CAT',                  // canonical UPPERCASE; per-letter targets
-      tier: 1,                      // 1=3-letter, 2=4, 3=5 (gated progression)
-      audio: {
-        cue:    'arc_cat_cue',      // diegetic SFX (the meow)
-        prompt: 'amelia_spell_cat', // VO: "Spell Cat."
-        intro:  'amelia_arc_cat_in',// optional flavor lead-in
-        success:'arc_cat_win',      // word-complete fanfare
-      }
-    },
-    // ...
-  ],
-  // Per-letter feedback is GLOBAL, not per-word — keeps the bank lean.
-  letterFeedback: {
-    correct: 'arc_letter_ok',       // short triumph chime (Web Audio synth ok)
-    wrong:   'arc_letter_buzz',     // gentle buzz (Web Audio synth ok)
-  },
-  // Spatial nudge VO bank — see §2 for how these are selected.
-  proximityVO: {
-    // distance buckets
-    adjacent: { L:'amelia_one_left',  R:'amelia_one_right',
-                U:'amelia_one_up',    D:'amelia_one_down' },
-    near:     { L:'amelia_two_left',  R:'amelia_two_right',
-                U:'amelia_two_up',    D:'amelia_two_down' },
-    far:      'amelia_far_off',     // > 3 units: "Way off. Listen again."
-    sameRow:  'amelia_same_row',    // tie-breaker hint
-  }
-};
-```
-Why this shape:
-VO files (`prompt`, `intro`, success-fanfare) route through HTML5 `
-audio_engine.md (/c:/nbs/kc/.rules/audio_engine.md)
+Searched codebase for "Status Confirmed. Architecture approved. 
+Here are the executive decisions for the Open Questions:
+Input Cadence: Strict letter-by-letter. Input must be blocked while Amelia's VO is playing to prevent buffer overflow.
+Retry Policy: Auto-replay the original animal audio and Amelia's prompt after 3 consecutive wrong keys on the same letter.
+Career Gating: This is a parallel "library" mode. It does not feed into the main 9-Quadrant career stats. 
+Zone Selection: Instead of physical keyboard regions, the setup screen will select "Archive Volumes" based on word length and key rarity (e.g., Vol 1: 3-4 letters, Vol 2: 5-6 letters, Vol 3: Rare keys like Q/Z/X).
+Task: Proceed to Code Generation.
+Please write the initial mission_archive.js file. Include:
+The `GAME_DATA.archive_vocab` sample array (give me 2 animals for Vol 1, and 1 for Vol 3).
+The complete fractional Proximity Matrix (the [X,Y] map).
+The core `KC.handlers.archive` and `KC.mission.archive` dual-attachment boilerplate.
+The `handleInput` function demonstrating Sentinel S4 compliance and the distance calculation logic to trigger directional feedback.
+Do not write the setup/UI screen yet. Focus entirely on the core game loop, state machine, and matrix logic. Ensure Sentinel S2 (Async Tokens) is rigidly applied to the audio feedback chains.", 26 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\.output.txt, c:\nbs\kc\assets.js, c:\nbs\kc\kc_core.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\mission_echoc.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_launch.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_race.js, c:\nbs\kc\mission_reflex.js
+Thinking: I'm checking the existing missions to understand the naming patterns and structure before I write new ones.
+Searched for regex playVO|playSFX|playSample|stopActiveAudio (**/kc_audio.js), 11 results. Files: c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js, c:\nbs\kc\kc_audio.js
+Read mission_launch.js, lines 1 to 120
+Read kc_mission_core.js, lines 1 to 80
+Searched for regex activeHandler|handleInput|flush (**/kc_input.js), 20 results. Files: c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js, c:\nbs\kc\kc_input.js
+Read kc_audio.js, lines 155 to 240
+Read kc_input.js, lines 140 to 200
+Thinking: I'm tracing through the input handling flow — `KC.mission.handleInput(e)` acts as the central router, and I need to understand how missions connect through the `activeHandler` mechanism.
+Searched for regex activeHandler|handleInput|abortActiveMission (**/kc_mission_core.js), 14 results. Files: c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js, c:\nbs\kc\kc_mission_core.js
+Thinking: I'm seeing the delegation pattern now: `KC.mission.activeHandler` holds the current mission object, and the global `KC.mission.handleInput()` routes events to whichever handler is active. The user wants to split this into two separate namespaces — `KC.handlers.archive` for managing input and events, and `KC.mission.archive` for the game loop — but there's a naming conflict since `KC.mission` is already the global namespace itself.
+Looking at the existing codebase, missions use the `KC.mission_launch` pattern (top-level properties), not nested under `KC.mission`. However, the namespacing rules specify `KC.handlers.[name]` and `KC.mission.[name]`, so I should follow that convention even though it means adding `KC.mission.archive` as a property alongside the existing `activeHandler` and `handleInput` methods — that's fine since `KC.mission` is just a plain object.
+Now I'm putting together the actual file with the core pieces: sample vocabulary data from different volumes, proximity and letter feedback structures, the key grid constant, the input handler with its event routing, and the mission object with the state machine including distance calculation, proximity picking, grading logic, correct/wrong callbacks, letter prompting, start/stop lifecycle, and replay logic for the three-miss auto-repeat, all using strict S2 tokens.
+Writing the archive mission file...
+Created mission_archive.js
+Created
+mission_archive.js (/c:/nbs/kc/mission_archive.js)
+. Key notes:
+Sentinel posture
+**S4**: `if (e.repeat) return;` is line 1 of `KC.handlers.archive.handleInput`. Nothing precedes it — no diagnostic branches, no Esc shortcut (Esc is yielded to the engine's S6 killswitch in
+kc_input.js (/c:/nbs/kc/kc_input.js)
 ).
-`letterFeedback.correct`/`wrong` are tiny, latency-critical → Web Audio synth or pre-decoded buffers.
-Keys are stored verbatim — never normalized, never lowercased on the fly.
-2. The Proximity Matrix — 2D Coordinate Dictionary
-A static lookup, defined once. Y increases downward (matches physical row layout). X is fractional to model the half-key row stagger (this is what makes "F is one left of G" feel right while "X→C" reads as diagonal).
-```
-// kc_data.js
-KC.data.archive.keyGrid = {
-  // Row 1 (numbers) y=0
-  '1':[0.0,0], '2':[1.0,0], '3':[2.0,0], '4':[3.0,0], '5':[4.0,0],
-  '6':[5.0,0], '7':[6.0,0], '8':[7.0,0], '9':[8.0,0], '0':[9.0,0],
-  // Row 2 (QWERTY) y=1, +0.5 stagger
-  Q:[0.5,1], W:[1.5,1], E:[2.5,1], R:[3.5,1], T:[4.5,1],
-  Y:[5.5,1], U:[6.5,1], I:[7.5,1], O:[8.5,1], P:[9.5,1],
-  // Row 3 (Home) y=2, +0.75
-  A:[0.75,2], S:[1.75,2], D:[2.75,2], F:[3.75,2], G:[4.75,2],
-  H:[5.75,2], J:[6.75,2], K:[7.75,2], L:[8.75,2],
-  // Row 4 (Bottom) y=3, +1.25
-  Z:[1.25,3], X:[2.25,3], C:[3.25,3], V:[4.25,3],
-  B:[5.25,3], N:[6.25,3], M:[7.25,3],
-};
-// Pure helper — lives on the mission, not the global namespace.
-KC.mission.archive._distance = function(pressed, target) {
-  const a = KC.data.archive.keyGrid[pressed];
-  const b = KC.data.archive.keyGrid[target];
-  if (!a || !b) return { bucket:'far', dx:0, dy:0 }; // S1: strict, no coercion
-  const dx = b[0] - a[0];   // +x means target is to the RIGHT of pressed
-  const dy = b[1] - a[1];   // +y means target is DOWN from pressed
-  const cheb = Math.max(Math.abs(dx), Math.abs(dy));
-  let bucket = 'far';
-  if (cheb <= 1.0)      bucket = 'adjacent';
-  else if (cheb <= 2.0) bucket = 'near';
-  return { bucket, dx, dy };
-};
-```
-Direction selection rule (deterministic, whitelist-friendly per S1):
-If `|dy| > |dx|` → vertical: `dy>0 ? 'D' : 'U'`
-Else → horizontal: `dx>0 ? 'R' : 'L'`
-`bucket==='far'` short-circuits to `proximityVO.far` regardless of vector.
-System-modifier keys are never in keyGrid, which structurally enforces the curriculum ban (no Shift/Ctrl/Alt entries to map against).
-3. State Machine — this.state Critical States
-A single string-valued this.state (S1-friendly: switch on ===). Slow-paced, so we need explicit listening gates — no implicit "always-on" input.
-State Meaning Input accepted?
-IDLE Pre-start / between words No
-PROMPTING Playing cue → prompt → "go" tone No (S4 still gates e.repeat)
-LISTENING Awaiting next letter of current word Yes (target letter only matters for grading)
-FEEDBACK_OK Playing correct chime, advancing pointer No
-FEEDBACK_WRONG Playing buzz + spatial VO No
-WORD_COMPLETE Success fanfare, pre-roll next word No
-EXITING S6 killswitch in flight No
-Companion fields on the mission instance:
-```
-this.state         = 'IDLE';
-this.dictationId   = null;          // S2 token
-this.timeouts      = [];            // cleared per async_state.md
-this.wordIndex     = 0;             // pointer into vocab[]
-this.letterIndex   = 0;             // pointer into vocab[wordIndex].word
-this.currentWord   = null;          // cached vocab record
-```
-Flow:
-```
-start() → state=PROMPTING → playCue → playPrompt → state=LISTENING
-   ↑                                                       │
-   │                                                       ▼
-WORD_COMPLETE ← (letterIndex===word.length) ← FEEDBACK_OK ←┤ (correct key)
-                                                           │
-                              FEEDBACK_WRONG ──────────────┘ (wrong key)
-                                     │
-                                     ▼
-                              state=LISTENING (re-arm; same letterIndex)
-```
-The wrong-key branch does not advance letterIndex — pacing is zero-pressure, the user retries until correct. Re-arming back to LISTENING happens inside the chained-VO completion callback, gated by the dictation token.
-4. Sentinel Compliance — S2 (Async Tokens) & S4 (Ghost-Key Filter)
-S4 — Ghost-Key Filter (the easy one, but easy to get wrong)
-```
-KC.handlers.archive = {
-  handleInput(e) {
-    if (e.repeat) return;                          // S4: ABSOLUTE first gate
-    if (KC.mission.archive.state !== 'LISTENING')  // S1: strict equality
-        return;
-    KC.mission.archive._grade(e.key);
-  }
-};
-```
-Critical points:
-Diagnostic keys (PageUp etc.) live **after** the `e.repeat` gate — no exceptions.
-Esc-to-exit is also gated by the state machine; it triggers the S6 killswitch, not a direct hub jump.
-The state guard means held arrow keys, screen-reader review-cursor chatter, and modifier latches all silently drop while VO is playing.
-S2 — Async Token (dictationId) for the chained VO + retry loop
-The danger here is real: a slow user may press a wrong key while the prompt VO is still finishing, or press a correct key during the wrong-key spatial-feedback VO. Without tokens, two callback chains race and Amelia talks over herself.
-```
-_speakAndArm(currentDictation) {
-  if (this.dictationId !== currentDictation) return;     // S2 gate #1
-  KC.audio.playVO(this.currentWord.audio.cue, () => {
-    if (this.dictationId !== currentDictation) return;   // S2 gate #2
-    KC.audio.playVO(this.currentWord.audio.prompt, () => {
-      if (this.dictationId !== currentDictation) return; // S2 gate #3
-      this.state = 'LISTENING';
-    });
-  });
-},
-_grade(key) {
-  const target = this.currentWord.word[this.letterIndex];
-  if (key.toUpperCase() === target) {                    // S1: explicit ===
-    this._onCorrect();
-  } else {
-    this._onWrong(key.toUpperCase(), target);
-  }
-},
-_onWrong(pressed, target) {
-  this.state = 'FEEDBACK_WRONG';
-  const tok = ++this.dictationId === null ? Date.now() : Date.now();
-  this.dictationId = tok;                                // invalidates prior chain
-  KC.audio.playSFX(KC.data.archive.letterFeedback.wrong);
-  const { bucket, dx, dy } = KC.mission.archive._distance(pressed, target);
-  const voKey = this._pickProximityVO(bucket, dx, dy);
-  const t = setTimeout(() => {
-    if (this.dictationId !== tok) return;                // S2 gate
-    KC.audio.playVO(voKey, () => {
-      if (this.dictationId !== tok) return;              // S2 gate
-      this.state = 'LISTENING';                          // re-arm
-    });
-  }, 250);
-  this.timeouts.push(t);
-},
-```
-Why a fresh token on every wrong-press: if the user mashes two wrong keys quickly, the second press invalidates the first VO chain mid-flight, so we never get "Move one key left" overlapping with "Move two keys right." The same token-bump is used on _onCorrect and on word advance.
-stop() (S3 + token clearing per
-async_state.md (/c:/nbs/kc/.rules/async_state.md)
-)
-```
-stop() {
-  this.state = 'EXITING';
-  this.dictationId = null;                  // invalidates every in-flight callback
-  this.timeouts.forEach(clearTimeout);      // explicit iterate (not = [])
-  this.timeouts = [];
-  KC.audio.stopActiveAudio?.();
-  this.state = 'IDLE';
-}
-```
-Killswitch on exit (S6)
-Esc handler must fire in this exact order: stopIntro() → stopActiveAudio() → KC.input.flush() → KC.hub.enterHub(). The mission's own stop() is invoked as part of the second step's chain (or just before flush()), depending on existing convention — match
-mission_launch.js (/c:/nbs/kc/mission_launch.js)
-for parity.
-Open Questions Before Coding
-**Letter-by-letter vs. typeahead buffer?** Recommend strict letter-by-letter (zero pressure, blocks input during VO) — confirm.
-**Retry policy on wrong key:** infinite retries, or after N misses auto-play the cue again? Suggest auto-replay cue after 3 consecutive misses on the same letter (no penalty).
-**Word-tier gating:** does Archive feed the 9-Quadrant curriculum, or is it a parallel "library" mode? Affects whether progress writes to `kbc_profile_*`.
-**Wallet writes:** with the 5-Tier economy backburnered, do completions still call `KC.core.saveProgress()` for a no-op stub, or skip entirely?
-Awaiting your call on these before drafting mission_archive.js.
+**S2**: Every async leg captures `tok = this._newToken()` and re-checks `this.dictationId !== tok` inside each callback. Tokens are bumped on `_promptCurrentWord`, `_onCorrect`, `_onWrong`, `_onWordComplete` — so a fresh wrong-press *during* spatial VO invalidates the prior chain rather than overlapping it.
+**S1**:
+state !== "LISTENING" (c:\nbs\kc\mission_launch.js:14)
+gate on input;
+pressedUpper === target (c:\nbs\kc\mission_launch.js:148)
+strict compare; whitelisted bucket names; missing grid entries fall to &quot;far&quot; rather than coerce.
+**S3**:
+stop() (c:\nbs\kc\kc_audio.js:83)
+iterates
+timeouts.forEach(clearTimeout) (c:\BCI\VSCode-win32-x64-1.116.0\560a9dba96\resources\app\extensions\node_modules\typescript\lib\lib.dom.d.ts:41734)
+, nulls token, calls
+stopActiveAudio() (c:\nbs\kc\kc_audio.js:222)
+.
+endMission() (c:\nbs\kc\mission_launch.js:454)
+is wired so engine
+abortActiveMission (c:\nbs\kc\kc_mission_core.js:680)
+finds it.
+Executive decisions wired in
+Letter-by-letter cadence enforced via
+state === "LISTENING" (c:\nbs\kc\mission_launch.js:14)
+gate — input is structurally dead during PROMPTING / FEEDBACK / WORD_COMPLETE.
+2. consecutiveMisses resets on correct letter; at 3 it triggers _promptCurrentWord() (replays cue + prompt) inside _onWrong's tail callback.
+3. Library-mode posture: no
+KC.core.saveProgress() (c:\nbs\kc\kc_audio.js:3)
+calls, no wallet writes, _onArchiveComplete simply announces.
+4. Volume gating threaded through
+init({ volume }) (c:\nbs\kc\kc_audio.js:66)
+— setup screen (next task) just passes the chosen volume.
+Sample data
+Vol 1: CAT, DOG. Vol 3: FOX. Each carries `{ cue, prompt, success }` keys.
+Global `archive_letterFeedback` (correct/wrong) + `archive_proximityVO` (adjacent/near/far + sameKey safety).
+Proximity matrix
+47 keys (digits + 26 alpha), Y=0..3 top-to-bottom, fractional X stagger (0.50 / 0.75 / 1.25) so F→G is `(1.0, 0)` → adjacent-right while X→C is `(1.0, -1)` → adjacent-up.
+Modifier keys deliberately absent — curriculum ban enforced by data shape.
+What's NOT here (per your scope)
+No setup/UI screen, no Hub registration, no
+audio_bank (c:\nbs\kc\kc_audio.js:163)
+entries (those keys are reserved names, ready for the asset team).
+No engine wiring inside
+kc_mission_core.js (/c:/nbs/kc/kc_mission_core.js)
+yet — that hookup (script tag in
+index.html (/c:/nbs/kc/index.html)
+,
+activeHandler = KC.mission.archive (c:\nbs\kc\kc_mission_core.js:6)
+in the launch path) is a separate, surgical patch when you're ready.

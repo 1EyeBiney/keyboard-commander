@@ -861,7 +861,20 @@ const GAME_DATA = {
       "explode_7": "audio/sfx/hazards/explode_7.mp3",
       "phase_1_snu": "audio/char/phase_1_snu.mp3",
       "phase_2_snu": "audio/char/phase_2_snu.mp3",
-      "phase_3_snu": "audio/char/phase_3_snu.mp3"
+      "phase_3_snu": "audio/char/phase_3_snu.mp3",
+
+      // Earth Archive Mission (v3.46.1) — keys verbatim per Audio Asset Key Contract
+      "dir_down_1_snu": "audio/mg_archive/dir_down_1_snu.mp3",
+      "dir_left_1_snu": "audio/mg_archive/dir_left_1_snu.mp3",
+      "dir_right_1_snu": "audio/mg_archive/dir_right_1_snu.mp3",
+      "dir_up_1_snu": "audio/mg_archive/dir_up_1_snu.mp3",
+      "intro_bear_snu": "audio/mg_archive/intro_bear_snu.mp3",
+      "intro_lion_snu": "audio/mg_archive/intro_lion_snu.mp3",
+      "locate_b_snu": "audio/mg_archive/locate_b_snu.mp3",
+      "locate_l_snu": "audio/mg_archive/locate_l_snu.mp3",
+      "success_bear_snu": "audio/mg_archive/success_bear_snu.mp3",
+      "success_lion_snu": "audio/mg_archive/success_lion_snu.mp3",
+      "sym_caratt_snu": "audio/symbols/sym_caratt_snu.mp3"
   },
   
   resources: [
