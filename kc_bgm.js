@@ -19,7 +19,8 @@ KC.bgm = {
         data: ["bmu_data1", "bmu_data2", "bmu_data3", "bmu_data4", "bmu_data5", "bmu_data6", "bmu_data7", "bmu_data8"],
         keyboard: ["bmu_keyboard1", "bmu_keyboard2", "bmu_keyboard3", "bmu_keyboard4", "bmu_keyboard5", "bmu_keyboard6", "bmu_keyboard7", "bmu_keyboard8"],
         systems: ["bmu_systems1", "bmu_systems2", "bmu_systems3", "bmu_systems4", "bmu_systems5", "bmu_systems6", "bmu_systems7", "bmu_systems8"],
-        launch: ["bmu_launch1", "bmu_launch2", "bmu_launch3", "bmu_launch4", "bmu_launch5", "bmu_launch6", "bmu_launch7", "bmu_launch8"]
+        launch: ["bmu_launch1", "bmu_launch2", "bmu_launch3", "bmu_launch4", "bmu_launch5", "bmu_launch6", "bmu_launch7", "bmu_launch8"],
+        bluegrass: ["mu_bluegrass1", "mu_bluegrass2", "mu_bluegrass3", "mu_bluegrass4", "mu_bluegrass5", "mu_bluegrass6", "mu_bluegrass7", "mu_bluegrass8"]
     },
 
     init: function() {
@@ -172,7 +173,7 @@ KC.bgm = {
             KC.core.saveProgress();
         }
         
-        const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade" };
+        const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade", bluegrass: "Bluegrass" };
         let styleName = styleNames[this.currentStyle] || this.currentStyle;
         KC.core.announce(`Music Style: ${styleName}`);
         
