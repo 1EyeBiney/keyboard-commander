@@ -1,74 +1,13 @@
-Searched codebase for "Task: Watchdog Update Cycle - Version 3.48.0 (BGM Expansion).
-We are adding a new "Bluegrass" background music suite to the game.
-Review `kc_data.js`. Locate the `GAME_DATA.audio_bank` object.
- * Inject the new Bluegrass assets provided at the bottom of this prompt into the dictionary. 
- * Maintain S8 (Anti-Truncation): Apply this diff surgically. Do not rewrite the entire 600-line dictionary, just inject the new keys.
-Review `kc_hub.js`. We need to expose this new style in the Settings menu.
- * Locate the `settingsMenu` object. Add `"bluegrass"` to the `musicStyles` array.
- * Locate `renderSettingsMenu()`. Update the `styleNames` object so `"bluegrass"` maps to the display string `"Bluegrass"`.
-Apply these surgical diffs directly to the files.
-Update `.changelog.md` with a new entry for v3.48.0 noting the BGM Expansion.
-New Assets to Inject:
-    "mu_bluegrass1": "audio/music/mu_bluegrass1.mp3",
-    "mu_bluegrass2": "audio/music/mu_bluegrass2.mp3",
-    "mu_bluegrass3": "audio/music/mu_bluegrass3.mp3",
-    "mu_bluegrass4": "audio/music/mu_bluegrass4.mp3",
-    "mu_bluegrass5": "audio/music/mu_bluegrass5.mp3",
-    "mu_bluegrass6": "audio/music/mu_bluegrass6.mp3",
-    "mu_bluegrass7": "audio/music/mu_bluegrass7.mp3",
-    "mu_bluegrass8": "audio/music/mu_bluegrass8.mp3",", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output_gap analysis.txt, c:\nbs\kc\asset_mapper.js, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_input.js
-Thinking: Let me start by reading the relevant files to understand the current state of the codebase before making any changes.
-Created 6 todos. 6 items: Read kc_data.js audio_bank (not-started); Read kc_hub.js settingsMenu (not-started); Read .changelog.md (not-started); Inject bluegrass assets into kc_data.js (not-started); Update musicStyles and styleNames in kc_hub.js (not-started); Update .changelog.md with v3.48.0 (not-started)
-Starting: Read kc_data.js audio_bank (1/6). 6 items: Read kc_data.js audio_bank (in-progress); Read kc_hub.js settingsMenu (in-progress); Read .changelog.md (in-progress); Inject bluegrass assets into kc_data.js (not-started); Update musicStyles and styleNames in kc_hub.js (not-started); Update .changelog.md with v3.48.0 (not-started)
-Searched for text audio_bank (**/kc_data.js), 1 result. Files: c:\nbs\kc\kc_data.js
-Searched for regex musicStyles|styleNames|settingsMenu (**/kc_hub.js), 14 results. Files: c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
-Searched for files matching **/.changelog.md, 1 match. Files: c:\nbs\kc\.changelog.md
-Thinking: Now let me read the relevant sections of each file.
-Searched for regex mu_|audio/music (**/kc_data.js), 20 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
-Read .changelog.md, lines 1 to 30
-Read kc_hub.js, lines 5 to 15
-Thinking: Now let me read the area around the music entries in kc_data.js to see the full list and find a good insertion point.
-Read kc_data.js, lines 718 to 760
-Thinking: Now I have enough context to make all three changes. Let me proceed with:
-1. Injecting bluegrass assets after the arcade entries in kc_data.js
-2. Adding "bluegrass" to musicStyles in kc_hub.js
-3. Adding "bluegrass" to styleNames in kc_hub.js
-4. Updating .changelog.md
-All context gathered. Now applying the three surgical diffs.
-Starting: Inject bluegrass assets into kc_data.js (4/6). 6 items: Read kc_data.js audio_bank (completed); Read kc_hub.js settingsMenu (completed); Read .changelog.md (completed); Inject bluegrass assets into kc_data.js (in-progress); Update musicStyles and styleNames in kc_hub.js (not-started); Update .changelog.md with v3.48.0 (not-started)
-Replacing 5 lines with 15 lines in kc_data.js, kc_hub.js
-```
-```
-```
-```
-```
-```
-Starting: Update .changelog.md with v3.48.0 (6/6). 6 items: Read kc_data.js audio_bank (completed); Read kc_hub.js settingsMenu (completed); Read .changelog.md (completed); Inject bluegrass assets into kc_data.js (completed); Update musicStyles and styleNames in kc_hub.js (completed); Update .changelog.md with v3.48.0 (in-progress)
-Replacing 1 lines with 7 lines in .changelog.md
-```
-```
-```
-```
-Completed: Update .changelog.md with v3.48.0 (6/6). 6 items: Read kc_data.js audio_bank (completed); Read kc_hub.js settingsMenu (completed); Read .changelog.md (completed); Inject bluegrass assets into kc_data.js (completed); Update musicStyles and styleNames in kc_hub.js (completed); Update .changelog.md with v3.48.0 (completed)
-All three files updated. Summary of changes:
-**
-kc_data.js#L745 (/c:/nbs/kc/kc_data.js:745)
-** — Injected 8 new entries under a // BGM Expansion - Bluegrass Suite (v3.48.0) comment block, placed after the existing arcade suite and before the SNU voice assets. No surrounding lines touched.
-**
-kc_hub.js#L8 (/c:/nbs/kc/kc_hub.js:8)
-** — Two surgical edits:
-Line 8:
-"bluegrass" (c:\nbs\kc\kc_hub.js:628)
-appended to
-musicStyles (c:\nbs\kc\kc_hub.js:8)
-array.
-Line 628:
-bluegrass: "Bluegrass" (c:\nbs\kc\kc_hub.js:628)
-appended to
-styleNames (c:\nbs\kc\kc_hub.js:628)
-object in
-renderSettingsMenu() (c:\nbs\kc\kc_hub.js:626)
-.
-**
-.changelog.md#L1 (/c:/nbs/kc/.changelog.md:1)
-** — New v3.48.0 entry prepended at the top of the log.
+Task: Watchdog Update Cycle - Version 3.48.1 (BGM Engine Routing).
+We added "bluegrass" to the UI in v3.48.0, but the playback engine is failing silently because the playlist isn't registered.
+
+1. Review `kc_bgm.js`. Locate the `KC.bgm.playlists` object.
+    * Inject the new bluegrass playlist at the end of the object: 
+      `bluegrass: ["mu_bluegrass1", "mu_bluegrass2", "mu_bluegrass3", "mu_bluegrass4", "mu_bluegrass5", "mu_bluegrass6", "mu_bluegrass7", "mu_bluegrass8"]`
+2. Locate the `cycleStyle` function within `kc_bgm.js`.
+    * Find the `styleNames` mapping object. 
+    * Add `bluegrass: "Bluegrass"` to the list so the TTS engine correctly announces the style when cycling via hotkeys.
+3. Apply these surgical diffs directly to `kc_bgm.js`.
+4. Update `.changelog.md` with a new entry for v3.48.1 noting the BGM Engine Routing fix.
+
+Maintain strict adherence to S8 (Anti-Truncation). Do not rewrite the entire file, just inject the missing data.

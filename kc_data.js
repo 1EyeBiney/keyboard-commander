@@ -754,6 +754,16 @@ const GAME_DATA = {
       "mu_bluegrass7": "audio/music/mu_bluegrass7.mp3",
       "mu_bluegrass8": "audio/music/mu_bluegrass8.mp3",
 
+      // BGM Expansion - Celestial Suite (v3.49.0)
+      "mu_celestial1": "audio/music/mu_celestial1.mp3",
+      "mu_celestial2": "audio/music/mu_celestial2.mp3",
+      "mu_celestial3": "audio/music/mu_celestial3.mp3",
+      "mu_celestial4": "audio/music/mu_celestial4.mp3",
+      "mu_celestial5": "audio/music/mu_celestial5.mp3",
+      "mu_celestial6": "audio/music/mu_celestial6.mp3",
+      "mu_celestial7": "audio/music/mu_celestial7.mp3",
+      "mu_celestial8": "audio/music/mu_celestial8.mp3",
+
       // SNU (Belle) Voice Assets (v3.34.0)
       "char_a_snu": "audio/alpha/char_a_snu.mp3",
       "char_b_snu": "audio/alpha/char_b_snu.mp3",

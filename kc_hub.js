@@ -5,7 +5,7 @@ KC.hub = {
     settingsMenu: {
         themes: ["matrix", "amber", "solar", "blue", "inverse", "violet", "moon", "blueprint"],
         fontSizes: ["100", "125", "150", "200"],
-        musicStyles: ["default", "spaghetti", "arcade", "bluegrass"],
+        musicStyles: ["default", "spaghetti", "arcade", "bluegrass", "celestial"],
         volumeStages: [0, 5, 10, 20, 30, 40],
         tacticalVoices: ["Amelia", "Belle", "Per-Mission"],
         row: 0,
@@ -625,7 +625,7 @@ KC.hub = {
 
     renderSettingsMenu: function(isEntering = false) {
         const sm = this.settingsMenu;
-        const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade", bluegrass: "Bluegrass" };
+        const styleNames = { default: "Default", spaghetti: "Spaghetti Western", arcade: "Arcade", bluegrass: "Bluegrass", celestial: "Celestial" };
         const rowLabels = ["Theme", "Font Size", "Music Style", "Volume", "Tactical Voice"];
         const rowValues = [
             sm.themes[sm.themeIndex],
