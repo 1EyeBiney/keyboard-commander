@@ -1,13 +1,82 @@
-Task: Watchdog Update Cycle - Version 3.48.1 (BGM Engine Routing).
-We added "bluegrass" to the UI in v3.48.0, but the playback engine is failing silently because the playlist isn't registered.
-
-1. Review `kc_bgm.js`. Locate the `KC.bgm.playlists` object.
-    * Inject the new bluegrass playlist at the end of the object: 
-      `bluegrass: ["mu_bluegrass1", "mu_bluegrass2", "mu_bluegrass3", "mu_bluegrass4", "mu_bluegrass5", "mu_bluegrass6", "mu_bluegrass7", "mu_bluegrass8"]`
-2. Locate the `cycleStyle` function within `kc_bgm.js`.
-    * Find the `styleNames` mapping object. 
-    * Add `bluegrass: "Bluegrass"` to the list so the TTS engine correctly announces the style when cycling via hotkeys.
-3. Apply these surgical diffs directly to `kc_bgm.js`.
-4. Update `.changelog.md` with a new entry for v3.48.1 noting the BGM Engine Routing fix.
-
-Maintain strict adherence to S8 (Anti-Truncation). Do not rewrite the entire file, just inject the missing data.
+Searched codebase for "Task: Watchdog Update Cycle - Version 3.49.0 (BGM Expansion - Celestial Suite).
+We are adding a new "Celestial" background music suite to the game. Learning from the Bluegrass update, we will hit all three required files in one pass.
+Review `kc_data.js`. Locate `GAME_DATA.audio_bank`.
+ * Inject the new Celestial assets provided at the bottom of this prompt into the dictionary. 
+Review `kc_hub.js`. Locate the `settingsMenu` object and `renderSettingsMenu()`.
+ * Add `"celestial"` to the `musicStyles` array.
+ * Update the `styleNames` mapping object inside the render function so `"celestial"` maps to `"Celestial"`.
+Review `kc_bgm.js`. Locate `KC.bgm.playlists` and `cycleStyle()`.
+ * Inject the playlist: `celestial: ["mu_celestial1", "mu_celestial2", "mu_celestial3", "mu_celestial4", "mu_celestial5", "mu_celestial6", "mu_celestial7", "mu_celestial8"]`
+ * Add `celestial: "Celestial"` to the `styleNames` mapping inside `cycleStyle()`.
+Update `.changelog.md` with the new v3.49.0 entry.
+Apply these surgical diffs directly to the files. Maintain strict adherence to S8 (Anti-Truncation). Do not rewrite entire files; only inject the new keys.
+New Assets to Inject into kc_data.js:
+    "mu_celestial1": "audio/music/mu_celestial1.mp3",
+    "mu_celestial2": "audio/music/mu_celestial2.mp3",
+    "mu_celestial3": "audio/music/mu_celestial3.mp3",
+    "mu_celestial4": "audio/music/mu_celestial4.mp3",
+    "mu_celestial5": "audio/music/mu_celestial5.mp3",
+    "mu_celestial6": "audio/music/mu_celestial6.mp3",
+    "mu_celestial7": "audio/music/mu_celestial7.mp3",
+    "mu_celestial8": "audio/music/mu_celestial8.mp3",", 24 results. Files: c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.changelog.md, c:\nbs\kc\.output.txt, c:\nbs\kc\asset_mapper.js, c:\nbs\kc\assets.js, c:\nbs\kc\audio_bank_update.txt, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_hub.js, c:\nbs\kc\kc_hub.js
+Thinking: Let me read the current state of the relevant sections in all files before making changes.
+I'll read all the relevant injection points in parallel before editing.
+Searched for text mu_bluegrass8 (**/kc_data.js), 2 results. Files: c:\nbs\kc\kc_data.js, c:\nbs\kc\kc_data.js
+Read kc_hub.js, lines 8 to 8
+Read kc_hub.js, lines 628 to 628
+Read kc_bgm.js, lines 21 to 23
+Read kc_bgm.js, lines 175 to 175
+Read .changelog.md, lines 1 to 5
+Thinking: The changelog already has a partial v3.49.0 entry. I need to check the exact content around it to avoid duplicates. Let me read more of the changelog.
+Also, the `kc_bgm.js` line 175 returned empty - let me get the right line for `styleNames` in `cycleStyle`.
+The changelog already has a partial v3.49.0 entry. Let me check it fully and get the exact
+styleNames (c:\nbs\kc\kc_bgm.js:176)
+line in
+kc_bgm.js (/c:/nbs/kc/kc_bgm.js)
+.
+Read .changelog.md, lines 1 to 20
+Searched for text styleNames (**/kc_bgm.js), 2 results. Files: c:\nbs\kc\kc_bgm.js, c:\nbs\kc\kc_bgm.js
+Read kc_data.js, lines 753 to 758
+Changelog is already complete. All injection points confirmed. Applying all five surgical edits in one pass.
+Replacing 8 lines with 19 lines in kc_data.js, kc_hub.js, kc_bgm.js
+```
+```
+```
+```
+```
+```
+```
+```
+All five injection points applied. The changelog was already fully written. Summary:
+**
+kc_data.js (/c:/nbs/kc/kc_data.js)
+** — 8 celestial entries injected under a // BGM Expansion - Celestial Suite (v3.49.0) comment, after the bluegrass block.
+**
+kc_hub.js (/c:/nbs/kc/kc_hub.js)
+** —
+"celestial" (c:\nbs\kc\kc_bgm.js:24)
+appended to
+musicStyles (c:\nbs\kc\kc_hub.js:8)
+array;
+celestial: "Celestial" (c:\nbs\kc\kc_bgm.js:24)
+added to
+styleNames (c:\nbs\kc\kc_bgm.js:177)
+in
+renderSettingsMenu() (c:\nbs\kc\kc_hub.js:626)
+.
+**
+kc_bgm.js (/c:/nbs/kc/kc_bgm.js)
+** —
+celestial (c:\nbs\kc\kc_bgm.js:24)
+playlist appended to
+KC.bgm.playlists (c:\nbs\kc\kc_bgm.js:15)
+;
+celestial: "Celestial" (c:\nbs\kc\kc_bgm.js:24)
+added to
+styleNames (c:\nbs\kc\kc_bgm.js:177)
+in
+cycleStyle() (c:\nbs\kc\kc_bgm.js:165)
+.
+**
+.changelog.md (/c:/nbs/kc/.changelog.md)
+** — Already present, no changes needed.
