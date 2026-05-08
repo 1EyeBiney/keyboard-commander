@@ -12,8 +12,8 @@ function walkDir(dir, fileList = []) {
         if (fs.statSync(filePath).isDirectory()) {
             walkDir(filePath, fileList); 
         } else {
-            // THE LASER FILTER: Only grab files that end exactly with "snu.mp3"
-            if (file.endsWith('snu.mp3')) {
+            // THE LASER FILTER: Only grab files starting with "mu_bluegrass"
+            if (file.startsWith('mu_bluegrass') && file.endsWith('.mp3')) {
                 fileList.push(filePath);
             }
         }
@@ -31,7 +31,7 @@ function generateNewAudioBankEntries() {
     const existingData = fs.readFileSync(dataFilePath, 'utf8');
     const allAudioFiles = walkDir(baseAudioFolder);
     
-    let outputString = "/* NEW 'SNU' ASSETS ONLY - PASTE INTO kc_data.js */\n\n";
+    let outputString = "/* NEW 'BLUEGRASS' ASSETS ONLY - PASTE INTO kc_data.js */\n\n";
     let newAssetCount = 0;
 
     allAudioFiles.forEach(filePath => {
@@ -48,8 +48,8 @@ function generateNewAudioBankEntries() {
 
     const outputFile = path.join(__dirname, 'audio_bank_update.txt');
     fs.writeFileSync(outputFile, outputString);
-    
-    console.log(`Success! Found ${newAssetCount} new SNU assets. Saved to: ${outputFile}`);
+    console.log(`Mission Accomplished: Generated ${newAssetCount} new entries in audio_bank_update.txt`);
 }
 
+// Execute the sweep
 generateNewAudioBankEntries();

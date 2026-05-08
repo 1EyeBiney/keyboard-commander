@@ -744,6 +744,16 @@ const GAME_DATA = {
       "mu_arcade7": "audio/music/mu_arcade7.mp3",
       "mu_arcade8": "audio/music/mu_arcade8.mp3",
 
+      // BGM Expansion - Bluegrass Suite (v3.48.0)
+      "mu_bluegrass1": "audio/music/mu_bluegrass1.mp3",
+      "mu_bluegrass2": "audio/music/mu_bluegrass2.mp3",
+      "mu_bluegrass3": "audio/music/mu_bluegrass3.mp3",
+      "mu_bluegrass4": "audio/music/mu_bluegrass4.mp3",
+      "mu_bluegrass5": "audio/music/mu_bluegrass5.mp3",
+      "mu_bluegrass6": "audio/music/mu_bluegrass6.mp3",
+      "mu_bluegrass7": "audio/music/mu_bluegrass7.mp3",
+      "mu_bluegrass8": "audio/music/mu_bluegrass8.mp3",
+
       // SNU (Belle) Voice Assets (v3.34.0)
       "char_a_snu": "audio/alpha/char_a_snu.mp3",
       "char_b_snu": "audio/alpha/char_b_snu.mp3",

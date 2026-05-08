@@ -1,13 +1,10 @@
-/* NEW 'SNU' ASSETS ONLY - PASTE INTO kc_data.js */
+/* NEW 'BLUEGRASS' ASSETS ONLY - PASTE INTO kc_data.js */
 
-    "dir_down_1_snu": "audio/mg_archive/dir_down_1_snu.mp3",
-    "dir_left_1_snu": "audio/mg_archive/dir_left_1_snu.mp3",
-    "dir_right_1_snu": "audio/mg_archive/dir_right_1_snu.mp3",
-    "dir_up_1_snu": "audio/mg_archive/dir_up_1_snu.mp3",
-    "intro_bear_snu": "audio/mg_archive/intro_bear_snu.mp3",
-    "intro_lion_snu": "audio/mg_archive/intro_lion_snu.mp3",
-    "locate_b_snu": "audio/mg_archive/locate_b_snu.mp3",
-    "locate_l_snu": "audio/mg_archive/locate_l_snu.mp3",
-    "success_bear_snu": "audio/mg_archive/success_bear_snu.mp3",
-    "success_lion_snu": "audio/mg_archive/success_lion_snu.mp3",
-    "sym_caratt_snu": "audio/symbols/sym_caratt_snu.mp3",
+    "mu_bluegrass1": "audio/music/mu_bluegrass1.mp3",
+    "mu_bluegrass2": "audio/music/mu_bluegrass2.mp3",
+    "mu_bluegrass3": "audio/music/mu_bluegrass3.mp3",
+    "mu_bluegrass4": "audio/music/mu_bluegrass4.mp3",
+    "mu_bluegrass5": "audio/music/mu_bluegrass5.mp3",
+    "mu_bluegrass6": "audio/music/mu_bluegrass6.mp3",
+    "mu_bluegrass7": "audio/music/mu_bluegrass7.mp3",
+    "mu_bluegrass8": "audio/music/mu_bluegrass8.mp3",
